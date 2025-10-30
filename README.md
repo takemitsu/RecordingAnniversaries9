@@ -12,6 +12,7 @@
 - **Tailwind CSS v4** - スタイリング
 - **Biome** - Linter/Formatter
 - **dayjs** - 日付処理
+- **next-devtools-mcp** - 開発支援
 
 ## プロジェクト構造
 
@@ -49,7 +50,7 @@ recording-anniversaries9/
 │   ├── SETUP.md          # セットアップ手順
 │   └── COMPLETED.md      # 完了した作業
 ├── auth.ts               # Auth.js 設定
-├── middleware.ts         # 認証ミドルウェア
+├── proxy.ts              # Next.js 16 認証プロキシ
 ├── drizzle.config.ts     # Drizzle 設定
 └── .env.local            # 環境変数（要設定）
 ```
