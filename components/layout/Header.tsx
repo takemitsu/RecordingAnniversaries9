@@ -14,6 +14,7 @@ interface HeaderProps {
 export function Header({ session, today }: HeaderProps) {
   const [showingNavigationDropdown, setShowingNavigationDropdown] =
     useState(false);
+  const [showUserDropdown, setShowUserDropdown] = useState(false);
   const pathname = usePathname();
 
   const isActive = (path: string) => pathname === path;
@@ -59,35 +60,62 @@ export function Header({ session, today }: HeaderProps) {
                 >
                   編集
                 </Link>
-                <Link
-                  href="/profile"
-                  className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${
-                    isActive("/profile")
-                      ? "border-sky-500 text-gray-900 dark:text-white"
-                      : "border-transparent text-gray-500 dark:text-gray-400 hover:border-gray-300 hover:text-gray-700 dark:hover:text-gray-300"
-                  }`}
-                >
-                  設定
-                </Link>
               </div>
             )}
           </div>
 
           {/* User Info (Desktop) */}
-          <div className="hidden sm:ml-6 sm:flex sm:items-center sm:gap-4">
-            {/* User Dropdown */}
+          <div className="hidden sm:ml-6 sm:flex sm:items-center">
             {session ? (
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-600 dark:text-gray-400">
-                  {session.user?.name}
-                </span>
+              <div className="relative">
                 <button
                   type="button"
-                  onClick={() => signOut({ callbackUrl: "/" })}
-                  className="text-sm text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
+                  onClick={() => setShowUserDropdown(!showUserDropdown)}
+                  className="flex items-center text-sm text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white focus:outline-none"
                 >
-                  ログアウト
+                  {session.user?.name}
+                  <svg
+                    className="ml-1 h-4 w-4"
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
                 </button>
+
+                {showUserDropdown && (
+                  <>
+                    {/* Backdrop */}
+                    <div
+                      className="fixed inset-0 z-10"
+                      onClick={() => setShowUserDropdown(false)}
+                    />
+                    {/* Dropdown Menu */}
+                    <div className="absolute right-0 z-20 mt-2 w-48 rounded-md shadow-lg bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5">
+                      <div className="py-1">
+                        <Link
+                          href="/profile"
+                          className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                          onClick={() => setShowUserDropdown(false)}
+                        >
+                          設定
+                        </Link>
+                        <button
+                          type="button"
+                          onClick={() => signOut({ callbackUrl: "/" })}
+                          className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                        >
+                          ログアウト
+                        </button>
+                      </div>
+                    </div>
+                  </>
+                )}
               </div>
             ) : (
               <Link
