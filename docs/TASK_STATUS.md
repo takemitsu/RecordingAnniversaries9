@@ -29,31 +29,45 @@
 
 #### ✅ 完了
 - Drizzle スキーマ定義
-  - `lib/db/schema.ts` - users, entities, days テーブル
+  - `lib/db/schema.ts` - users, entities, days, accounts, auth_sessions テーブル
   - ソフトデリート対応
   - DATE型使用
 
 - Drizzle 設定
-  - `drizzle.config.ts` 作成
+  - `drizzle.config.ts` 作成（tablesFilter設定済み）
   - `lib/db/index.ts` - DB接続設定
   - `lib/db/queries.ts` - クエリヘルパー関数
+
+- Drizzle マイグレーション
+  - `scripts/migrate.ts` - マイグレーション実行スクリプト
+  - `drizzle/0000_add_auth_tables.sql` - Auth.js用テーブル
+  - マイグレーション履歴管理
 
 ### Phase 3: 認証機能 ✅ 完了
 
 #### ✅ 完了
 - Auth.js v5 設定
   - `auth.ts` - Google OAuth設定
+  - カスタムアダプター実装（AUTO_INCREMENT対応）
   - Drizzle アダプター統合
-  - セッション管理
+  - セッション管理（database strategy）
+
+- Auth.js用DBテーブル
+  - `accounts` テーブル作成
+  - `auth_sessions` テーブル作成
+  - Drizzleマイグレーション実行（generate + migrate）
+  - `drizzle.config.ts`でtablesFilter設定
 
 - 認証ルート
   - `app/api/auth/[...nextauth]/route.ts`
-  - `middleware.ts` - 認証ミドルウェア
+  - `proxy.ts` - Next.js 16認証プロキシ
   - `lib/auth-helpers.ts` - 認証ヘルパー関数
 
-#### ⚠️ 注意事項
-- Auth.js Drizzle Adapterが必要とするテーブル（accounts, sessions等）が既存DBに存在しない可能性
-- 必要に応じてJWT戦略への切り替えを検討
+- Google OAuth動作確認
+  - ログイン成功
+  - ユーザー作成（bigint AUTO_INCREMENT）
+  - セッション管理
+  - ダッシュボードアクセス
 
 ### Phase 4: コアロジック ✅ 完了
 
@@ -66,29 +80,34 @@
   - `app/actions/entities.ts` - Entities CRUD
   - `app/actions/days.ts` - Days CRUD
 
-### Phase 5: UI実装 🔄 進行中
+### Phase 5: UI実装 ✅ 完了
 
-#### ⏳ 未着手
+#### ✅ 完了
 - 共通コンポーネント
-  - Layout
-  - Header
-  - Navigation
+  - `app/layout.tsx` - ルートレイアウト
+  - `components/layout/Header.tsx` - ヘッダー
+  - ナビゲーション
 
 - 認証画面
-  - ログイン
-  - サインアップ
+  - `app/auth/signin/page.tsx` - ログインページ
   - Google OAuth ボタン
-  - Passkey 登録・認証
+  - 自動リダイレクト
 
 - メイン画面
-  - ダッシュボード
-  - Entities 一覧・作成・編集・削除
-  - Days 一覧・作成・編集・削除
+  - `app/dashboard/page.tsx` - ダッシュボード
+  - `app/entities/page.tsx` - Entities 一覧
+  - `app/entities/new/page.tsx` - Entity作成
+  - `app/entities/[id]/page.tsx` - Entity編集
+  - `app/days/page.tsx` - Days 一覧
   - 日付表示（カウントダウン/カウントアップ/和暦）
 
 - スタイリング
   - レスポンシブデザイン
+  - Tailwind CSS v4
+
+#### ⏳ 未実装
   - ダークモード対応
+  - Passkey 登録・認証
 
 ### Phase 6: テスト・デプロイ
 
@@ -99,10 +118,10 @@
 
 ## 次のアクション
 
-1. 依存関係のインストール
-2. .env.local の作成と設定
-3. Drizzle スキーマの定義
-4. Drizzle 設定ファイルの作成
+1. Passkey（WebAuthn）実装
+2. エラーページ作成（/auth/error）
+3. UI/UX改善
+4. テスト実装
 
 ## 注意事項
 

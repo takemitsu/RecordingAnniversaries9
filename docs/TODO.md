@@ -4,8 +4,12 @@
 
 - [x] Next.js 16プロジェクト初期化
 - [x] 依存関係インストール
-- [x] Drizzleスキーマ定義（users, entities, days）
+- [x] Drizzleスキーマ定義（users, entities, days, accounts, auth_sessions）
 - [x] Auth.js v5設定（Google OAuth）
+  - [x] Auth.js用DBテーブル作成（accounts, auth_sessions）
+  - [x] カスタムアダプター実装（AUTO_INCREMENT対応）
+  - [x] Drizzleマイグレーション実行
+  - [x] Google OAuth動作確認
 - [x] Server Actions実装
   - [x] entities CRUD
   - [x] days CRUD
@@ -22,7 +26,7 @@
 - [x] Biome Lint/Format（2エラーは許容範囲）
 - [x] Next.js 16対応（proxy.ts使用）
 - [x] next-devtools-mcp動作確認
-- [x] ドキュメント作成
+- [x] ドキュメント作成・更新
 
 ## 未実装・今後の拡張 🚧
 
@@ -68,8 +72,11 @@
   - セマンティックな理由でdivを使用
 
 ### 環境変数
-- `.env.local`がプレースホルダーのまま
-- ユーザーが実際の値を設定する必要あり
+- ~~`.env.local`がプレースホルダーのまま~~ ✅ 設定完了
+  - DATABASE_URL ✅
+  - AUTH_SECRET ✅
+  - GOOGLE_CLIENT_ID ✅
+  - GOOGLE_CLIENT_SECRET ✅
 
 ## 優先度
 

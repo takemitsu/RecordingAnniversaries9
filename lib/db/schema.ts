@@ -3,7 +3,9 @@ import {
   bigint,
   date,
   index,
+  int,
   mysqlTable,
+  primaryKey,
   text,
   timestamp,
   tinyint,
@@ -41,7 +43,7 @@ export const entities = mysqlTable(
       .references(() => users.id, { onDelete: "cascade" }),
     name: varchar("name", { length: 255 }).notNull(),
     desc: text("desc"),
-    status: tinyint("status").notNull().default(0),
+    status: tinyint("status", { unsigned: true }).notNull().default(0),
     createdAt: timestamp("created_at", { mode: "date" }).defaultNow(),
     updatedAt: timestamp("updated_at", { mode: "date" })
       .defaultNow()
@@ -99,6 +101,43 @@ export const daysRelations = relations(days, ({ one }) => ({
   }),
 }));
 
+// Auth.js用テーブル
+// OAuth連携情報
+export const accounts = mysqlTable(
+  "accounts",
+  {
+    userId: bigint("userId", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    type: varchar("type", { length: 255 }).notNull(),
+    provider: varchar("provider", { length: 255 }).notNull(),
+    providerAccountId: varchar("providerAccountId", { length: 255 }).notNull(),
+    refresh_token: text("refresh_token"),
+    access_token: text("access_token"),
+    expires_at: int("expires_at"),
+    token_type: varchar("token_type", { length: 255 }),
+    scope: varchar("scope", { length: 255 }),
+    id_token: text("id_token"),
+    session_state: varchar("session_state", { length: 255 }),
+  },
+  (account) => ({
+    compoundKey: primaryKey({
+      columns: [account.provider, account.providerAccountId],
+    }),
+  }),
+);
+
+// Auth.jsセッション（既存のLaravelのsessionsテーブルと区別）
+export const authSessions = mysqlTable("auth_sessions", {
+  sessionToken: varchar("sessionToken", { length: 255 })
+    .notNull()
+    .primaryKey(),
+  userId: bigint("userId", { mode: "number", unsigned: true })
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  expires: timestamp("expires", { mode: "date" }).notNull(),
+});
+
 // Type exports
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
@@ -108,3 +147,9 @@ export type NewEntity = typeof entities.$inferInsert;
 
 export type Day = typeof days.$inferSelect;
 export type NewDay = typeof days.$inferInsert;
+
+export type Account = typeof accounts.$inferSelect;
+export type NewAccount = typeof accounts.$inferInsert;
+
+export type AuthSession = typeof authSessions.$inferSelect;
+export type NewAuthSession = typeof authSessions.$inferInsert;

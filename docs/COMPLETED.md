@@ -18,35 +18,53 @@
 ### Phase 2: データベース層 ✅
 
 - [x] Drizzleスキーマ定義
-  - `lib/db/schema.ts` - users, entities, days テーブル
+  - `lib/db/schema.ts` - users, entities, days, accounts, auth_sessions テーブル
   - ソフトデリート対応（deleted_at カラム）
   - DATE型使用（days.anniv_at）
   - リレーション定義
   - 型エクスポート
 
 - [x] Drizzle設定
-  - `drizzle.config.ts` - Drizzle Kit設定
+  - `drizzle.config.ts` - Drizzle Kit設定（tablesFilter設定済み）
   - `lib/db/index.ts` - MySQL接続プール
   - `lib/db/queries.ts` - クエリヘルパー関数
     - userQueries
     - entityQueries
     - dayQueries
 
+- [x] Drizzleマイグレーション
+  - `scripts/migrate.ts` - マイグレーション実行スクリプト
+  - `drizzle/0000_add_auth_tables.sql` - Auth.js用テーブル作成
+  - マイグレーション履歴管理（__drizzle_migrations）
+
 ### Phase 3: 認証機能 ✅
 
 - [x] Auth.js v5 設定
   - `auth.ts` - Google OAuth プロバイダー
+  - カスタムアダプター実装（AUTO_INCREMENT対応）
   - Drizzle アダプター統合
   - セッション管理（database strategy）
   - コールバック設定
 
+- [x] Auth.js用DBテーブル追加
+  - `accounts` - OAuth連携情報
+  - `auth_sessions` - セッション情報
+  - Drizzle マイグレーション実行（generate + migrate）
+  - `tablesFilter`設定で既存テーブル保護
+
 - [x] 認証ルート
   - `app/api/auth/[...nextauth]/route.ts` - Auth.js APIルート
-  - `middleware.ts` - 認証ミドルウェア
+  - `proxy.ts` - Next.js 16認証プロキシ
   - `lib/auth-helpers.ts` - 認証ヘルパー関数
     - requireAuth()
     - getSession()
     - getUserId()
+
+- [x] Google OAuth設定・動作確認
+  - Google Cloud Console設定
+  - ログイン動作確認
+  - セッション管理確認
+  - ダッシュボードアクセス確認
 
 ### Phase 4: コアロジック ✅
 
@@ -145,17 +163,30 @@
 - [ ] インテグレーションテスト
 - [ ] E2Eテスト
 
-## 注意が必要な項目
+## 技術的な実装詳細
 
-### Auth.js Drizzle Adapter
+### Auth.js カスタムアダプター実装
 
-現在の実装では `DrizzleAdapter` を使用していますが、Auth.jsが必要とするテーブル（accounts, sessions, verification_tokens）が既存DBに存在しない可能性があります。
+既存DBの`users`テーブルが`bigint AUTO_INCREMENT`を使用しているのに対し、Auth.jsはUUID文字列を生成しようとするため、カスタムアダプターを実装しました。
 
-**対応方法**:
-1. JWT戦略に切り替える（推奨）
-2. 既存DBにテーブルを追加（要注意）
+**実装内容** (`auth.ts`):
+- DrizzleAdapterをラップ
+- `createUser`メソッドをオーバーライド
+- Auth.jsが生成するUUID idを削除
+- MySQLのAUTO_INCREMENTでIDを生成
+- 生成されたIDを取得してAuth.jsに返却
 
-詳細は `docs/SETUP.md` を参照。
+### Drizzleマイグレーション戦略
+
+**採用した方法**: `drizzle-kit generate` + `drizzle-kit migrate`
+- マイグレーション履歴を管理
+- 本番環境でも安全に実行可能
+- SQLファイルのレビュー・編集が可能
+
+**避けた方法**: `drizzle-kit push`
+- 開発専用
+- マイグレーション履歴なし
+- 本番環境では非推奨
 
 ### データベース接続
 
