@@ -33,10 +33,8 @@ export async function createDay(entityId: number, formData: FormData) {
       annivAt,
     });
 
-    revalidatePath("/dashboard");
-    revalidatePath("/entities");
-    revalidatePath(`/entities/${entityId}`);
-    revalidatePath("/days");
+    revalidatePath("/");
+    revalidatePath("/edit");
 
     return { success: true, dayId };
   } catch (error) {
@@ -71,15 +69,8 @@ export async function updateDay(dayId: number, formData: FormData) {
       ...(annivAt && { annivAt }),
     });
 
-    // 該当するDayを取得してentityIdを確認
-    const day = await dayQueries.findById(dayId, userId);
-
-    revalidatePath("/dashboard");
-    revalidatePath("/entities");
-    if (day?.entity) {
-      revalidatePath(`/entities/${day.entity.id}`);
-    }
-    revalidatePath("/days");
+    revalidatePath("/");
+    revalidatePath("/edit");
 
     return { success: true };
   } catch (error) {
@@ -95,17 +86,10 @@ export async function deleteDay(dayId: number) {
   const userId = await getUserId();
 
   try {
-    // 削除前にentityIdを取得
-    const day = await dayQueries.findById(dayId, userId);
-
     await dayQueries.softDelete(dayId, userId);
 
-    revalidatePath("/dashboard");
-    revalidatePath("/entities");
-    if (day?.entity) {
-      revalidatePath(`/entities/${day.entity.id}`);
-    }
-    revalidatePath("/days");
+    revalidatePath("/");
+    revalidatePath("/edit");
 
     return { success: true };
   } catch (error) {
@@ -154,12 +138,12 @@ export async function getDay(dayId: number) {
     const day = await dayQueries.findById(dayId, userId);
 
     if (!day) {
-      redirect("/days");
+      redirect("/edit");
     }
 
     return day;
   } catch (error) {
     console.error("Day fetch error:", error);
-    redirect("/days");
+    redirect("/edit");
   }
 }

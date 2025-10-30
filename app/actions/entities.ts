@@ -27,8 +27,8 @@ export async function createEntity(formData: FormData) {
       status,
     });
 
-    revalidatePath("/dashboard");
-    revalidatePath("/entities");
+    revalidatePath("/");
+    revalidatePath("/edit");
 
     return { success: true, entityId };
   } catch (error) {
@@ -58,9 +58,8 @@ export async function updateEntity(entityId: number, formData: FormData) {
       status,
     });
 
-    revalidatePath("/dashboard");
-    revalidatePath("/entities");
-    revalidatePath(`/entities/${entityId}`);
+    revalidatePath("/");
+    revalidatePath("/edit");
 
     return { success: true };
   } catch (error) {
@@ -78,8 +77,8 @@ export async function deleteEntity(entityId: number) {
   try {
     await entityQueries.softDelete(entityId, userId);
 
-    revalidatePath("/dashboard");
-    revalidatePath("/entities");
+    revalidatePath("/");
+    revalidatePath("/edit");
 
     return { success: true };
   } catch (error) {
@@ -104,6 +103,22 @@ export async function getEntities() {
 }
 
 /**
+ * 記念日があるEntityのみ取得（一覧ページ用）
+ */
+export async function getEntitiesWithDays() {
+  const userId = await getUserId();
+
+  try {
+    const entities = await entityQueries.findByUserId(userId);
+    // 記念日があるEntityのみフィルタ
+    return entities.filter((entity) => entity.days && entity.days.length > 0);
+  } catch (error) {
+    console.error("Entities fetch error:", error);
+    return [];
+  }
+}
+
+/**
  * 特定のEntityを取得
  */
 export async function getEntity(entityId: number) {
@@ -113,12 +128,12 @@ export async function getEntity(entityId: number) {
     const entity = await entityQueries.findById(entityId, userId);
 
     if (!entity) {
-      redirect("/entities");
+      redirect("/edit");
     }
 
     return entity;
   } catch (error) {
     console.error("Entity fetch error:", error);
-    redirect("/entities");
+    redirect("/edit");
   }
 }

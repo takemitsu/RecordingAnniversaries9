@@ -1,34 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
-
 interface FormSuccessMessageProps {
   message: string;
-  show: boolean;
-  onHide: () => void;
 }
 
-export function FormSuccessMessage({
-  message,
-  show,
-  onHide,
-}: FormSuccessMessageProps) {
-  const [isVisible, setIsVisible] = useState(show);
-
-  useEffect(() => {
-    setIsVisible(show);
-
-    if (show) {
-      const timer = setTimeout(() => {
-        setIsVisible(false);
-        onHide();
-      }, 3000);
-
-      return () => clearTimeout(timer);
-    }
-  }, [show, onHide]);
-
-  if (!isVisible) return null;
+export function FormSuccessMessage({ message }: FormSuccessMessageProps) {
 
   return (
     <div

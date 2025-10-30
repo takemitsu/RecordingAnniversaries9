@@ -24,13 +24,16 @@ export function Header({ session, today }: HeaderProps) {
         <div className="flex justify-between h-16">
           <div className="flex">
             {/* Logo */}
-            <div className="shrink-0 flex items-center">
+            <div className="shrink-0 flex items-center gap-3">
               <Link
                 href={session ? "/" : "/"}
                 className="text-xl font-bold text-gray-900 dark:text-white"
               >
-                Recording Anniversaries
+                ra
               </Link>
+              <span className="text-base text-gray-600 dark:text-gray-400 relative top-0.5">
+                {today}
+              </span>
             </div>
 
             {/* Desktop Navigation */}
@@ -60,13 +63,8 @@ export function Header({ session, today }: HeaderProps) {
             )}
           </div>
 
-          {/* Date and User Info (Desktop) */}
+          {/* User Info (Desktop) */}
           <div className="hidden sm:ml-6 sm:flex sm:items-center sm:gap-4">
-            {/* Today's Date */}
-            <div className="hidden md:block text-sm text-gray-600 dark:text-gray-400">
-              {today}
-            </div>
-
             {/* User Dropdown */}
             {session ? (
               <div className="flex items-center gap-2">

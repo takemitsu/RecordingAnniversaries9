@@ -2,22 +2,22 @@ interface FormFieldProps {
   label: string;
   name: string;
   type?: "text" | "textarea" | "date";
-  value: string;
-  onChange: (value: string) => void;
+  defaultValue?: string;
   error?: string;
   required?: boolean;
   placeholder?: string;
+  rows?: number;
 }
 
 export function FormField({
   label,
   name,
   type = "text",
-  value,
-  onChange,
+  defaultValue,
   error,
   required = false,
   placeholder,
+  rows = 4,
 }: FormFieldProps) {
   const inputClasses =
     "mt-1 block w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white shadow-sm focus:border-sky-500 focus:ring-sky-500";
@@ -39,9 +39,8 @@ export function FormField({
         <textarea
           id={name}
           name={name}
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          rows={4}
+          defaultValue={defaultValue}
+          rows={rows}
           className={`${inputClasses} ${errorClasses}`}
           placeholder={placeholder}
           required={required}
@@ -51,8 +50,7 @@ export function FormField({
           type={type}
           id={name}
           name={name}
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
+          defaultValue={defaultValue}
           className={`${inputClasses} ${errorClasses}`}
           placeholder={placeholder}
           required={required}

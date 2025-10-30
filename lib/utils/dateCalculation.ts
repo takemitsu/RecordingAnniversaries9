@@ -56,18 +56,21 @@ export function calculateDiffDays(
 /**
  * カウントダウン日数を人間が読みやすい形式にフォーマット
  * @param days 日数
- * @returns フォーマットされた文字列（例: "あと 30日"、"今日！"）
+ * @returns フォーマットされたオブジェクト（value と unit に分割）
  */
-export function formatCountdown(days: number | null): string {
+export function formatCountdown(days: number | null): {
+  value: string;
+  unit: string;
+} {
   if (days === null) {
-    return "-";
+    return { value: "-", unit: "" };
   }
 
   if (days === 0) {
-    return "今日！";
+    return { value: "今日", unit: "！" };
   }
 
-  return `あと ${days}日`;
+  return { value: `あと ${days}`, unit: "日" };
 }
 
 /**
