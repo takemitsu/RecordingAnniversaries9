@@ -28,5 +28,8 @@ export async function getSession() {
  */
 export async function getUserId() {
   const session = await requireAuth();
+  if (!session.user?.id) {
+    redirect("/auth/signin");
+  }
   return Number(session.user.id);
 }

@@ -128,20 +128,22 @@ export const dayQueries = {
 
   // 特定のDayを取得
   findById: async (id: number, userId: number) => {
-    return await db.query.days.findFirst({
+    const day = await db.query.days.findFirst({
       where: and(
         eq(days.id, id),
         isNull(days.deletedAt)
       ),
       with: {
-        entity: {
-          where: and(
-            eq(entities.userId, userId),
-            isNull(entities.deletedAt)
-          ),
-        },
+        entity: true,
       },
     });
+
+    // entityが削除されているか、別のユーザーのものかチェック
+    if (!day || !day.entity || day.entity.deletedAt || day.entity.userId !== userId) {
+      return null;
+    }
+
+    return day;
   },
 
   // Dayを作成

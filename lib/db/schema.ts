@@ -37,7 +37,7 @@ export const entities = mysqlTable("entities", {
     .references(() => users.id, { onDelete: "cascade" }),
   name: varchar("name", { length: 255 }).notNull(),
   desc: text("desc"),
-  status: tinyint("status").unsigned().notNull().default(0),
+  status: tinyint("status").notNull().default(0),
   createdAt: timestamp("created_at", { mode: "date" }).defaultNow(),
   updatedAt: timestamp("updated_at", { mode: "date" }).defaultNow().onUpdateNow(),
   deletedAt: timestamp("deleted_at", { mode: "date" }), // ソフトデリート

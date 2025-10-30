@@ -30,7 +30,7 @@ export default auth((req) => {
   return NextResponse.next();
 });
 
-// ミドルウェアを適用するパス
+// Proxyを適用するパス
 export const config = {
   matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
 };
