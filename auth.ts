@@ -1,8 +1,8 @@
+import { DrizzleAdapter } from "@auth/drizzle-adapter";
+import type { NextAuthConfig } from "next-auth";
 import NextAuth from "next-auth";
 import Google from "next-auth/providers/google";
-import { DrizzleAdapter } from "@auth/drizzle-adapter";
 import { db } from "@/lib/db";
-import type { NextAuthConfig } from "next-auth";
 
 // Auth.js v5 設定
 export const authConfig = {

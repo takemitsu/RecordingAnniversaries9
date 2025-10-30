@@ -1,6 +1,5 @@
-import { auth } from "@/auth";
 import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
+import { auth } from "@/auth";
 
 // 認証が必要なパス
 const protectedPaths = ["/dashboard", "/entities", "/days"];
@@ -13,9 +12,11 @@ export default auth((req) => {
   const isAuthenticated = !!req.auth;
 
   const isProtectedPath = protectedPaths.some((path) =>
-    nextUrl.pathname.startsWith(path)
+    nextUrl.pathname.startsWith(path),
   );
-  const isAuthPath = authPaths.some((path) => nextUrl.pathname.startsWith(path));
+  const isAuthPath = authPaths.some((path) =>
+    nextUrl.pathname.startsWith(path),
+  );
 
   // 認証が必要なパスに未認証でアクセス
   if (isProtectedPath && !isAuthenticated) {

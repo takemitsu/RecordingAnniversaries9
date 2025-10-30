@@ -36,8 +36,15 @@ export function Modal({ isOpen, onClose, title, children }: ModalProps) {
     <div className="fixed inset-0 z-50 overflow-y-auto">
       {/* Backdrop */}
       <div
+        role="button"
+        tabIndex={0}
         className="fixed inset-0 bg-black/50 transition-opacity"
         onClick={onClose}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            onClose();
+          }
+        }}
       />
 
       {/* Modal */}
@@ -52,6 +59,7 @@ export function Modal({ isOpen, onClose, title, children }: ModalProps) {
               {title}
             </h2>
             <button
+              type="button"
               onClick={onClose}
               className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition"
             >
@@ -60,6 +68,8 @@ export function Modal({ isOpen, onClose, title, children }: ModalProps) {
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
+                role="img"
+                aria-label="閉じる"
               >
                 <path
                   strokeLinecap="round"

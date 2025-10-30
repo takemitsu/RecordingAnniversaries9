@@ -14,12 +14,16 @@ import dayjs from "dayjs";
  * @param anniversaryDate Y-m-d 形式の日付文字列
  * @returns 日数（null の場合は記念日が設定されていない）
  */
-export function calculateDiffDays(anniversaryDate: string | null): number | null {
+export function calculateDiffDays(
+  anniversaryDate: string | null,
+): number | null {
   if (!anniversaryDate) {
     return null;
   }
 
-  const anniversaryDateTime = dayjs(anniversaryDate, "YYYY-MM-DD").startOf("day");
+  const anniversaryDateTime = dayjs(anniversaryDate, "YYYY-MM-DD").startOf(
+    "day",
+  );
   const now = dayjs().startOf("day");
 
   // 未来日の場合
@@ -85,7 +89,7 @@ export type AnniversaryWithCalculation = {
  * @returns ソートされた配列
  */
 export function sortByClosest<T extends { diffDays: number | null }>(
-  anniversaries: T[]
+  anniversaries: T[],
 ): T[] {
   return [...anniversaries].sort((a, b) => {
     if (a.diffDays === null) return 1;

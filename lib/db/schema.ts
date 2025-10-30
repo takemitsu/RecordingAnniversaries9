@@ -1,14 +1,14 @@
+import { relations } from "drizzle-orm";
 import {
   bigint,
-  mysqlTable,
-  varchar,
-  timestamp,
-  text,
-  tinyint,
   date,
   index,
+  mysqlTable,
+  text,
+  timestamp,
+  tinyint,
+  varchar,
 } from "drizzle-orm/mysql-core";
-import { relations } from "drizzle-orm";
 
 // Users Table
 // 既存のLaravelプロジェクトと互換性を保つ
@@ -23,47 +23,61 @@ export const users = mysqlTable("users", {
   googleId: varchar("google_id", { length: 255 }).unique(),
   rememberToken: varchar("remember_token", { length: 100 }),
   createdAt: timestamp("created_at", { mode: "date" }).defaultNow(),
-  updatedAt: timestamp("updated_at", { mode: "date" }).defaultNow().onUpdateNow(),
+  updatedAt: timestamp("updated_at", { mode: "date" })
+    .defaultNow()
+    .onUpdateNow(),
 });
 
 // Entities Table (記念日グループ)
 // ソフトデリート対応
-export const entities = mysqlTable("entities", {
-  id: bigint("id", { mode: "number", unsigned: true })
-    .primaryKey()
-    .autoincrement(),
-  userId: bigint("user_id", { mode: "number", unsigned: true })
-    .notNull()
-    .references(() => users.id, { onDelete: "cascade" }),
-  name: varchar("name", { length: 255 }).notNull(),
-  desc: text("desc"),
-  status: tinyint("status").notNull().default(0),
-  createdAt: timestamp("created_at", { mode: "date" }).defaultNow(),
-  updatedAt: timestamp("updated_at", { mode: "date" }).defaultNow().onUpdateNow(),
-  deletedAt: timestamp("deleted_at", { mode: "date" }), // ソフトデリート
-}, (table) => ({
-  userIdIdx: index("entities_user_id_index").on(table.userId),
-}));
+export const entities = mysqlTable(
+  "entities",
+  {
+    id: bigint("id", { mode: "number", unsigned: true })
+      .primaryKey()
+      .autoincrement(),
+    userId: bigint("user_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    name: varchar("name", { length: 255 }).notNull(),
+    desc: text("desc"),
+    status: tinyint("status").notNull().default(0),
+    createdAt: timestamp("created_at", { mode: "date" }).defaultNow(),
+    updatedAt: timestamp("updated_at", { mode: "date" })
+      .defaultNow()
+      .onUpdateNow(),
+    deletedAt: timestamp("deleted_at", { mode: "date" }), // ソフトデリート
+  },
+  (table) => ({
+    userIdIdx: index("entities_user_id_index").on(table.userId),
+  }),
+);
 
 // Days Table (個別の記念日)
 // ソフトデリート対応
 // 注意: anniv_at は DATE 型（datetime ではない）
-export const days = mysqlTable("days", {
-  id: bigint("id", { mode: "number", unsigned: true })
-    .primaryKey()
-    .autoincrement(),
-  entityId: bigint("entity_id", { mode: "number", unsigned: true })
-    .notNull()
-    .references(() => entities.id, { onDelete: "cascade" }),
-  name: varchar("name", { length: 255 }).notNull(),
-  desc: text("desc"),
-  annivAt: date("anniv_at", { mode: "string" }).notNull(), // DATE型（日付のみ）
-  createdAt: timestamp("created_at", { mode: "date" }).defaultNow(),
-  updatedAt: timestamp("updated_at", { mode: "date" }).defaultNow().onUpdateNow(),
-  deletedAt: timestamp("deleted_at", { mode: "date" }), // ソフトデリート
-}, (table) => ({
-  entityIdIdx: index("days_entity_id_index").on(table.entityId),
-}));
+export const days = mysqlTable(
+  "days",
+  {
+    id: bigint("id", { mode: "number", unsigned: true })
+      .primaryKey()
+      .autoincrement(),
+    entityId: bigint("entity_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => entities.id, { onDelete: "cascade" }),
+    name: varchar("name", { length: 255 }).notNull(),
+    desc: text("desc"),
+    annivAt: date("anniv_at", { mode: "string" }).notNull(), // DATE型（日付のみ）
+    createdAt: timestamp("created_at", { mode: "date" }).defaultNow(),
+    updatedAt: timestamp("updated_at", { mode: "date" })
+      .defaultNow()
+      .onUpdateNow(),
+    deletedAt: timestamp("deleted_at", { mode: "date" }), // ソフトデリート
+  },
+  (table) => ({
+    entityIdIdx: index("days_entity_id_index").on(table.entityId),
+  }),
+);
 
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({

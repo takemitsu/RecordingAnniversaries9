@@ -1,5 +1,5 @@
-import { auth } from "@/auth";
 import { redirect } from "next/navigation";
+import { auth } from "@/auth";
 
 /**
  * サーバーコンポーネントやServer Actionsで現在のユーザーセッションを取得

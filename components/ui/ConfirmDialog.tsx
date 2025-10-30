@@ -27,8 +27,15 @@ export function ConfirmDialog({
     <div className="fixed inset-0 z-50 overflow-y-auto">
       {/* Backdrop */}
       <div
+        role="button"
+        tabIndex={0}
         className="fixed inset-0 bg-black/50 transition-opacity"
         onClick={onClose}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            onClose();
+          }
+        }}
       />
 
       {/* Dialog */}
@@ -42,12 +49,14 @@ export function ConfirmDialog({
 
             <div className="flex gap-3 justify-end">
               <button
+                type="button"
                 onClick={onClose}
                 className="px-4 py-2 border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition"
               >
                 {cancelText}
               </button>
               <button
+                type="button"
                 onClick={() => {
                   onConfirm();
                   onClose();

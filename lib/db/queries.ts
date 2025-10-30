@@ -1,7 +1,6 @@
+import { and, desc, eq, isNull } from "drizzle-orm";
 import { db } from "./index";
-import { users, entities, days } from "./schema";
-import { eq, and, isNull, desc } from "drizzle-orm";
-import type { Entity, Day } from "./schema";
+import { days, entities, users } from "./schema";
 
 /**
  * ユーザー関連のクエリ
@@ -37,10 +36,7 @@ export const entityQueries = {
   // ユーザーの全Entitiesを取得（削除済みを除外）
   findByUserId: async (userId: number) => {
     return await db.query.entities.findMany({
-      where: and(
-        eq(entities.userId, userId),
-        isNull(entities.deletedAt)
-      ),
+      where: and(eq(entities.userId, userId), isNull(entities.deletedAt)),
       orderBy: desc(entities.createdAt),
       with: {
         days: {
@@ -57,7 +53,7 @@ export const entityQueries = {
       where: and(
         eq(entities.id, id),
         eq(entities.userId, userId),
-        isNull(entities.deletedAt)
+        isNull(entities.deletedAt),
       ),
       with: {
         days: {
@@ -69,21 +65,32 @@ export const entityQueries = {
   },
 
   // Entityを作成
-  create: async (data: { userId: number; name: string; desc?: string | null; status?: number }) => {
+  create: async (data: {
+    userId: number;
+    name: string;
+    desc?: string | null;
+    status?: number;
+  }) => {
     const result = await db.insert(entities).values(data);
     return result[0].insertId;
   },
 
   // Entityを更新
-  update: async (id: number, userId: number, data: { name?: string; desc?: string | null; status?: number }) => {
+  update: async (
+    id: number,
+    userId: number,
+    data: { name?: string; desc?: string | null; status?: number },
+  ) => {
     await db
       .update(entities)
       .set(data)
-      .where(and(
-        eq(entities.id, id),
-        eq(entities.userId, userId),
-        isNull(entities.deletedAt)
-      ));
+      .where(
+        and(
+          eq(entities.id, id),
+          eq(entities.userId, userId),
+          isNull(entities.deletedAt),
+        ),
+      );
   },
 
   // Entityをソフトデリート
@@ -91,11 +98,13 @@ export const entityQueries = {
     await db
       .update(entities)
       .set({ deletedAt: new Date() })
-      .where(and(
-        eq(entities.id, id),
-        eq(entities.userId, userId),
-        isNull(entities.deletedAt)
-      ));
+      .where(
+        and(
+          eq(entities.id, id),
+          eq(entities.userId, userId),
+          isNull(entities.deletedAt),
+        ),
+      );
   },
 };
 
@@ -111,17 +120,14 @@ export const dayQueries = {
       where: and(
         eq(entities.id, entityId),
         eq(entities.userId, userId),
-        isNull(entities.deletedAt)
+        isNull(entities.deletedAt),
       ),
     });
 
     if (!entity) return [];
 
     return await db.query.days.findMany({
-      where: and(
-        eq(days.entityId, entityId),
-        isNull(days.deletedAt)
-      ),
+      where: and(eq(days.entityId, entityId), isNull(days.deletedAt)),
       orderBy: days.annivAt,
     });
   },
@@ -129,17 +135,19 @@ export const dayQueries = {
   // 特定のDayを取得
   findById: async (id: number, userId: number) => {
     const day = await db.query.days.findFirst({
-      where: and(
-        eq(days.id, id),
-        isNull(days.deletedAt)
-      ),
+      where: and(eq(days.id, id), isNull(days.deletedAt)),
       with: {
         entity: true,
       },
     });
 
     // entityが削除されているか、別のユーザーのものかチェック
-    if (!day || !day.entity || day.entity.deletedAt || day.entity.userId !== userId) {
+    if (
+      !day ||
+      !day.entity ||
+      day.entity.deletedAt ||
+      day.entity.userId !== userId
+    ) {
       return null;
     }
 
@@ -147,13 +155,22 @@ export const dayQueries = {
   },
 
   // Dayを作成
-  create: async (data: { entityId: number; name: string; desc?: string | null; annivAt: string }) => {
+  create: async (data: {
+    entityId: number;
+    name: string;
+    desc?: string | null;
+    annivAt: string;
+  }) => {
     const result = await db.insert(days).values(data);
     return result[0].insertId;
   },
 
   // Dayを更新
-  update: async (id: number, userId: number, data: { name?: string; desc?: string | null; annivAt?: string }) => {
+  update: async (
+    id: number,
+    userId: number,
+    data: { name?: string; desc?: string | null; annivAt?: string },
+  ) => {
     // まずDayが存在し、ユーザーのものであることを確認
     const day = await dayQueries.findById(id, userId);
     if (!day || !day.entity) return;
@@ -161,10 +178,7 @@ export const dayQueries = {
     await db
       .update(days)
       .set(data)
-      .where(and(
-        eq(days.id, id),
-        isNull(days.deletedAt)
-      ));
+      .where(and(eq(days.id, id), isNull(days.deletedAt)));
   },
 
   // Dayをソフトデリート
@@ -176,19 +190,13 @@ export const dayQueries = {
     await db
       .update(days)
       .set({ deletedAt: new Date() })
-      .where(and(
-        eq(days.id, id),
-        isNull(days.deletedAt)
-      ));
+      .where(and(eq(days.id, id), isNull(days.deletedAt)));
   },
 
   // ユーザーの全Daysを取得（全Entitiesから）
   findAllByUserId: async (userId: number) => {
     const userEntities = await db.query.entities.findMany({
-      where: and(
-        eq(entities.userId, userId),
-        isNull(entities.deletedAt)
-      ),
+      where: and(eq(entities.userId, userId), isNull(entities.deletedAt)),
       with: {
         days: {
           where: isNull(days.deletedAt),
@@ -198,8 +206,8 @@ export const dayQueries = {
     });
 
     // 全てのDaysをフラットな配列にする
-    return userEntities.flatMap(entity =>
-      entity.days.map(day => ({
+    return userEntities.flatMap((entity) =>
+      entity.days.map((day) => ({
         ...day,
         entity: {
           id: entity.id,
@@ -207,7 +215,7 @@ export const dayQueries = {
           desc: entity.desc,
           status: entity.status,
         },
-      }))
+      })),
     );
   },
 };

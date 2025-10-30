@@ -1,9 +1,13 @@
-import { requireAuth } from "@/lib/auth-helpers";
-import { getEntities } from "@/app/actions/entities";
-import { getAllDays } from "@/app/actions/days";
-import { calculateDiffDays, formatCountdown, sortByClosest } from "@/lib/utils/dateCalculation";
-import { japanDate, getAges } from "@/lib/utils/japanDate";
 import Link from "next/link";
+import { getAllDays } from "@/app/actions/days";
+import { getEntities } from "@/app/actions/entities";
+import { requireAuth } from "@/lib/auth-helpers";
+import {
+  calculateDiffDays,
+  formatCountdown,
+  sortByClosest,
+} from "@/lib/utils/dateCalculation";
+import { getAges, japanDate } from "@/lib/utils/japanDate";
 
 export default async function DashboardPage() {
   await requireAuth();
@@ -31,9 +35,7 @@ export default async function DashboardPage() {
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
           ダッシュボード
         </h1>
-        <p className="mt-2 text-gray-600 dark:text-gray-400">
-          記念日の概要
-        </p>
+        <p className="mt-2 text-gray-600 dark:text-gray-400">記念日の概要</p>
       </div>
 
       {/* 統計情報 */}
@@ -78,7 +80,10 @@ export default async function DashboardPage() {
             </div>
           ) : (
             upcomingDays.map((day) => (
-              <div key={day.id} className="p-6 hover:bg-gray-50 dark:hover:bg-gray-700">
+              <div
+                key={day.id}
+                className="p-6 hover:bg-gray-50 dark:hover:bg-gray-700"
+              >
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="text-lg font-medium text-gray-900 dark:text-white">

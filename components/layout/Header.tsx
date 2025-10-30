@@ -1,6 +1,5 @@
 import Link from "next/link";
-import { auth } from "@/auth";
-import { signOut } from "@/auth";
+import { auth, signOut } from "@/auth";
 import { getTodayForHeader } from "@/lib/utils/japanDate";
 
 export async function Header() {

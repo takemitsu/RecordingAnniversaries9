@@ -1,14 +1,17 @@
 "use client";
 
-import { useState } from "react";
-import { Modal } from "@/components/ui/Modal";
-import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
-import { DayForm } from "@/components/forms/DayForm";
-import { deleteDay } from "@/app/actions/days";
-import { calculateDiffDays, formatCountdown } from "@/lib/utils/dateCalculation";
-import { japanDate, getAges } from "@/lib/utils/japanDate";
-import type { Day } from "@/lib/db/schema";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { deleteDay } from "@/app/actions/days";
+import { DayForm } from "@/components/forms/DayForm";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import { Modal } from "@/components/ui/Modal";
+import type { Day } from "@/lib/db/schema";
+import {
+  calculateDiffDays,
+  formatCountdown,
+} from "@/lib/utils/dateCalculation";
+import { getAges, japanDate } from "@/lib/utils/japanDate";
 
 type DayWithEntity = Day & {
   entity: {
@@ -30,7 +33,7 @@ export function DaysClient({ allDays, entities }: DaysClientProps) {
   const [editingDay, setEditingDay] = useState<DayWithEntity | null>(null);
   const [deletingDayId, setDeletingDayId] = useState<number | null>(null);
   const [selectedEntityId, setSelectedEntityId] = useState<number | null>(
-    entities[0]?.id || null
+    entities[0]?.id || null,
   );
 
   // 日付計算を追加
@@ -70,6 +73,7 @@ export function DaysClient({ allDays, entities }: DaysClientProps) {
           </h1>
           {entities.length > 0 ? (
             <button
+              type="button"
               onClick={handleOpenModal}
               className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
             >
@@ -111,21 +115,47 @@ export function DaysClient({ allDays, entities }: DaysClientProps) {
                       </div>
                       <div className="flex gap-1 ml-4">
                         <button
+                          type="button"
                           onClick={() => setEditingDay(day)}
                           className="p-1 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400"
                           title="編集"
                         >
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                          <svg
+                            className="w-5 h-5"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                            role="img"
+                            aria-label="編集"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                            />
                           </svg>
                         </button>
                         <button
+                          type="button"
                           onClick={() => setDeletingDayId(day.id)}
                           className="p-1 text-gray-400 hover:text-red-600 dark:hover:text-red-400"
                           title="削除"
                         >
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          <svg
+                            className="w-5 h-5"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                            role="img"
+                            aria-label="削除"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                            />
                           </svg>
                         </button>
                       </div>

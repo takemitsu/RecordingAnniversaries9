@@ -1,5 +1,5 @@
-import { requireAuth } from "@/lib/auth-helpers";
 import { getEntities } from "@/app/actions/entities";
+import { requireAuth } from "@/lib/auth-helpers";
 import { EntitiesClient } from "./EntitiesClient";
 
 export default async function EntitiesPage() {

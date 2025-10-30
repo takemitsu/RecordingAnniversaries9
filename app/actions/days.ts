@@ -1,16 +1,16 @@
 "use server";
 
+import dayjs from "dayjs";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { getUserId } from "@/lib/auth-helpers";
 import { dayQueries } from "@/lib/db/queries";
-import dayjs from "dayjs";
 
 /**
  * Day作成
  */
 export async function createDay(entityId: number, formData: FormData) {
-  const userId = await getUserId();
+  const _userId = await getUserId();
 
   const name = formData.get("name") as string;
   const desc = formData.get("desc") as string | null;

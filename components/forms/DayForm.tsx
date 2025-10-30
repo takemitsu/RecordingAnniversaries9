@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import dayjs from "dayjs";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { createDay, updateDay } from "@/app/actions/days";
 import type { Day } from "@/lib/db/schema";
-import dayjs from "dayjs";
 
 type DayFormProps = {
   entityId: number;
@@ -28,7 +28,7 @@ export function DayForm({ entityId, day, onSuccess, onCancel }: DayFormProps) {
     const formData = new FormData(event.currentTarget);
 
     try {
-      let result;
+      let result: { error?: string };
       if (isEditing) {
         result = await updateDay(day.id, formData);
       } else {
@@ -48,7 +48,7 @@ export function DayForm({ entityId, day, onSuccess, onCancel }: DayFormProps) {
         router.push(`/entities/${entityId}`);
         router.refresh();
       }
-    } catch (err) {
+    } catch (_err) {
       setError("予期しないエラーが発生しました");
       setIsSubmitting(false);
     }

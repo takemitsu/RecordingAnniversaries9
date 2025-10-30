@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { createEntity, updateEntity } from "@/app/actions/entities";
 import type { Entity } from "@/lib/db/schema";
 
@@ -26,7 +26,7 @@ export function EntityForm({ entity, onSuccess, onCancel }: EntityFormProps) {
     const formData = new FormData(event.currentTarget);
 
     try {
-      let result;
+      let result: { error?: string };
       if (isEditing) {
         result = await updateEntity(entity.id, formData);
       } else {
@@ -46,7 +46,7 @@ export function EntityForm({ entity, onSuccess, onCancel }: EntityFormProps) {
         router.push("/entities");
         router.refresh();
       }
-    } catch (err) {
+    } catch (_err) {
       setError("予期しないエラーが発生しました");
       setIsSubmitting(false);
     }
