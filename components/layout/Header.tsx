@@ -59,6 +59,16 @@ export function Header({ session, today }: HeaderProps) {
                 >
                   編集
                 </Link>
+                <Link
+                  href="/profile"
+                  className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${
+                    isActive("/profile")
+                      ? "border-sky-500 text-gray-900 dark:text-white"
+                      : "border-transparent text-gray-500 dark:text-gray-400 hover:border-gray-300 hover:text-gray-700 dark:hover:text-gray-300"
+                  }`}
+                >
+                  設定
+                </Link>
               </div>
             )}
           </div>
@@ -155,6 +165,17 @@ export function Header({ session, today }: HeaderProps) {
               onClick={() => setShowingNavigationDropdown(false)}
             >
               編集
+            </Link>
+            <Link
+              href="/profile"
+              className={`block pl-3 pr-4 py-2 border-l-4 text-base font-medium ${
+                isActive("/profile")
+                  ? "border-sky-500 text-sky-700 dark:text-sky-300 bg-sky-50 dark:bg-sky-900/50"
+                  : "border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-300"
+              }`}
+              onClick={() => setShowingNavigationDropdown(false)}
+            >
+              設定
             </Link>
           </div>
         )}
