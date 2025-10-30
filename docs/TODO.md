@@ -43,9 +43,17 @@
 - [ ] 記念日のインポート/エクスポート
 
 ### UI/UX
-- [ ] recordingAnniversaries8のUIとの詳細な比較
+- [ ] **ra8設計への全面リファクタリング（最優先）**
+  - 詳細: `docs/UI_REFACTORING_PLAN.md` 参照
+  - [ ] react-datepicker導入
+  - [ ] Header改修（ハンバーガーメニュー実装）
+  - [ ] EntityCard/AnniversaryDayCard作成
+  - [ ] ページ構成変更（`/`一覧、`/edit`編集）
+  - [ ] フォームページ作成（フルスクリーン）
+  - [ ] 既存ページ削除（dashboard, entities, days）
+  - [ ] レスポンシブパディング調整（`p-2 lg:p-12`）
+  - [ ] カラフルなカウントダウン表示
 - [ ] アニメーション追加
-- [ ] モバイル最適化
 - [ ] アクセシビリティ改善（残りBiomeエラー対応）
 
 ### パフォーマンス
@@ -79,6 +87,10 @@
   - GOOGLE_CLIENT_SECRET ✅
 
 ## 優先度
+
+### Critical（最優先）
+- **UI/UXリファクタリング（ra8設計への回帰）**
+  - 現在のUI設計に根本的な問題があるため、最優先で対応
 
 ### High
 - Passkey実装（セキュリティ強化）
