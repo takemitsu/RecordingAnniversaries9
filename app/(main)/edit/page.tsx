@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
+import { getCollections } from "@/app/actions/collections";
 import { auth } from "@/auth";
-import { getEntities } from "@/app/actions/entities";
 import { EditPageClient } from "./EditPageClient";
 
 export default async function EditPage() {
@@ -10,7 +10,7 @@ export default async function EditPage() {
     redirect("/auth/signin");
   }
 
-  const entities = await getEntities();
+  const collections = await getCollections();
 
-  return <EditPageClient entities={entities} />;
+  return <EditPageClient collections={collections} />;
 }

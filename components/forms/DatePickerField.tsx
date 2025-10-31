@@ -1,9 +1,9 @@
 "use client";
 
-import DatePicker, { registerLocale } from "react-datepicker";
 import { ja } from "date-fns/locale/ja";
+import DatePicker, { registerLocale } from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { japanDate, getAges } from "@/lib/utils/japanDate";
+import { getAges, japanDate } from "@/lib/utils/japanDate";
 
 // 日本語ロケールを登録
 registerLocale("ja", ja);
@@ -83,7 +83,9 @@ export function DatePickerField({
         </div>
       )}
 
-      {error && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{error}</p>}
+      {error && (
+        <p className="mt-1 text-sm text-red-600 dark:text-red-400">{error}</p>
+      )}
     </div>
   );
 }

@@ -1,26 +1,33 @@
 "use client";
 
-import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { createDay, updateDay } from "@/app/actions/days";
-import type { Day } from "@/lib/db/schema";
+import { useState } from "react";
+import {
+  createAnniversary,
+  updateAnniversary,
+} from "@/app/actions/anniversaries";
+import { DatePickerField } from "@/components/forms/DatePickerField";
 import { FormField } from "@/components/forms/FormField";
 import { FormSuccessMessage } from "@/components/forms/FormSuccessMessage";
-import { DatePickerField } from "@/components/forms/DatePickerField";
+import type { Anniversary } from "@/lib/db/schema";
 
-interface DayFormProps {
+interface AnniversaryFormProps {
   mode: "create" | "edit";
-  entityId: number;
-  day?: Day;
+  collectionId: number;
+  anniversary?: Anniversary;
 }
 
-export function DayForm({ mode, entityId, day }: DayFormProps) {
+export function AnniversaryForm({
+  mode,
+  collectionId,
+  anniversary,
+}: AnniversaryFormProps) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [isPending, setIsPending] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(
-    day?.annivAt ? new Date(day.annivAt) : null,
+    anniversary?.anniversaryDate ? new Date(anniversary.anniversaryDate) : null,
   );
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -33,8 +40,8 @@ export function DayForm({ mode, entityId, day }: DayFormProps) {
     try {
       const result =
         mode === "create"
-          ? await createDay(entityId, formData)
-          : await updateDay(day!.id, formData);
+          ? await createAnniversary(collectionId, formData)
+          : await updateAnniversary(anniversary?.id, formData);
 
       if (result.error) {
         setError(result.error);
@@ -44,7 +51,7 @@ export function DayForm({ mode, entityId, day }: DayFormProps) {
           router.push("/edit");
         }, 1500);
       }
-    } catch (err) {
+    } catch (_err) {
       setError("エラーが発生しました");
     } finally {
       setIsPending(false);
@@ -53,31 +60,32 @@ export function DayForm({ mode, entityId, day }: DayFormProps) {
 
   return (
     <div className="max-w-2xl">
-      {success && (
-        <FormSuccessMessage message="保存しました。編集ページに戻ります..." />
-      )}
+      <FormSuccessMessage
+        show={success}
+        message="保存しました。編集ページに戻ります..."
+      />
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <FormField
           label="記念日名"
           name="name"
           type="text"
-          defaultValue={day?.name}
+          defaultValue={anniversary?.name}
           required
-          error={error}
+          error={error ?? undefined}
         />
 
         <FormField
           label="説明"
-          name="desc"
+          name="description"
           type="textarea"
-          defaultValue={day?.desc ?? ""}
+          defaultValue={anniversary?.description ?? ""}
           rows={3}
         />
 
         <DatePickerField
           label="記念日"
-          name="annivAt"
+          name="anniversaryDate"
           selectedDate={selectedDate}
           onDateChange={setSelectedDate}
           required

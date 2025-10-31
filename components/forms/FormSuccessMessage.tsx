@@ -5,7 +5,10 @@ interface FormSuccessMessageProps {
   message?: string;
 }
 
-export function FormSuccessMessage({ show, message = "保存しました" }: FormSuccessMessageProps) {
+export function FormSuccessMessage({
+  show,
+  message = "保存しました",
+}: FormSuccessMessageProps) {
   if (!show) return null;
 
   return (

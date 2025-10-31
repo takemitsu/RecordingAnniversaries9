@@ -1,8 +1,8 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
-import { EntityForm } from "./EntityForm";
+import { CollectionForm } from "@/components/forms/CollectionForm";
 
-export default async function NewEntityPage() {
+export default async function NewCollectionPage() {
   const session = await auth();
 
   if (!session) {
@@ -14,7 +14,7 @@ export default async function NewEntityPage() {
       <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
         グループ作成
       </h1>
-      <EntityForm mode="create" />
+      <CollectionForm mode="create" />
     </div>
   );
 }

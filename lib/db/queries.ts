@@ -1,221 +1,133 @@
-import { and, desc, eq, isNull } from "drizzle-orm";
+import { and, asc, eq } from "drizzle-orm";
+import { calculateDiffDays } from "@/lib/utils/dateCalculation";
 import { db } from "./index";
-import { days, entities, users } from "./schema";
+import { anniversaries, collections } from "./schema";
 
 /**
- * ユーザー関連のクエリ
+ * コレクション（グループ）関連のクエリ
  */
-export const userQueries = {
-  // メールアドレスでユーザーを検索
-  findByEmail: async (email: string) => {
-    return await db.query.users.findFirst({
-      where: eq(users.email, email),
-    });
-  },
-
-  // Google IDでユーザーを検索
-  findByGoogleId: async (googleId: string) => {
-    return await db.query.users.findFirst({
-      where: eq(users.googleId, googleId),
-    });
-  },
-
-  // IDでユーザーを検索
-  findById: async (id: number) => {
-    return await db.query.users.findFirst({
-      where: eq(users.id, id),
-    });
-  },
-};
-
-/**
- * Entities関連のクエリ
- * ソフトデリート対応（deleted_at が null のもののみ取得）
- */
-export const entityQueries = {
-  // ユーザーの全Entitiesを取得（削除済みを除外）
-  findByUserId: async (userId: number) => {
-    return await db.query.entities.findMany({
-      where: and(eq(entities.userId, userId), isNull(entities.deletedAt)),
-      orderBy: desc(entities.createdAt),
+export const collectionQueries = {
+  /**
+   * ユーザーIDで全コレクションを取得
+   * 記念日は次の記念日までの日数が少ない順にソート
+   */
+  async findByUserId(userId: string) {
+    const result = await db.query.collections.findMany({
+      where: eq(collections.userId, userId),
+      orderBy: asc(collections.createdAt),
       with: {
-        days: {
-          where: isNull(days.deletedAt),
-          orderBy: days.annivAt,
-        },
+        anniversaries: true,
       },
     });
+
+    // 記念日を次の記念日までの日数でソート（今日が0日、昨日が364日）
+    return result.map((collection) => ({
+      ...collection,
+      anniversaries: collection.anniversaries.slice().sort((a, b) => {
+        const diffA = calculateDiffDays(a.anniversaryDate);
+        const diffB = calculateDiffDays(b.anniversaryDate);
+        if (diffA === null) return 1;
+        if (diffB === null) return -1;
+        return diffA - diffB;
+      }),
+    }));
   },
 
-  // 特定のEntityを取得
-  findById: async (id: number, userId: number) => {
-    return await db.query.entities.findFirst({
-      where: and(
-        eq(entities.id, id),
-        eq(entities.userId, userId),
-        isNull(entities.deletedAt),
-      ),
-      with: {
-        days: {
-          where: isNull(days.deletedAt),
-          orderBy: days.annivAt,
-        },
-      },
+  /**
+   * コレクションIDとユーザーIDで1件取得
+   * セキュリティ: userIdで所有者確認を行う
+   */
+  async findById(id: number, userId: string) {
+    return await db.query.collections.findFirst({
+      where: and(eq(collections.id, id), eq(collections.userId, userId)),
     });
   },
 
-  // Entityを作成
-  create: async (data: {
-    userId: number;
+  async create(data: {
+    userId: string;
     name: string;
-    desc?: string | null;
-    status?: number;
-  }) => {
-    const result = await db.insert(entities).values(data);
+    description?: string | null;
+    isVisible?: number;
+  }) {
+    const result = await db.insert(collections).values(data);
     return result[0].insertId;
   },
 
-  // Entityを更新
-  update: async (
+  async update(
     id: number,
-    userId: number,
-    data: { name?: string; desc?: string | null; status?: number },
-  ) => {
+    userId: string,
+    data: { name?: string; description?: string | null; isVisible?: number },
+  ) {
     await db
-      .update(entities)
+      .update(collections)
       .set(data)
-      .where(
-        and(
-          eq(entities.id, id),
-          eq(entities.userId, userId),
-          isNull(entities.deletedAt),
-        ),
-      );
+      .where(and(eq(collections.id, id), eq(collections.userId, userId)));
   },
 
-  // Entityをソフトデリート
-  softDelete: async (id: number, userId: number) => {
+  async delete(id: number, userId: string) {
     await db
-      .update(entities)
-      .set({ deletedAt: new Date() })
-      .where(
-        and(
-          eq(entities.id, id),
-          eq(entities.userId, userId),
-          isNull(entities.deletedAt),
-        ),
-      );
+      .delete(collections)
+      .where(and(eq(collections.id, id), eq(collections.userId, userId)));
   },
 };
 
 /**
- * Days関連のクエリ
- * ソフトデリート対応（deleted_at が null のもののみ取得）
+ * 記念日関連のクエリ
  */
-export const dayQueries = {
-  // Entity内の全Daysを取得（削除済みを除外）
-  findByEntityId: async (entityId: number, userId: number) => {
-    // まずEntityが存在し、ユーザーのものであることを確認
-    const entity = await db.query.entities.findFirst({
-      where: and(
-        eq(entities.id, entityId),
-        eq(entities.userId, userId),
-        isNull(entities.deletedAt),
-      ),
-    });
-
-    if (!entity) return [];
-
-    return await db.query.days.findMany({
-      where: and(eq(days.entityId, entityId), isNull(days.deletedAt)),
-      orderBy: days.annivAt,
-    });
-  },
-
-  // 特定のDayを取得
-  findById: async (id: number, userId: number) => {
-    const day = await db.query.days.findFirst({
-      where: and(eq(days.id, id), isNull(days.deletedAt)),
+export const anniversaryQueries = {
+  /**
+   * 記念日IDで1件取得
+   * セキュリティ: コレクションを経由してユーザー所有確認
+   */
+  async findById(id: number, userId: string) {
+    const anniversary = await db.query.anniversaries.findFirst({
+      where: eq(anniversaries.id, id),
       with: {
-        entity: true,
+        collection: true,
       },
     });
 
-    // entityが削除されているか、別のユーザーのものかチェック
+    // 記念日が見つからない、またはコレクションの所有者が異なる場合はnull
     if (
-      !day ||
-      !day.entity ||
-      day.entity.deletedAt ||
-      day.entity.userId !== userId
+      !anniversary ||
+      !anniversary.collection ||
+      anniversary.collection.userId !== userId
     ) {
       return null;
     }
 
-    return day;
+    return anniversary;
   },
 
-  // Dayを作成
-  create: async (data: {
-    entityId: number;
+  async create(data: {
+    collectionId: number;
     name: string;
-    desc?: string | null;
-    annivAt: string;
-  }) => {
-    const result = await db.insert(days).values(data);
+    description?: string | null;
+    anniversaryDate: string;
+  }) {
+    const result = await db.insert(anniversaries).values(data);
     return result[0].insertId;
   },
 
-  // Dayを更新
-  update: async (
+  async update(
     id: number,
-    userId: number,
-    data: { name?: string; desc?: string | null; annivAt?: string },
-  ) => {
-    // まずDayが存在し、ユーザーのものであることを確認
-    const day = await dayQueries.findById(id, userId);
-    if (!day || !day.entity) return;
+    userId: string,
+    data: {
+      name?: string;
+      description?: string | null;
+      anniversaryDate?: string;
+    },
+  ) {
+    const anniversary = await anniversaryQueries.findById(id, userId);
+    if (!anniversary || !anniversary.collection) return;
 
-    await db
-      .update(days)
-      .set(data)
-      .where(and(eq(days.id, id), isNull(days.deletedAt)));
+    await db.update(anniversaries).set(data).where(eq(anniversaries.id, id));
   },
 
-  // Dayをソフトデリート
-  softDelete: async (id: number, userId: number) => {
-    // まずDayが存在し、ユーザーのものであることを確認
-    const day = await dayQueries.findById(id, userId);
-    if (!day || !day.entity) return;
+  async delete(id: number, userId: string) {
+    const anniversary = await anniversaryQueries.findById(id, userId);
+    if (!anniversary || !anniversary.collection) return;
 
-    await db
-      .update(days)
-      .set({ deletedAt: new Date() })
-      .where(and(eq(days.id, id), isNull(days.deletedAt)));
-  },
-
-  // ユーザーの全Daysを取得（全Entitiesから）
-  findAllByUserId: async (userId: number) => {
-    const userEntities = await db.query.entities.findMany({
-      where: and(eq(entities.userId, userId), isNull(entities.deletedAt)),
-      with: {
-        days: {
-          where: isNull(days.deletedAt),
-          orderBy: days.annivAt,
-        },
-      },
-    });
-
-    // 全てのDaysをフラットな配列にする
-    return userEntities.flatMap((entity) =>
-      entity.days.map((day) => ({
-        ...day,
-        entity: {
-          id: entity.id,
-          name: entity.name,
-          desc: entity.desc,
-          status: entity.status,
-        },
-      })),
-    );
+    await db.delete(anniversaries).where(eq(anniversaries.id, id));
   },
 };

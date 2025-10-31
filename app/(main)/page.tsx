@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
+import { getCollectionsWithAnniversaries } from "@/app/actions/collections";
 import { auth } from "@/auth";
-import { getEntitiesWithDays } from "@/app/actions/entities";
-import { EntityCard } from "@/components/EntityCard";
+import { CollectionCard } from "@/components/CollectionCard";
 
 export default async function HomePage() {
   const session = await auth();
@@ -10,14 +10,19 @@ export default async function HomePage() {
     redirect("/auth/signin");
   }
 
-  const entities = await getEntitiesWithDays();
+  const collections = await getCollectionsWithAnniversaries();
 
   return (
     <div>
-      {entities.length > 0 ? (
+      {collections.length > 0 ? (
         <div className="space-y-0">
-          {entities.map((entity, index) => (
-            <EntityCard key={entity.id} entity={entity} showActions={false} isFirst={index === 0} />
+          {collections.map((collection, index) => (
+            <CollectionCard
+              key={collection.id}
+              collection={collection}
+              showActions={false}
+              isFirst={index === 0}
+            />
           ))}
         </div>
       ) : (

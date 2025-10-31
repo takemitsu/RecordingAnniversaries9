@@ -91,12 +91,8 @@
           "name": "accounts_userId_users_id_fk",
           "tableFrom": "accounts",
           "tableTo": "users",
-          "columnsFrom": [
-            "userId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["userId"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -104,10 +100,7 @@
       "compositePrimaryKeys": {
         "accounts_provider_providerAccountId_pk": {
           "name": "accounts_provider_providerAccountId_pk",
-          "columns": [
-            "provider",
-            "providerAccountId"
-          ]
+          "columns": ["provider", "providerAccountId"]
         }
       },
       "uniqueConstraints": {},
@@ -144,12 +137,8 @@
           "name": "auth_sessions_userId_users_id_fk",
           "tableFrom": "auth_sessions",
           "tableTo": "users",
-          "columnsFrom": [
-            "userId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["userId"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -157,9 +146,7 @@
       "compositePrimaryKeys": {
         "auth_sessions_sessionToken": {
           "name": "auth_sessions_sessionToken",
-          "columns": [
-            "sessionToken"
-          ]
+          "columns": ["sessionToken"]
         }
       },
       "uniqueConstraints": {},
@@ -231,9 +218,7 @@
       "indexes": {
         "days_entity_id_index": {
           "name": "days_entity_id_index",
-          "columns": [
-            "entity_id"
-          ],
+          "columns": ["entity_id"],
           "isUnique": false
         }
       },
@@ -242,12 +227,8 @@
           "name": "days_entity_id_entities_id_fk",
           "tableFrom": "days",
           "tableTo": "entities",
-          "columnsFrom": [
-            "entity_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["entity_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -255,9 +236,7 @@
       "compositePrimaryKeys": {
         "days_id": {
           "name": "days_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -330,9 +309,7 @@
       "indexes": {
         "entities_user_id_index": {
           "name": "entities_user_id_index",
-          "columns": [
-            "user_id"
-          ],
+          "columns": ["user_id"],
           "isUnique": false
         }
       },
@@ -341,12 +318,8 @@
           "name": "entities_user_id_users_id_fk",
           "tableFrom": "entities",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -354,9 +327,7 @@
       "compositePrimaryKeys": {
         "entities_id": {
           "name": "entities_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -437,23 +408,17 @@
       "compositePrimaryKeys": {
         "users_id": {
           "name": "users_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {
         "users_email_unique": {
           "name": "users_email_unique",
-          "columns": [
-            "email"
-          ]
+          "columns": ["email"]
         },
         "users_google_id_unique": {
           "name": "users_google_id_unique",
-          "columns": [
-            "google_id"
-          ]
+          "columns": ["google_id"]
         }
       },
       "checkConstraint": {}

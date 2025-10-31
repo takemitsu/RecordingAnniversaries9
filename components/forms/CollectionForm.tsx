@@ -1,18 +1,19 @@
 "use client";
 
-import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { createEntity, updateEntity } from "@/app/actions/entities";
-import type { Entity } from "@/lib/db/schema";
+import { useState } from "react";
+import { createCollection, updateCollection } from "@/app/actions/collections";
 import { FormField } from "@/components/forms/FormField";
 import { FormSuccessMessage } from "@/components/forms/FormSuccessMessage";
+import { VISIBILITY } from "@/lib/constants";
+import type { Collection } from "@/lib/db/schema";
 
-interface EntityFormProps {
+interface CollectionFormProps {
   mode: "create" | "edit";
-  entity?: Entity;
+  collection?: Collection;
 }
 
-export function EntityForm({ mode, entity }: EntityFormProps) {
+export function CollectionForm({ mode, collection }: CollectionFormProps) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -28,8 +29,8 @@ export function EntityForm({ mode, entity }: EntityFormProps) {
     try {
       const result =
         mode === "create"
-          ? await createEntity(formData)
-          : await updateEntity(entity!.id, formData);
+          ? await createCollection(formData)
+          : await updateCollection(collection?.id, formData);
 
       if (result.error) {
         setError(result.error);
@@ -39,7 +40,7 @@ export function EntityForm({ mode, entity }: EntityFormProps) {
           router.push("/edit");
         }, 1500);
       }
-    } catch (err) {
+    } catch (_err) {
       setError("エラーが発生しました");
     } finally {
       setIsPending(false);
@@ -48,43 +49,44 @@ export function EntityForm({ mode, entity }: EntityFormProps) {
 
   return (
     <div className="max-w-2xl">
-      {success && (
-        <FormSuccessMessage message="保存しました。編集ページに戻ります..." />
-      )}
+      <FormSuccessMessage
+        show={success}
+        message="保存しました。編集ページに戻ります..."
+      />
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <FormField
           label="グループ名"
           name="name"
           type="text"
-          defaultValue={entity?.name}
+          defaultValue={collection?.name}
           required
-          error={error}
+          error={error ?? undefined}
         />
 
         <FormField
           label="説明"
-          name="desc"
+          name="description"
           type="textarea"
-          defaultValue={entity?.desc ?? ""}
+          defaultValue={collection?.description ?? ""}
           rows={3}
         />
 
         <div>
           <label
-            htmlFor="status"
+            htmlFor="isVisible"
             className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
           >
-            ステータス
+            表示設定
           </label>
           <select
-            id="status"
-            name="status"
-            defaultValue={entity?.status ?? 0}
+            id="isVisible"
+            name="isVisible"
+            defaultValue={collection?.isVisible ?? VISIBILITY.VISIBLE}
             className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-sky-500 focus:border-sky-500 dark:bg-gray-700 dark:text-white"
           >
-            <option value={0}>アクティブ</option>
-            <option value={1}>非アクティブ</option>
+            <option value={VISIBILITY.VISIBLE}>一覧に表示</option>
+            <option value={VISIBILITY.HIDDEN}>一覧に非表示</option>
           </select>
         </div>
 

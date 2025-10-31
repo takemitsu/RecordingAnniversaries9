@@ -1,8 +1,8 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
 import type { User } from "next-auth";
+import { useState } from "react";
 import { updateProfile } from "@/app/actions/profile";
 import { FormField } from "@/components/forms/FormField";
 import { FormSuccessMessage } from "@/components/forms/FormSuccessMessage";
@@ -35,7 +35,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
         setTimeout(() => setShowSuccess(false), 3000);
         router.refresh();
       }
-    } catch (err) {
+    } catch (_err) {
       setError("更新に失敗しました");
     } finally {
       setIsSubmitting(false);

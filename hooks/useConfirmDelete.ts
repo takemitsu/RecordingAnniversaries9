@@ -7,13 +7,17 @@ export function useConfirmDelete() {
 
   const confirmDelete = async (
     itemName: string,
-    deleteAction: () => Promise<void>,
+    deleteAction: () => Promise<{ success: boolean } | { error: string }>,
   ) => {
     if (confirm(`「${itemName}」を削除してもよろしいですか？`)) {
       startTransition(async () => {
         try {
-          await deleteAction();
-          router.refresh();
+          const result = await deleteAction();
+          if ("error" in result) {
+            alert(result.error);
+          } else {
+            router.refresh();
+          }
         } catch (error) {
           console.error("削除エラー:", error);
           alert("削除に失敗しました。");

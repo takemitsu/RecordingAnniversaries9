@@ -1,10 +1,10 @@
 "use server";
 
+import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import { getUserId } from "@/lib/auth-helpers";
 import { db } from "@/lib/db";
 import { users } from "@/lib/db/schema";
-import { getUserId } from "@/lib/auth-helpers";
-import { eq } from "drizzle-orm";
 
 /**
  * プロフィール情報を更新

@@ -12,106 +12,31 @@ import {
   varchar,
 } from "drizzle-orm/mysql-core";
 
-// Users Table
-// 既存のLaravelプロジェクトと互換性を保つ
 export const users = mysqlTable("users", {
-  id: bigint("id", { mode: "number", unsigned: true })
+  id: varchar("id", { length: 255 })
     .primaryKey()
-    .autoincrement(),
-  name: varchar("name", { length: 255 }).notNull(),
+    .$defaultFn(() => crypto.randomUUID()),
+  name: varchar("name", { length: 255 }),
   email: varchar("email", { length: 255 }).notNull().unique(),
-  emailVerifiedAt: timestamp("email_verified_at", { mode: "date" }),
-  password: varchar("password", { length: 255 }),
-  googleId: varchar("google_id", { length: 255 }).unique(),
-  rememberToken: varchar("remember_token", { length: 100 }),
+  emailVerified: timestamp("email_verified", { mode: "date" }),
+  image: text("image"),
   createdAt: timestamp("created_at", { mode: "date" }).defaultNow(),
   updatedAt: timestamp("updated_at", { mode: "date" })
     .defaultNow()
     .onUpdateNow(),
 });
 
-// Entities Table (記念日グループ)
-// ソフトデリート対応
-export const entities = mysqlTable(
-  "entities",
-  {
-    id: bigint("id", { mode: "number", unsigned: true })
-      .primaryKey()
-      .autoincrement(),
-    userId: bigint("user_id", { mode: "number", unsigned: true })
-      .notNull()
-      .references(() => users.id, { onDelete: "cascade" }),
-    name: varchar("name", { length: 255 }).notNull(),
-    desc: text("desc"),
-    status: tinyint("status", { unsigned: true }).notNull().default(0),
-    createdAt: timestamp("created_at", { mode: "date" }).defaultNow(),
-    updatedAt: timestamp("updated_at", { mode: "date" })
-      .defaultNow()
-      .onUpdateNow(),
-    deletedAt: timestamp("deleted_at", { mode: "date" }), // ソフトデリート
-  },
-  (table) => ({
-    userIdIdx: index("entities_user_id_index").on(table.userId),
-  }),
-);
-
-// Days Table (個別の記念日)
-// ソフトデリート対応
-// 注意: anniv_at は DATE 型（datetime ではない）
-export const days = mysqlTable(
-  "days",
-  {
-    id: bigint("id", { mode: "number", unsigned: true })
-      .primaryKey()
-      .autoincrement(),
-    entityId: bigint("entity_id", { mode: "number", unsigned: true })
-      .notNull()
-      .references(() => entities.id, { onDelete: "cascade" }),
-    name: varchar("name", { length: 255 }).notNull(),
-    desc: text("desc"),
-    annivAt: date("anniv_at", { mode: "string" }).notNull(), // DATE型（日付のみ）
-    createdAt: timestamp("created_at", { mode: "date" }).defaultNow(),
-    updatedAt: timestamp("updated_at", { mode: "date" })
-      .defaultNow()
-      .onUpdateNow(),
-    deletedAt: timestamp("deleted_at", { mode: "date" }), // ソフトデリート
-  },
-  (table) => ({
-    entityIdIdx: index("days_entity_id_index").on(table.entityId),
-  }),
-);
-
-// Relations
-export const usersRelations = relations(users, ({ many }) => ({
-  entities: many(entities),
-}));
-
-export const entitiesRelations = relations(entities, ({ one, many }) => ({
-  user: one(users, {
-    fields: [entities.userId],
-    references: [users.id],
-  }),
-  days: many(days),
-}));
-
-export const daysRelations = relations(days, ({ one }) => ({
-  entity: one(entities, {
-    fields: [days.entityId],
-    references: [entities.id],
-  }),
-}));
-
-// Auth.js用テーブル
-// OAuth連携情報
 export const accounts = mysqlTable(
   "accounts",
   {
-    userId: bigint("userId", { mode: "number", unsigned: true })
+    userId: varchar("user_id", { length: 255 })
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
     type: varchar("type", { length: 255 }).notNull(),
     provider: varchar("provider", { length: 255 }).notNull(),
-    providerAccountId: varchar("providerAccountId", { length: 255 }).notNull(),
+    providerAccountId: varchar("provider_account_id", {
+      length: 255,
+    }).notNull(),
     refresh_token: text("refresh_token"),
     access_token: text("access_token"),
     expires_at: int("expires_at"),
@@ -127,29 +52,106 @@ export const accounts = mysqlTable(
   }),
 );
 
-// Auth.jsセッション（既存のLaravelのsessionsテーブルと区別）
-export const authSessions = mysqlTable("auth_sessions", {
-  sessionToken: varchar("sessionToken", { length: 255 })
-    .notNull()
-    .primaryKey(),
-  userId: bigint("userId", { mode: "number", unsigned: true })
+export const sessions = mysqlTable("sessions", {
+  sessionToken: varchar("session_token", { length: 255 }).primaryKey(),
+  userId: varchar("user_id", { length: 255 })
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
   expires: timestamp("expires", { mode: "date" }).notNull(),
 });
 
-// Type exports
+export const collections = mysqlTable(
+  "collections",
+  {
+    id: bigint("id", { mode: "number", unsigned: true })
+      .primaryKey()
+      .autoincrement(),
+    userId: varchar("user_id", { length: 255 })
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    name: varchar("name", { length: 255 }).notNull(),
+    description: text("description"),
+    isVisible: tinyint("is_visible", { unsigned: true }).notNull().default(0),
+    createdAt: timestamp("created_at", { mode: "date" }).defaultNow(),
+    updatedAt: timestamp("updated_at", { mode: "date" })
+      .defaultNow()
+      .onUpdateNow(),
+  },
+  (table) => ({
+    userIdIdx: index("collections_user_id_index").on(table.userId),
+  }),
+);
+
+export const anniversaries = mysqlTable(
+  "anniversaries",
+  {
+    id: bigint("id", { mode: "number", unsigned: true })
+      .primaryKey()
+      .autoincrement(),
+    collectionId: bigint("collection_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => collections.id, { onDelete: "cascade" }),
+    name: varchar("name", { length: 255 }).notNull(),
+    description: text("description"),
+    anniversaryDate: date("anniversary_date", { mode: "string" }).notNull(),
+    createdAt: timestamp("created_at", { mode: "date" }).defaultNow(),
+    updatedAt: timestamp("updated_at", { mode: "date" })
+      .defaultNow()
+      .onUpdateNow(),
+  },
+  (table) => ({
+    collectionIdIdx: index("anniversaries_collection_id_index").on(
+      table.collectionId,
+    ),
+  }),
+);
+
+export const usersRelations = relations(users, ({ many }) => ({
+  collections: many(collections),
+  accounts: many(accounts),
+  sessions: many(sessions),
+}));
+
+export const accountsRelations = relations(accounts, ({ one }) => ({
+  user: one(users, {
+    fields: [accounts.userId],
+    references: [users.id],
+  }),
+}));
+
+export const sessionsRelations = relations(sessions, ({ one }) => ({
+  user: one(users, {
+    fields: [sessions.userId],
+    references: [users.id],
+  }),
+}));
+
+export const collectionsRelations = relations(collections, ({ one, many }) => ({
+  user: one(users, {
+    fields: [collections.userId],
+    references: [users.id],
+  }),
+  anniversaries: many(anniversaries),
+}));
+
+export const anniversariesRelations = relations(anniversaries, ({ one }) => ({
+  collection: one(collections, {
+    fields: [anniversaries.collectionId],
+    references: [collections.id],
+  }),
+}));
+
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
-
-export type Entity = typeof entities.$inferSelect;
-export type NewEntity = typeof entities.$inferInsert;
-
-export type Day = typeof days.$inferSelect;
-export type NewDay = typeof days.$inferInsert;
 
 export type Account = typeof accounts.$inferSelect;
 export type NewAccount = typeof accounts.$inferInsert;
 
-export type AuthSession = typeof authSessions.$inferSelect;
-export type NewAuthSession = typeof authSessions.$inferInsert;
+export type Session = typeof sessions.$inferSelect;
+export type NewSession = typeof sessions.$inferInsert;
+
+export type Collection = typeof collections.$inferSelect;
+export type NewCollection = typeof collections.$inferInsert;
+
+export type Anniversary = typeof anniversaries.$inferSelect;
+export type NewAnniversary = typeof anniversaries.$inferInsert;

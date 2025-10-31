@@ -1,10 +1,6 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 
-/**
- * サーバーコンポーネントやServer Actionsで現在のユーザーセッションを取得
- * 未認証の場合はログインページにリダイレクト
- */
 export async function requireAuth() {
   const session = await auth();
 
@@ -15,21 +11,14 @@ export async function requireAuth() {
   return session;
 }
 
-/**
- * サーバーコンポーネントやServer Actionsで現在のユーザーセッションを取得
- * 未認証でもリダイレクトしない
- */
 export async function getSession() {
   return await auth();
 }
 
-/**
- * ユーザーIDを取得
- */
 export async function getUserId() {
   const session = await requireAuth();
   if (!session.user?.id) {
     redirect("/auth/signin");
   }
-  return Number(session.user.id);
+  return session.user.id;
 }

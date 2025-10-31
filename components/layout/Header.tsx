@@ -2,9 +2,9 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
-import { signOut } from "next-auth/react";
 import type { Session } from "next-auth";
+import { signOut } from "next-auth/react";
+import { useState } from "react";
 
 interface HeaderProps {
   session: Session | null;
@@ -80,6 +80,7 @@ export function Header({ session, today }: HeaderProps) {
                     viewBox="0 0 20 20"
                     fill="currentColor"
                   >
+                    <title>メニューを開く</title>
                     <path
                       fillRule="evenodd"
                       d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
@@ -91,7 +92,9 @@ export function Header({ session, today }: HeaderProps) {
                 {showUserDropdown && (
                   <>
                     {/* Backdrop */}
+                    {/* biome-ignore lint/a11y/noStaticElementInteractions: Backdrop for closing dropdown - keyboard users can use Esc or Tab away */}
                     <div
+                      role="presentation"
                       className="fixed inset-0 z-10"
                       onClick={() => setShowUserDropdown(false)}
                     />
@@ -142,6 +145,7 @@ export function Header({ session, today }: HeaderProps) {
                 fill="none"
                 viewBox="0 0 24 24"
               >
+                <title>メニュー</title>
                 <path
                   className={
                     showingNavigationDropdown ? "hidden" : "inline-flex"
