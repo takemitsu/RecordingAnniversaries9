@@ -29,7 +29,6 @@ export function AnniversaryCard({
 
   return (
     <div className="py-2 pl-2 border-t border-gray-200 dark:border-gray-700">
-      {/* Anniversary Name & Countdown (ra8準拠) */}
       <div className="text-base mb-1">
         <span className="text-blue-600 dark:text-blue-400 font-bold">
           {anniversary.name}
@@ -55,7 +54,9 @@ export function AnniversaryCard({
 
       {/* 西暦（和暦）・年齢 */}
       <div className="text-base text-gray-600 dark:text-gray-200 mb-1">
-        <span>{anniversary.anniversaryDate}（{japanDateStr}）</span>
+        <span>
+          {anniversary.anniversaryDate}（{japanDateStr}）
+        </span>
         {ages && <span className="ml-1">{ages}</span>}
       </div>
 
