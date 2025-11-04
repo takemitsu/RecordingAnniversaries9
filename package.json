@@ -11,11 +11,9 @@
     "db:migrate": "tsx scripts/migrate.ts"
   },
   "dependencies": {
-    "@auth/core": "^0.41.0",
+    "@auth/core": "^0.41.1",
     "@auth/drizzle-adapter": "^1.11.1",
-    "@simplewebauthn/browser": "^9.0.1",
-    "@simplewebauthn/server": "^9.0.3",
-    "dayjs": "^1.11.18",
+    "dayjs": "^1.11.19",
     "drizzle-kit": "^0.31.6",
     "drizzle-orm": "^0.44.7",
     "mysql2": "^3.15.3",
@@ -25,9 +23,9 @@
     "react-dom": "19.2.0"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.2.0",
+    "@biomejs/biome": "^2.3.3",
     "@tailwindcss/postcss": "^4",
-    "@types/node": "^20",
+    "@types/node": "^24.10.0",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "dotenv": "^17.2.3",
