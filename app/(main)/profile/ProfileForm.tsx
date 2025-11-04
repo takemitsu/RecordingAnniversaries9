@@ -1,46 +1,16 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import type { User } from "next-auth";
-import { useState } from "react";
+import { useActionState } from "react";
 import { updateProfile } from "@/app/actions/profile";
 import { FormField } from "@/components/forms/FormField";
-import { FormSuccessMessage } from "@/components/forms/FormSuccessMessage";
 
 interface ProfileFormProps {
   user: User;
 }
 
 export function ProfileForm({ user }: ProfileFormProps) {
-  const router = useRouter();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [showSuccess, setShowSuccess] = useState(false);
-
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    setError(null);
-    setShowSuccess(false);
-    setIsSubmitting(true);
-
-    const formData = new FormData(e.currentTarget);
-
-    try {
-      const result = await updateProfile(formData);
-
-      if (result.error) {
-        setError(result.error);
-      } else {
-        setShowSuccess(true);
-        setTimeout(() => setShowSuccess(false), 3000);
-        router.refresh();
-      }
-    } catch (_err) {
-      setError("更新に失敗しました");
-    } finally {
-      setIsSubmitting(false);
-    }
-  }
+  const [state, formAction, isPending] = useActionState(updateProfile, null);
 
   return (
     <div>
@@ -51,13 +21,14 @@ export function ProfileForm({ user }: ProfileFormProps) {
         アカウントのプロフィール情報を更新します
       </p>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form action={formAction} className="space-y-4">
         <FormField
           label="名前"
           name="name"
           type="text"
           defaultValue={user.name || ""}
           required
+          error={state?.error}
         />
 
         <div className="text-sm text-gray-600 dark:text-gray-400">
@@ -65,20 +36,44 @@ export function ProfileForm({ user }: ProfileFormProps) {
           {user.email}
         </div>
 
-        {error && (
-          <div className="text-sm text-red-600 dark:text-red-400">{error}</div>
-        )}
-
         <div className="flex items-center gap-4">
           <button
             type="submit"
-            disabled={isSubmitting}
-            className="px-4 py-2 bg-sky-500 hover:bg-sky-600 disabled:bg-gray-400 text-white rounded-md text-sm transition"
+            disabled={isPending}
+            className="px-6 py-2 bg-sky-600 hover:bg-sky-700 text-white rounded-md font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
-            {isSubmitting ? "保存中..." : "保存"}
+            {isPending && (
+              <svg
+                className="animate-spin h-5 w-5 text-white"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                role="img"
+                aria-label="読み込み中"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                />
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                />
+              </svg>
+            )}
+            {isPending ? "保存中..." : "保存"}
           </button>
 
-          <FormSuccessMessage show={showSuccess} message="保存しました" />
+          {state?.success && (
+            <span className="text-sm text-green-600 dark:text-green-400 font-medium">
+              保存しました
+            </span>
+          )}
         </div>
       </form>
     </div>
