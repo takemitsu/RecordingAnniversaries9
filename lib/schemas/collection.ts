@@ -4,7 +4,7 @@ import { z } from "zod";
  * Collectionフォーム用のZodスキーマ
  */
 export const collectionSchema = z.object({
-  name: z.string().min(1, "グループ名を入力してください").trim(),
+  name: z.string().trim().min(1, "グループ名を入力してください"),
   description: z.string().trim().nullable().optional(),
   isVisible: z.coerce.number().int(),
 });

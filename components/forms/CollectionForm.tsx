@@ -38,7 +38,7 @@ export function CollectionForm({ mode, collection }: CollectionFormProps) {
           label="グループ名"
           name="name"
           type="text"
-          defaultValue={collection?.name}
+          defaultValue={state?.fieldValues?.name ?? collection?.name}
           required
           error={state?.errors?.name?.[0]}
         />
@@ -47,7 +47,9 @@ export function CollectionForm({ mode, collection }: CollectionFormProps) {
           label="説明"
           name="description"
           type="textarea"
-          defaultValue={collection?.description ?? ""}
+          defaultValue={
+            state?.fieldValues?.description ?? collection?.description ?? ""
+          }
           rows={3}
           error={state?.errors?.description?.[0]}
         />
@@ -62,7 +64,11 @@ export function CollectionForm({ mode, collection }: CollectionFormProps) {
           <select
             id="isVisible"
             name="isVisible"
-            defaultValue={collection?.isVisible ?? VISIBILITY.VISIBLE}
+            defaultValue={
+              state?.fieldValues?.isVisible ??
+              collection?.isVisible ??
+              VISIBILITY.VISIBLE
+            }
             className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-sky-500 focus:border-sky-500 dark:bg-gray-700 dark:text-white"
           >
             <option value={VISIBILITY.VISIBLE}>一覧に表示</option>

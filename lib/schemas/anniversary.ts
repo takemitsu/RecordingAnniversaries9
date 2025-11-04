@@ -8,7 +8,7 @@ dayjs.extend(customParseFormat);
  * Anniversaryフォーム用のZodスキーマ
  */
 export const anniversarySchema = z.object({
-  name: z.string().min(1, "記念日名を入力してください").trim(),
+  name: z.string().trim().min(1, "記念日名を入力してください"),
   description: z.string().trim().nullable().optional(),
   anniversaryDate: z
     .string()

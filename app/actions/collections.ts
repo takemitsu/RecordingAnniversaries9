@@ -14,6 +14,12 @@ import {
 type CollectionFormState = {
   error?: string;
   errors?: Record<string, string[]>;
+  fieldValues?: {
+    name?: string;
+    description?: string | null;
+    isVisible?: number;
+    collectionId?: number;
+  };
 } | null;
 
 export async function createCollection(
@@ -33,9 +39,14 @@ export async function createCollection(
   const result = createCollectionSchema.safeParse(rawData);
 
   if (!result.success) {
-    // フィールドごとのエラーを返す
+    // フィールドごとのエラーを返す（入力値も保持）
     return {
       errors: result.error.flatten().fieldErrors,
+      fieldValues: {
+        name: rawData.name as string,
+        description: rawData.description as string | null,
+        isVisible: Number(rawData.isVisible),
+      },
     };
   }
 
@@ -86,9 +97,15 @@ export async function updateCollection(
   const result = updateCollectionSchema.safeParse(rawData);
 
   if (!result.success) {
-    // フィールドごとのエラーを返す
+    // フィールドごとのエラーを返す（入力値も保持）
     return {
       errors: result.error.flatten().fieldErrors,
+      fieldValues: {
+        name: rawData.name as string,
+        description: rawData.description as string | null,
+        isVisible: Number(rawData.isVisible),
+        collectionId: Number(rawData.collectionId),
+      },
     };
   }
 

@@ -47,7 +47,7 @@ export function AnniversaryForm({
           label="記念日名"
           name="name"
           type="text"
-          defaultValue={anniversary?.name}
+          defaultValue={state?.fieldValues?.name ?? anniversary?.name}
           required
           error={state?.errors?.name?.[0]}
         />
@@ -56,7 +56,9 @@ export function AnniversaryForm({
           label="説明"
           name="description"
           type="textarea"
-          defaultValue={anniversary?.description ?? ""}
+          defaultValue={
+            state?.fieldValues?.description ?? anniversary?.description ?? ""
+          }
           rows={3}
           error={state?.errors?.description?.[0]}
         />
@@ -64,7 +66,9 @@ export function AnniversaryForm({
         <DatePickerField
           label="記念日"
           name="anniversaryDate"
-          defaultValue={anniversary?.anniversaryDate}
+          defaultValue={
+            state?.fieldValues?.anniversaryDate ?? anniversary?.anniversaryDate
+          }
           required
           error={state?.errors?.anniversaryDate?.[0]}
         />

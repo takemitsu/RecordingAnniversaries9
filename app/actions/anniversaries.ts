@@ -13,6 +13,11 @@ import {
 type AnniversaryFormState = {
   error?: string;
   errors?: Record<string, string[]>;
+  fieldValues?: {
+    name?: string;
+    description?: string | null;
+    anniversaryDate?: string;
+  };
 } | null;
 
 export async function createAnniversary(
@@ -33,9 +38,14 @@ export async function createAnniversary(
   const result = createAnniversarySchema.safeParse(rawData);
 
   if (!result.success) {
-    // フィールドごとのエラーを返す
+    // フィールドごとのエラーを返す（入力値も保持）
     return {
       errors: result.error.flatten().fieldErrors,
+      fieldValues: {
+        name: rawData.name as string,
+        description: rawData.description as string | null,
+        anniversaryDate: rawData.anniversaryDate as string,
+      },
     };
   }
 
@@ -93,9 +103,14 @@ export async function updateAnniversary(
   const result = updateAnniversarySchema.safeParse(rawData);
 
   if (!result.success) {
-    // フィールドごとのエラーを返す
+    // フィールドごとのエラーを返す（入力値も保持）
     return {
       errors: result.error.flatten().fieldErrors,
+      fieldValues: {
+        name: rawData.name as string,
+        description: rawData.description as string | null,
+        anniversaryDate: rawData.anniversaryDate as string | undefined,
+      },
     };
   }
 
