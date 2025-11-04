@@ -31,11 +31,11 @@
   - 実装: `app/actions/collections.ts`, `app/actions/anniversaries.ts`
   - UI: `components/forms/CollectionForm.tsx`, `components/forms/AnniversaryForm.tsx`
 
-- [ ] **環境変数の型安全性向上**（低優先度）
+- [x] **環境変数の型安全性向上** ✅ 完了
   - `lib/env.ts` の作成（Zod + process.env）
   - 環境変数の自動補完とバリデーション
-  - ビルド時の環境変数チェック
-  - 例: `@t3-oss/env-nextjs` パターンの採用
+  - ビルド時の環境変数チェック（next.config.tsで実行）
+  - シンプルなZodバリデーション採用（@t3-oss/env-nextjsは不採用）
 
 ### テスト
 - [ ] E2Eテスト（Playwright）

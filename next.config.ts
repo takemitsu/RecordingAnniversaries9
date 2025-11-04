@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import "./lib/env"; // 環境変数バリデーション（ビルド時に実行）
 
 const nextConfig: NextConfig = {
   // 本番環境でconsole.logを自動削除
