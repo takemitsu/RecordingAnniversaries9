@@ -89,14 +89,12 @@ recording-anniversaries9/
 │   │   └── dateCalculation.ts                        # カウントダウン計算
 │   ├── constants.ts                                   # 定数定義
 │   └── auth-helpers.ts                                # 認証ヘルパー
+├── hooks/
+│   └── useConfirmDelete.tsx                          # 削除確認フック
 ├── docs/                                              # プロジェクトドキュメント
-│   ├── MIGRATION_PLAN.md                             # 移行計画
-│   ├── TASK_STATUS.md                                # タスク進捗
 │   ├── TECH_DECISIONS.md                             # 技術的決定
-│   ├── CONSTRAINTS.md                                # 制約事項
-│   ├── SETUP.md                                      # セットアップ手順
-│   ├── COMPLETED.md                                  # 完了した作業
-│   └── TODO.md                                       # 未実装機能
+│   ├── TODO.md                                       # 未実装機能
+│   └── SETUP.md                                      # セットアップ手順
 ├── auth.ts                                            # Auth.js v5 設定
 ├── proxy.ts                                           # Next.js 16 認証プロキシ
 ├── drizzle.config.ts                                 # Drizzle設定
@@ -242,8 +240,6 @@ npx drizzle-kit studio
 ## 重要な制約事項
 
 ⚠️ **データベース制約**
-
-詳細は [docs/CONSTRAINTS.md](docs/CONSTRAINTS.md) を参照。
 
 **現在の実装**:
 - テーブル名: `collections`, `anniversaries`

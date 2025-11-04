@@ -100,7 +100,6 @@ Users (ユーザー)
 
 #### アプリケーションコア
 1. **users** - ユーザー情報
-   - 既存テーブル
    - Google OAuth対応（google_id カラム）
 
 2. **collections** - 記念日グループ
@@ -160,7 +159,7 @@ Users (ユーザー)
 - ✅ サーバーサイドエラーハンドリング
 - ✅ Pending状態表示（ボタンdisable、ローディング表示）
 
-### UI（ra8準拠のリファクタリング完了）
+### UI実装完了
 - ✅ **2ページ構成**
   - `/` - 一覧ページ（閲覧専用）
   - `/edit` - 編集ページ（全機能アクセス可能）
@@ -178,8 +177,8 @@ Users (ユーザー)
 - ✅ **ダークモード対応**
 
 ### コンポーネント
-- ✅ `components/CollectionCard.tsx` - ra8準拠
-- ✅ `components/AnniversaryCard.tsx` - ra8準拠
+- ✅ `components/CollectionCard.tsx`
+- ✅ `components/AnniversaryCard.tsx`
 - ✅ `components/forms/CollectionForm.tsx`
 - ✅ `components/forms/AnniversaryForm.tsx`
 - ✅ `components/forms/DatePickerField.tsx`

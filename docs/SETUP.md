@@ -17,7 +17,7 @@
 ### 必須の環境変数
 
 #### DATABASE_URL
-既存のMySQLデータベース接続文字列
+MySQLデータベース接続文字列
 
 ```
 DATABASE_URL="mysql://USERNAME:PASSWORD@HOST:3306/DATABASE_NAME"
@@ -86,8 +86,7 @@ export const authConfig = {
 
 **選択肢2**: テーブルを追加する
 
-⚠️ この方法は既存DBを変更するため、recordingAnniversaries8に影響を与える可能性があります。
-必ず事前にバックアップを取ってください。
+⚠️ この方法はDBを変更します。必ず事前にバックアップを取ってください。
 
 ```sql
 -- lib/db/schema.ts に Auth.js用のテーブル定義を追加後、
@@ -119,7 +118,7 @@ http://localhost:3000 にアクセス
 1. トップページが表示される
 2. 「ログイン」ボタンをクリック
 3. 「Googleでログイン」をクリック
-4. Google認証が完了すると `/dashboard` にリダイレクトされる
+4. Google認証が完了すると `/`（メインページ）にリダイレクトされる
 
 ## トラブルシューティング
 
@@ -154,15 +153,3 @@ http://localhost:3000 にアクセス
 rm -rf node_modules package-lock.json
 npm install
 ```
-
-## 次のステップ
-
-基本的な動作確認ができたら：
-
-1. Entities（グループ）の作成機能を追加
-2. Days（記念日）の作成機能を追加
-3. 編集・削除機能の実装
-4. ダークモード対応
-5. レスポンシブデザインの改善
-
-詳細は `docs/MIGRATION_PLAN.md` を参照してください。

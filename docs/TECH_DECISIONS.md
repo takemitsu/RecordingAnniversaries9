@@ -4,7 +4,7 @@
 
 ### DATE vs DATETIME
 
-**決定**: 記念日フィールド（`days.anniv_at`）には **DATE 型**を使用
+**決定**: 記念日フィールド（`anniversaries.anniversary_date`）には **DATE 型**を使用
 
 **理由**:
 - 記念日は日付のみで時刻情報は不要
@@ -13,7 +13,9 @@
 
 ### ソフトデリート
 
-**決定**: `entities` と `days` テーブルで `deleted_at` カラムを使用したソフトデリート
+**現状**: **未実装**
+
+**計画**: `collections` と `anniversaries` テーブルで `deleted_at` カラムを使用したソフトデリート
 
 **理由**:
 - ユーザーの大切な記念日データを誤削除から保護
