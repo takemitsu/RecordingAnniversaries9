@@ -1,5 +1,6 @@
 "use server";
 
+import { cache } from "react";
 import dayjs from "dayjs";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
@@ -135,7 +136,7 @@ export async function deleteAnniversary(anniversaryId: number) {
   }
 }
 
-export async function getAnniversary(anniversaryId: number) {
+export const getAnniversary = cache(async (anniversaryId: number) => {
   const userId = await getUserId();
 
   try {
@@ -153,4 +154,4 @@ export async function getAnniversary(anniversaryId: number) {
     console.error("Anniversary fetch error:", error);
     redirect("/edit");
   }
-}
+});

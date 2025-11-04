@@ -1,5 +1,6 @@
 "use server";
 
+import { cache } from "react";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { getUserId } from "@/lib/auth-helpers";
@@ -18,7 +19,8 @@ export async function createCollection(
 
   const name = formData.get("name") as string;
   const description = formData.get("description") as string | null;
-  const isVisible = Number(formData.get("isVisible") || 0);
+  const isVisibleRaw = formData.get("isVisible");
+  const isVisible = isVisibleRaw ? Number(isVisibleRaw) : VISIBILITY.VISIBLE;
 
   if (!name || name.trim().length === 0) {
     return { error: "グループ名を入力してください" };
@@ -65,7 +67,8 @@ export async function updateCollection(
 
   const name = formData.get("name") as string;
   const description = formData.get("description") as string | null;
-  const isVisible = Number(formData.get("isVisible") || 0);
+  const isVisibleRaw = formData.get("isVisible");
+  const isVisible = isVisibleRaw ? Number(isVisibleRaw) : VISIBILITY.VISIBLE;
 
   if (!name || name.trim().length === 0) {
     return { error: "グループ名を入力してください" };
@@ -117,7 +120,7 @@ export async function deleteCollection(collectionId: number) {
   }
 }
 
-export async function getCollections() {
+export const getCollections = cache(async () => {
   const userId = await getUserId();
 
   try {
@@ -127,9 +130,9 @@ export async function getCollections() {
     console.error("Collections fetch error:", error);
     return [];
   }
-}
+});
 
-export async function getCollectionsWithAnniversaries() {
+export const getCollectionsWithAnniversaries = cache(async () => {
   const userId = await getUserId();
 
   try {
@@ -144,9 +147,9 @@ export async function getCollectionsWithAnniversaries() {
     console.error("Collections fetch error:", error);
     return [];
   }
-}
+});
 
-export async function getCollection(collectionId: number) {
+export const getCollection = cache(async (collectionId: number) => {
   const userId = await getUserId();
 
   try {
@@ -161,4 +164,4 @@ export async function getCollection(collectionId: number) {
     console.error("Collection fetch error:", error);
     redirect("/edit");
   }
-}
+});

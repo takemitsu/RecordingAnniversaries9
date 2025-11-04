@@ -4,9 +4,9 @@ import { auth, signIn } from "@/auth";
 export default async function SignInPage() {
   const session = await auth();
 
-  // 既にログイン済みの場合はダッシュボードへ
+  // 既にログイン済みの場合はメインページへ
   if (session) {
-    redirect("/dashboard");
+    redirect("/");
   }
 
   return (
@@ -25,7 +25,7 @@ export default async function SignInPage() {
           <form
             action={async () => {
               "use server";
-              await signIn("google", { redirectTo: "/dashboard" });
+              await signIn("google", { redirectTo: "/" });
             }}
           >
             <button
