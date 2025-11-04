@@ -1,53 +1,57 @@
 "use server";
 
-import dayjs from "dayjs";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { cache } from "react";
 import { getUserId } from "@/lib/auth-helpers";
 import { anniversaryQueries, collectionQueries } from "@/lib/db/queries";
+import {
+  createAnniversarySchema,
+  updateAnniversarySchema,
+} from "@/lib/schemas/anniversary";
 
 type AnniversaryFormState = {
   error?: string;
+  errors?: Record<string, string[]>;
 } | null;
 
 export async function createAnniversary(
   _prevState: AnniversaryFormState,
   formData: FormData,
 ): Promise<AnniversaryFormState> {
-  const collectionId = Number(formData.get("collectionId"));
-
-  if (!collectionId) {
-    return { error: "グループIDが指定されていません" };
-  }
-
   const userId = await getUserId();
 
+  // FormDataをObjectに変換
+  const rawData = {
+    collectionId: formData.get("collectionId"),
+    name: formData.get("name"),
+    description: formData.get("description") || null,
+    anniversaryDate: formData.get("anniversaryDate"),
+  };
+
+  // Zodバリデーション
+  const result = createAnniversarySchema.safeParse(rawData);
+
+  if (!result.success) {
+    // フィールドごとのエラーを返す
+    return {
+      errors: result.error.flatten().fieldErrors,
+    };
+  }
+
+  const { collectionId, name, description, anniversaryDate } = result.data;
+
+  // Collectionの存在確認
   const collection = await collectionQueries.findById(collectionId, userId);
   if (!collection) {
     return { error: "グループが見つかりません" };
   }
 
-  const name = formData.get("name") as string;
-  const description = formData.get("description") as string | null;
-  const anniversaryDate = formData.get("anniversaryDate") as string;
-
-  if (!name || name.trim().length === 0) {
-    return { error: "記念日名を入力してください" };
-  }
-
-  if (
-    !anniversaryDate ||
-    !dayjs(anniversaryDate, "YYYY-MM-DD", true).isValid()
-  ) {
-    return { error: "有効な日付を入力してください" };
-  }
-
   try {
     await anniversaryQueries.create({
       collectionId,
-      name: name.trim(),
-      description: description?.trim() || null,
+      name,
+      description: description || null,
       anniversaryDate,
     });
   } catch (error) {
@@ -74,33 +78,33 @@ export async function updateAnniversary(
   _prevState: AnniversaryFormState,
   formData: FormData,
 ): Promise<AnniversaryFormState> {
-  const anniversaryId = Number(formData.get("anniversaryId"));
-
-  if (!anniversaryId) {
-    return { error: "記念日IDが指定されていません" };
-  }
-
   const userId = await getUserId();
 
-  const name = formData.get("name") as string;
-  const description = formData.get("description") as string | null;
-  const anniversaryDate = formData.get("anniversaryDate") as string;
+  // FormDataをObjectに変換
+  const rawData = {
+    anniversaryId: formData.get("anniversaryId"),
+    collectionId: formData.get("collectionId"),
+    name: formData.get("name"),
+    description: formData.get("description") || null,
+    anniversaryDate: formData.get("anniversaryDate") || undefined,
+  };
 
-  if (!name || name.trim().length === 0) {
-    return { error: "記念日名を入力してください" };
+  // Zodバリデーション
+  const result = updateAnniversarySchema.safeParse(rawData);
+
+  if (!result.success) {
+    // フィールドごとのエラーを返す
+    return {
+      errors: result.error.flatten().fieldErrors,
+    };
   }
 
-  if (
-    anniversaryDate &&
-    !dayjs(anniversaryDate, "YYYY-MM-DD", true).isValid()
-  ) {
-    return { error: "有効な日付を入力してください" };
-  }
+  const { anniversaryId, name, description, anniversaryDate } = result.data;
 
   try {
     await anniversaryQueries.update(anniversaryId, userId, {
-      name: name.trim(),
-      description: description?.trim() || null,
+      name,
+      description: description || null,
       ...(anniversaryDate && { anniversaryDate }),
     });
   } catch (error) {

@@ -23,18 +23,15 @@
 - [ ] アクセシビリティさらなる改善
 
 ### コード品質
-- [ ] **Zodバリデーションの導入**
+- [x] **Zodバリデーションの導入** ✅ 完了
   - Server Actions のフォームバリデーション強化
   - 型安全性向上（FormData → Zod schema → TypeScript types）
-  - 対象: `app/actions/collections.ts`, `app/actions/anniversaries.ts`
-  - 現状: 手動バリデーションのみ
+  - フィールドごとのエラー表示対応
+  - スキーマ: `lib/schemas/collection.ts`, `lib/schemas/anniversary.ts`
+  - 実装: `app/actions/collections.ts`, `app/actions/anniversaries.ts`
+  - UI: `components/forms/CollectionForm.tsx`, `components/forms/AnniversaryForm.tsx`
 
-- [ ] **FormData ヘルパー関数の作成**（検討）
-  - `lib/utils/formData.ts` の作成
-  - 共通パターンの抽出（trim、null変換、数値変換）
-  - 型安全なFormDataパーサー実装
-
-- [ ] **環境変数の型安全性向上**
+- [ ] **環境変数の型安全性向上**（低優先度）
   - `lib/env.ts` の作成（Zod + process.env）
   - 環境変数の自動補完とバリデーション
   - ビルド時の環境変数チェック

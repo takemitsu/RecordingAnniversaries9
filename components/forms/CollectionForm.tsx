@@ -25,13 +25,22 @@ export function CollectionForm({ mode, collection }: CollectionFormProps) {
           <input type="hidden" name="collectionId" value={collection.id} />
         )}
 
+        {/* 全体エラー表示 */}
+        {state?.error && (
+          <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md">
+            <p className="text-sm text-red-600 dark:text-red-400">
+              {state.error}
+            </p>
+          </div>
+        )}
+
         <FormField
           label="グループ名"
           name="name"
           type="text"
           defaultValue={collection?.name}
           required
-          error={state?.error}
+          error={state?.errors?.name?.[0]}
         />
 
         <FormField
@@ -40,6 +49,7 @@ export function CollectionForm({ mode, collection }: CollectionFormProps) {
           type="textarea"
           defaultValue={collection?.description ?? ""}
           rows={3}
+          error={state?.errors?.description?.[0]}
         />
 
         <div>
@@ -58,6 +68,11 @@ export function CollectionForm({ mode, collection }: CollectionFormProps) {
             <option value={VISIBILITY.VISIBLE}>一覧に表示</option>
             <option value={VISIBILITY.HIDDEN}>一覧に非表示</option>
           </select>
+          {state?.errors?.isVisible?.[0] && (
+            <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+              {state.errors.isVisible[0]}
+            </p>
+          )}
         </div>
 
         <div className="flex gap-4">

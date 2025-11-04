@@ -6,9 +6,14 @@ import { cache } from "react";
 import { getUserId } from "@/lib/auth-helpers";
 import { VISIBILITY } from "@/lib/constants";
 import { collectionQueries } from "@/lib/db/queries";
+import {
+  createCollectionSchema,
+  updateCollectionSchema,
+} from "@/lib/schemas/collection";
 
 type CollectionFormState = {
   error?: string;
+  errors?: Record<string, string[]>;
 } | null;
 
 export async function createCollection(
@@ -17,20 +22,30 @@ export async function createCollection(
 ): Promise<CollectionFormState> {
   const userId = await getUserId();
 
-  const name = formData.get("name") as string;
-  const description = formData.get("description") as string | null;
-  const isVisibleRaw = formData.get("isVisible");
-  const isVisible = isVisibleRaw ? Number(isVisibleRaw) : VISIBILITY.VISIBLE;
+  // FormDataをObjectに変換
+  const rawData = {
+    name: formData.get("name"),
+    description: formData.get("description") || null,
+    isVisible: formData.get("isVisible") || VISIBILITY.VISIBLE,
+  };
 
-  if (!name || name.trim().length === 0) {
-    return { error: "グループ名を入力してください" };
+  // Zodバリデーション
+  const result = createCollectionSchema.safeParse(rawData);
+
+  if (!result.success) {
+    // フィールドごとのエラーを返す
+    return {
+      errors: result.error.flatten().fieldErrors,
+    };
   }
+
+  const { name, description, isVisible } = result.data;
 
   try {
     await collectionQueries.create({
       userId,
-      name: name.trim(),
-      description: description?.trim() || null,
+      name,
+      description: description || null,
       isVisible,
     });
   } catch (error) {
@@ -57,27 +72,32 @@ export async function updateCollection(
   _prevState: CollectionFormState,
   formData: FormData,
 ): Promise<CollectionFormState> {
-  const collectionId = Number(formData.get("collectionId"));
-
-  if (!collectionId) {
-    return { error: "グループIDが指定されていません" };
-  }
-
   const userId = await getUserId();
 
-  const name = formData.get("name") as string;
-  const description = formData.get("description") as string | null;
-  const isVisibleRaw = formData.get("isVisible");
-  const isVisible = isVisibleRaw ? Number(isVisibleRaw) : VISIBILITY.VISIBLE;
+  // FormDataをObjectに変換
+  const rawData = {
+    collectionId: formData.get("collectionId"),
+    name: formData.get("name"),
+    description: formData.get("description") || null,
+    isVisible: formData.get("isVisible") || VISIBILITY.VISIBLE,
+  };
 
-  if (!name || name.trim().length === 0) {
-    return { error: "グループ名を入力してください" };
+  // Zodバリデーション
+  const result = updateCollectionSchema.safeParse(rawData);
+
+  if (!result.success) {
+    // フィールドごとのエラーを返す
+    return {
+      errors: result.error.flatten().fieldErrors,
+    };
   }
+
+  const { collectionId, name, description, isVisible } = result.data;
 
   try {
     await collectionQueries.update(collectionId, userId, {
-      name: name.trim(),
-      description: description?.trim() || null,
+      name,
+      description: description || null,
       isVisible,
     });
   } catch (error) {

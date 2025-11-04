@@ -34,13 +34,22 @@ export function AnniversaryForm({
           <input type="hidden" name="anniversaryId" value={anniversary.id} />
         )}
 
+        {/* 全体エラー表示 */}
+        {state?.error && (
+          <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md">
+            <p className="text-sm text-red-600 dark:text-red-400">
+              {state.error}
+            </p>
+          </div>
+        )}
+
         <FormField
           label="記念日名"
           name="name"
           type="text"
           defaultValue={anniversary?.name}
           required
-          error={state?.error}
+          error={state?.errors?.name?.[0]}
         />
 
         <FormField
@@ -49,6 +58,7 @@ export function AnniversaryForm({
           type="textarea"
           defaultValue={anniversary?.description ?? ""}
           rows={3}
+          error={state?.errors?.description?.[0]}
         />
 
         <DatePickerField
@@ -56,6 +66,7 @@ export function AnniversaryForm({
           name="anniversaryDate"
           defaultValue={anniversary?.anniversaryDate}
           required
+          error={state?.errors?.anniversaryDate?.[0]}
         />
 
         <div className="flex gap-4">
