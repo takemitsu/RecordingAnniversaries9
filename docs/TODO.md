@@ -38,8 +38,15 @@
   - シンプルなZodバリデーション採用（@t3-oss/env-nextjsは不採用）
 
 ### テスト
-- [ ] E2Eテスト（Playwright）
-- [ ] Unitテスト（Vitest）
+- [ ] **テスト実装（実装準備完了）** 🚀
+  - **詳細**: `docs/TEST_STRATEGY.md` 参照
+  - **戦略**: Vitest（Unit + Integration）+ React Testing Library（Component）+ Playwright（E2E）
+  - **DB**: SQLite（`:memory:`）でテスト専用環境
+  - **Phase 1**: Unit Tests（日付計算、和暦、Zod）
+  - **Phase 2**: Integration Tests（Server Actions + SQLite）
+  - **Phase 3**: Component Tests（フォーム、カード）
+  - **Phase 4**: E2E Tests（ユーザーフロー全体）
+  - **実装手順**: `TEST_STRATEGY.md` のチェックリストに従って段階的に実装
 
 ### デプロイ
 - [ ] 本番環境設定
