@@ -125,7 +125,7 @@
 
 **適用箇所**:
 - 日付計算結果（日単位でキャッシュ）
-- ユーザーの entities/days 一覧（変更時に再検証）
+- ユーザーの collections/anniversaries 一覧（変更時に再検証）
 
 ## Server Actions
 
