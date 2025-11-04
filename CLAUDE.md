@@ -75,6 +75,7 @@ recording-anniversaries9/
 │   ├── utils/
 │   │   ├── japanDate.ts      # 和暦変換（令和、平成など）
 │   │   └── dateCalculation.ts  # 日付計算（カウントダウン/カウントアップ）
+│   ├── env.ts                # 環境変数バリデーション（Zod）
 │   ├── constants.ts          # 定数定義（VISIBILITY等）
 │   └── auth-helpers.ts       # 認証ヘルパー（getUserId）
 ├── hooks/
@@ -212,7 +213,7 @@ Users (ユーザー)
 - ✅ TypeScript strict mode
 - ✅ Biome設定（lint/format）
 - ✅ Next.js 16 対応（proxy.ts使用）
-- ✅ 環境変数設定（.env.local）
+- ✅ 環境変数バリデーション（lib/env.ts、ビルド時チェック）
 
 ### ドキュメント
 - ✅ README.md

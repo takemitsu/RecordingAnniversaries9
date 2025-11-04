@@ -92,6 +92,7 @@ recording-anniversaries9/
 │   ├── utils/
 │   │   ├── japanDate.ts                              # 和暦変換
 │   │   └── dateCalculation.ts                        # カウントダウン計算
+│   ├── env.ts                                         # 環境変数バリデーション（Zod）
 │   ├── constants.ts                                   # 定数定義
 │   └── auth-helpers.ts                                # 認証ヘルパー
 ├── hooks/
@@ -140,6 +141,8 @@ npm install
 ```
 
 2. 環境変数の設定（.env.local）
+
+**重要**: 環境変数は`lib/env.ts`でZodバリデーションされます。不足・誤設定があるとビルドが失敗します。
 ```env
 # Database
 DATABASE_URL="mysql://user:password@127.0.0.1:3306/database"
@@ -190,6 +193,11 @@ npm run dev
 - **フォーム値保持** - バリデーションエラー時も入力値を保持
 - **HTML5バリデーション** - required属性による即座のフィードバック
 - **Pending状態表示** - ボタンdisable、ローディング表示
+
+### 環境変数の型安全性
+- **Zodバリデーション** - ビルド時に環境変数をチェック（`lib/env.ts`）
+- **TypeScript型拡張** - `process.env`の自動補完対応
+- **型安全なアクセス** - `env.DATABASE_URL`等
 
 ### プロフィール設定
 - **ユーザー名変更** - `/profile`ページ
