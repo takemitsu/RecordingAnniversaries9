@@ -6,16 +6,16 @@
 
 ### 目的
 - recordingAnniversaries8 を Next.js 16 + TypeScript で書き換え
-- 既存MySQL DBを共有（recordingAnniversaries8と共存）
-- モダンなスタックへの移行（App Router, Server Actions, Auth.js v5）
+- 既存MySQL DBを使用
+- モダンなスタックへの移行（App Router, Server Actions, Auth.js v5, React 19）
 
 ### 技術スタック
 - **Next.js 16.0.1** - App Router, Turbopack
-- **React 19.2.0**
+- **React 19.2.0** - useActionState統合
 - **TypeScript 5** - Strict mode
 - **Auth.js v5 (next-auth@beta.30)** - 認証
 - **Drizzle ORM 0.44** - データベース接続
-- **MySQL 8** - SAKURA VPS上の既存DB（recordingAnniversaries8と共有）
+- **MySQL 8** - データベース
 - **Tailwind CSS v4** - スタイリング
 - **Biome 2.2** - Linter/Formatter
 - **dayjs 1.11** - 日付処理
@@ -25,32 +25,55 @@
 ```
 recording-anniversaries9/
 ├── app/
+│   ├── (main)/
+│   │   ├── page.tsx                                    # 一覧ページ（閲覧専用）
+│   │   ├── edit/
+│   │   │   ├── page.tsx                               # 編集ページ
+│   │   │   ├── EditPageClient.tsx
+│   │   │   └── collection/
+│   │   │       ├── new/page.tsx                       # Collection作成
+│   │   │       ├── [collectionId]/page.tsx           # Collection編集
+│   │   │       └── [collectionId]/anniversary/
+│   │   │           ├── new/page.tsx                   # Anniversary作成
+│   │   │           └── [anniversaryId]/page.tsx      # Anniversary編集
+│   │   ├── profile/
+│   │   │   ├── page.tsx                               # プロフィール設定
+│   │   │   └── ProfileForm.tsx
+│   │   └── layout.tsx                                 # メインレイアウト
 │   ├── actions/              # Server Actions
-│   │   ├── entities.ts       # Entities CRUD（作成/更新/削除/取得）
-│   │   └── days.ts           # Days CRUD（作成/更新/削除/取得）
+│   │   ├── collections.ts    # Collections CRUD（作成/更新/削除/取得）
+│   │   ├── anniversaries.ts  # Anniversaries CRUD（作成/更新/削除/取得）
+│   │   └── profile.ts        # プロフィール更新
 │   ├── api/auth/[...nextauth]/route.ts  # Auth.js API
 │   ├── auth/                 # 認証関連ページ
 │   │   └── signin/page.tsx
-│   ├── dashboard/page.tsx    # ダッシュボード（記念日一覧）
-│   ├── entities/             # グループ管理
-│   │   ├── page.tsx          # 一覧
-│   │   ├── new/page.tsx      # 新規作成
-│   │   └── [id]/             # 詳細/編集
-│   ├── days/                 # 記念日管理
 │   ├── layout.tsx            # ルートレイアウト
-│   └── page.tsx              # トップページ（ログイン/ダッシュボードへ誘導）
+│   └── page.tsx              # トップページ（リダイレクト）
 ├── components/
-│   ├── layout/Header.tsx     # ヘッダー（ナビゲーション）
-│   └── ui/                   # UIコンポーネント（Modal, ConfirmDialog等）
+│   ├── CollectionCard.tsx    # Collectionカード
+│   ├── AnniversaryCard.tsx   # Anniversaryカード
+│   ├── forms/
+│   │   ├── CollectionForm.tsx
+│   │   ├── AnniversaryForm.tsx
+│   │   ├── DatePickerField.tsx
+│   │   └── FormField.tsx
+│   ├── layout/
+│   │   ├── Header.tsx        # ヘッダー（ハンバーガーメニュー）
+│   │   └── Footer.tsx        # フッター
+│   └── ui/
+│       └── Button.tsx        # 統一Buttonコンポーネント
 ├── lib/
 │   ├── db/
 │   │   ├── schema.ts         # Drizzle スキーマ定義
 │   │   ├── index.ts          # DB接続
-│   │   └── queries.ts        # クエリヘルパー（entityQueries, dayQueries）
+│   │   └── queries.ts        # クエリヘルパー（collectionQueries, anniversaryQueries）
 │   ├── utils/
 │   │   ├── japanDate.ts      # 和暦変換（令和、平成など）
 │   │   └── dateCalculation.ts  # 日付計算（カウントダウン/カウントアップ）
+│   ├── constants.ts          # 定数定義（VISIBILITY等）
 │   └── auth-helpers.ts       # 認証ヘルパー（getUserId）
+├── hooks/
+│   └── useConfirmDelete.tsx  # 削除確認フック
 ├── docs/                     # プロジェクトドキュメント
 │   ├── MIGRATION_PLAN.md     # 移行計画
 │   ├── TASK_STATUS.md        # タスク進捗
@@ -69,14 +92,7 @@ recording-anniversaries9/
 ## データベース設計
 
 ### 重要な制約 🚨
-**既存MySQLデータベースへの変更は禁止**
-
-recordingAnniversaries8（Laravel版）が動作中のため：
-- ❌ テーブル構造の変更（ALTER TABLE）
-- ❌ 新規テーブルの作成（CREATE TABLE）※Auth.js用テーブル除く
-- ❌ マイグレーションの実行
-- ✅ 既存データの読み取り（SELECT）
-- ✅ 新規データの追加（INSERT）
+**データベース構造について**
 
 詳細: `docs/CONSTRAINTS.md`
 
@@ -84,47 +100,36 @@ recordingAnniversaries8（Laravel版）が動作中のため：
 
 ```
 Users (ユーザー)
-  └─ Entities (記念日グループ)
-      └─ Days (個別の記念日)
+  └─ Collections (記念日グループ)
+      └─ Anniversaries (個別の記念日)
 ```
 
 ### テーブル一覧
 
 #### アプリケーションコア
 1. **users** - ユーザー情報
-   - 既存テーブル（Laravel互換）
+   - 既存テーブル
    - Google OAuth対応（google_id カラム）
 
-2. **entities** - 記念日グループ
-   - ソフトデリート対応（deleted_at）
+2. **collections** - 記念日グループ
    - user_id で紐付け
+   - is_visible で一覧ページ表示/非表示制御
 
-3. **days** - 個別の記念日
-   - ソフトデリート対応（deleted_at）
-   - entity_id で紐付け
-   - **anniv_at は DATE型**（datetime不可）
+3. **anniversaries** - 個別の記念日
+   - collection_id で紐付け
+   - **anniversary_date は DATE型**
+   - description は TEXT型
 
-#### Laravel関連（変更禁止）
-- sessions - Laravel セッション
-- cache, cache_locks - Laravel キャッシュ
-- jobs, job_batches, failed_jobs - Laravel Queue
-- migrations - Laravel マイグレーション
-- password_reset_tokens - Laravel パスワードリセット
-
-#### WebAuthn
-- **webauthn_credentials** - Passkey 認証情報（既存）
-
-#### Auth.js用（完了）
+#### Auth.js用
 - **accounts** - OAuth連携情報（Google）
-- **auth_sessions** - Auth.jsセッション（既存sessionsと区別）
-- **__drizzle_migrations** - Drizzle マイグレーション履歴
+- **sessions** - Auth.jsセッション
 
 ### スキーマ定義
 
 `lib/db/schema.ts`参照。重要ポイント：
-- `days.anniv_at` は `date("anniv_at", { mode: "string" })`
-- ソフトデリート: `deletedAt: timestamp("deleted_at")`
+- `anniversaries.anniversary_date` は `date("anniversary_date", { mode: "string" })`
 - リレーション定義済み（Drizzle Relations）
+- ソフトデリート（deleted_at）は**未実装**
 
 ## 完了済み機能 ✅
 
@@ -134,45 +139,80 @@ Users (ユーザー)
 - ✅ Google OAuth 認証動作確認（ログイン/セッション/ダッシュボードアクセス）
 - ✅ セッション管理（database strategy）
 - ✅ 認証ヘルパー（getUserId）
-- ✅ Auth.js用DBテーブル作成（accounts, auth_sessions）
-- ✅ カスタムアダプター実装（AUTO_INCREMENT対応）
+- ✅ Auth.js用DBテーブル（accounts, sessions）
 - ❌ **Passkey（WebAuthn）は未実装**
 
 ### データベース
-- ✅ Drizzle スキーマ定義（users, entities, days, accounts, auth_sessions）
+- ✅ Drizzle スキーマ定義（users, collections, anniversaries, accounts, sessions）
 - ✅ MySQL接続設定
-- ✅ クエリヘルパー実装
-- ✅ ソフトデリート対応
+- ✅ クエリヘルパー実装（collectionQueries, anniversaryQueries）
 - ✅ Drizzleマイグレーション実装（generate + migrate）
 
 ### Server Actions
-- ✅ Entities CRUD（作成/更新/削除/取得）
-- ✅ Days CRUD（作成/更新/削除/取得）
+- ✅ Collections CRUD（作成/更新/削除/取得）
+  - `createCollection`, `updateCollection`, `deleteCollection`
+  - `getCollections`, `getCollectionsWithAnniversaries`, `getCollection`
+- ✅ Anniversaries CRUD（作成/更新/削除/取得）
+  - `createAnniversary`, `updateAnniversary`, `deleteAnniversary`
+  - `getAnniversary`
+- ✅ Profile 更新（`updateProfile`）
 - ✅ ユーザーごとのデータ分離
 - ✅ revalidatePath によるキャッシュ無効化
 
-### UI
-- ✅ 認証ページ（Google ログイン）
-- ✅ ダッシュボード（記念日一覧表示）
-- ✅ グループ管理（作成/編集/削除）
-- ✅ 記念日管理（作成/編集/削除）
-- ✅ レスポンシブデザイン
-- ✅ Header コンポーネント（ナビゲーション）
+### React 19統合
+- ✅ `useActionState` によるフォーム状態管理
+  - CollectionForm
+  - AnniversaryForm
+  - ProfileForm
+- ✅ HTML5バリデーション統合（required, minLength）
+- ✅ サーバーサイドエラーハンドリング
+- ✅ Pending状態表示（ボタンdisable、ローディング表示）
+
+### UI（ra8準拠のリファクタリング完了）
+- ✅ **2ページ構成**
+  - `/` - 一覧ページ（閲覧専用）
+  - `/edit` - 編集ページ（全機能アクセス可能）
+- ✅ **フルスクリーンフォーム**
+  - `/edit/collection/new` - Collection作成
+  - `/edit/collection/[collectionId]` - Collection編集
+  - `/edit/collection/[collectionId]/anniversary/new` - Anniversary作成
+  - `/edit/collection/[collectionId]/anniversary/[anniversaryId]` - Anniversary編集
+- ✅ **プロフィール設定**
+  - `/profile` - ユーザー名変更
+- ✅ **レスポンシブデザイン**
+  - モバイル: `p-2`
+  - デスクトップ: `lg:p-12`
+- ✅ **ハンバーガーメニュー**（モバイル: `sm:hidden`）
+- ✅ **ダークモード対応**
+
+### コンポーネント
+- ✅ `components/CollectionCard.tsx` - ra8準拠
+- ✅ `components/AnniversaryCard.tsx` - ra8準拠
+- ✅ `components/forms/CollectionForm.tsx`
+- ✅ `components/forms/AnniversaryForm.tsx`
+- ✅ `components/forms/DatePickerField.tsx`
+- ✅ `components/forms/FormField.tsx`
+- ✅ `components/layout/Header.tsx` - ハンバーガーメニュー実装済み
+- ✅ `components/layout/Footer.tsx` - フッター実装
+- ✅ `components/ui/Button.tsx` - 統一Buttonコンポーネント
 
 ### 日付計算
 - ✅ カウントダウン計算（年次繰り返し対応）
   - `lib/utils/dateCalculation.ts: calculateDiffDays()`
   - 過去日の場合、次回の記念日までの日数を計算
 - ✅ カウントアップ計算（経過年数）
+  - `getAges()` - 例: 5年（6年目）
 - ✅ 和暦変換（令和、平成など）
   - `lib/utils/japanDate.ts`
+  - 元年表示対応
+- ✅ 日付表示フォーマット
+  - 西暦（和暦）形式 - 例: 2014-11-01（平成26年）
 
 ### 開発環境
 - ✅ TypeScript strict mode
 - ✅ Biome設定（lint/format）
 - ✅ Next.js 16 対応（proxy.ts使用）
 - ✅ 環境変数設定（.env.local）
-- ✅ 開発用DB接続（Docker MySQL）
 
 ### ドキュメント
 - ✅ README.md
@@ -184,9 +224,8 @@ Users (ユーザー)
 ### 🔴 優先: Passkey（WebAuthn）実装
 
 **現状**:
-- `webauthn_credentials`テーブルは既存DB内に存在
-- `@simplewebauthn/server`, `@simplewebauthn/browser` インストール済み
 - Auth.js v5のWebAuthn対応を調査中
+- `@simplewebauthn/server`, `@simplewebauthn/browser` インストール済み
 
 **実装方針**:
 1. Auth.js v5の公式WebAuthnプロバイダーを使用（推奨）
@@ -198,18 +237,6 @@ Users (ユーザー)
 - [ ] カレンダー表示
 - [ ] 通知機能（メール/プッシュ通知）
 - [ ] 記念日のインポート/エクスポート
-- [ ] ダークモード対応
-
-### UI/UX
-- [ ] recordingAnniversaries8のUIとの詳細な比較
-- [ ] アニメーション追加
-- [ ] モバイル最適化
-- [ ] アクセシビリティ改善（残りBiomeエラー対応）
-
-### パフォーマンス
-- [ ] "use cache"によるキャッシング最適化
-- [ ] 画像最適化
-- [ ] コード分割
 
 ### テスト
 - [ ] E2Eテスト（Playwright）
@@ -218,7 +245,6 @@ Users (ユーザー)
 ### デプロイ
 - [ ] 本番環境設定
 - [ ] CI/CD設定
-- [ ] SAKURA VPS デプロイ
 
 ## 環境変数
 
@@ -226,20 +252,15 @@ Users (ユーザー)
 
 ```env
 # Database
-DATABASE_URL="mysql://ra8_user:password@127.0.0.1:3306/ra8"
+DATABASE_URL="mysql://user:password@127.0.0.1:3306/database"
 
 # Auth.js
 AUTH_SECRET="LiLwuByyqzL8IX2EyVtFSlpzuaQMHg3YFSxgMP9kZmQ=" # 生成済み
 AUTH_URL="http://localhost:3000"
 
-# Google OAuth（要設定）
-GOOGLE_CLIENT_ID=""  # ← 未設定
-GOOGLE_CLIENT_SECRET=""  # ← 未設定
-
-# WebAuthn
-NEXT_PUBLIC_WEBAUTHN_RP_ID="localhost"
-NEXT_PUBLIC_WEBAUTHN_RP_NAME="Recording Anniversaries"
-NEXT_PUBLIC_WEBAUTHN_ORIGIN="http://localhost:3000"
+# Google OAuth
+GOOGLE_CLIENT_ID="your-client-id"
+GOOGLE_CLIENT_SECRET="your-client-secret"
 
 # Application
 NEXT_PUBLIC_APP_NAME="Recording Anniversaries 9"
@@ -276,41 +297,7 @@ npm run format
 
 # Drizzle
 npx drizzle-kit studio  # Drizzle Studio（DBビューアー）
-npx drizzle-kit push     # スキーマ変更を反映（注意: 既存DB変更禁止）
 npx drizzle-kit generate # マイグレーションファイル生成
-```
-
-## データベース接続
-
-### 開発環境（Docker MySQL）
-
-```bash
-# 接続
-mysql -h 127.0.0.1 -P 3306 -u ra8_user -ppassword ra8
-
-# テーブル確認
-SHOW TABLES;
-
-# Auth.js用テーブル確認（追加後）
-DESC accounts;
-DESC auth_sessions;
-```
-
-### 既存テーブル一覧
-
-```
-cache                    - Laravel cache
-cache_locks              - Laravel cache
-days                     - 記念日
-entities                 - グループ
-failed_jobs              - Laravel jobs
-job_batches              - Laravel jobs
-jobs                     - Laravel jobs
-migrations               - Laravel migrations
-password_reset_tokens    - Laravel auth
-sessions                 - Laravel sessions
-users                    - ユーザー
-webauthn_credentials     - Passkey
 ```
 
 ## Next.js 16 対応
@@ -323,7 +310,7 @@ webauthn_credentials     - Passkey
    }
    ```
 
-2. **"use cache" でキャッシング明示**
+2. **"use cache" でキャッシング明示**（未使用）
    ```typescript
    "use cache";
    export async function getCachedData() {
@@ -344,11 +331,11 @@ webauthn_credentials     - Passkey
 #### 問題: ログインできない
 - [ ] `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` が設定されているか確認
 - [ ] Google Cloud ConsoleでリダイレクトURIが正しく設定されているか
-- [ ] `accounts`, `auth_sessions`テーブルが作成されているか
+- [ ] `accounts`, `sessions`テーブルが作成されているか
 
 #### 問題: セッションが維持されない
 - [ ] `AUTH_SECRET`が設定されているか
-- [ ] `auth_sessions`テーブルが作成されているか
+- [ ] `sessions`テーブルが作成されているか
 
 ### Drizzle関連
 
@@ -356,15 +343,8 @@ webauthn_credentials     - Passkey
 - [ ] `DATABASE_URL`が正しいか確認
 - [ ] MySQLサーバーが起動しているか確認
   ```bash
-  mysql -h 127.0.0.1 -P 3306 -u ra8_user -ppassword ra8
+  mysql -h 127.0.0.1 -P 3306 -u user -ppassword database
   ```
-
-### TypeScript/Biome関連
-
-#### 既知のBiome警告（許容範囲）
-- Modal/ConfirmDialogの`role="button"`警告（2件）
-  - 機能的には問題なし
-  - キーボードアクセシビリティ実装済み
 
 ## 技術的決定事項
 
@@ -390,58 +370,44 @@ webauthn_credentials     - Passkey
 | ORM | Eloquent | Drizzle |
 | スタイリング | Tailwind CSS v3 | Tailwind CSS v4 |
 | ビルド | Vite | Turbopack |
-
-## 参考リソース
-
-### ドキュメント
-- Next.js 16: https://nextjs.org/docs
-- Auth.js v5: https://authjs.dev/
-- Drizzle ORM: https://orm.drizzle.team/
-- Tailwind CSS v4: https://tailwindcss.com/
-
-### 元プロジェクト
-- リポジトリ: https://github.com/takemitsu/RecordingAnniversaries8
-- ローカルパス: `../recordingAnniversaries8`
-- 参考実装:
-  - `resources/js/util/japanDate.ts` - 和暦変換
-  - `app/Services/DateCalculationService.php` - 日付計算
+| フォーム | Inertia forms | React 19 useActionState |
 
 ## UI/UX設計の意図
 
-### 設計思想：Entity中心アーキテクチャ
+### 設計思想：Collection中心アーキテクチャ
 
-このプロジェクトは**Entity（グループ）を中心としたデータ構造**を採用しています。
+このプロジェクトは**Collection（グループ）を中心としたデータ構造**を採用しています。
 
 ```
 users (ユーザー)
-  └─ entities (グループ: 家族、友人、仕事など)
-      └─ days (記念日: 誕生日、記念日など)
+  └─ collections (グループ: 家族、友人、仕事など)
+      └─ anniversaries (記念日: 誕生日、記念日など)
 ```
 
 **重要な原則**:
-- Day（記念日）は Entity（グループ）に属する
-- Entity が Day を所有する階層構造
+- Anniversary（記念日）は Collection（グループ）に属する
+- Collection が Anniversary を所有する階層構造
 - UIはこのデータ構造を忠実に反映する
 
 ### ページ構成
 
 #### `/` (トップページ) - 一覧ページ（閲覧専用）
-- Entityごとにカード表示
-- 各EntityCard内にDaysをネスト表示
-- 記念日があるEntityのみ表示
+- Collectionごとにカード表示
+- 各CollectionCard内にAnniversariesをネスト表示
+- 記念日があるCollectionのみ表示
 - 操作ボタンなし（閲覧専用）
 
 #### `/edit` - 編集ページ
-- 全Entityを表示（記念日がなくてもOK）
-- Entity単位の操作: 削除、編集、Day追加
-- Day単位の操作: 削除、編集
+- 全Collectionを表示（記念日がなくてもOK）
+- Collection単位の操作: 削除、編集、Anniversary追加
+- Anniversary単位の操作: 削除、編集
 - 一画面で全ての管理が可能
 
 #### フォームページ
-- `/edit/entity/new` - Entity作成
-- `/edit/entity/[id]` - Entity編集
-- `/edit/entity/[entityId]/day/new` - Day作成（**Entityは固定**）
-- `/edit/entity/[entityId]/day/[dayId]` - Day編集（**Entityは変更不可**）
+- `/edit/collection/new` - Collection作成
+- `/edit/collection/[id]` - Collection編集
+- `/edit/collection/[collectionId]/anniversary/new` - Anniversary作成（**Collectionは固定**）
+- `/edit/collection/[collectionId]/anniversary/[anniversaryId]` - Anniversary編集（**Collectionは変更不可**）
 
 ### モバイルファースト戦略
 
@@ -451,11 +417,11 @@ users (ユーザー)
 
 **ハンバーガーメニュー**:
 - `sm:hidden` でモバイル時に表示
-- ナビゲーションは「一覧」「編集」の2つのみ
+- ナビゲーションは「一覧」「編集」「プロフィール」の3つ
 
 **日付表示**:
-- モバイル: 非表示
-- デスクトップ: `hidden md:block` で表示
+- モバイル: 適切に表示
+- デスクトップ: より詳細な情報
 
 **ボタン**:
 - モバイル: テキスト付き、大きめ（タップしやすい）
@@ -475,30 +441,35 @@ users (ユーザー)
 
 **カウントダウン**:
 - 日数: 青 (`text-blue-600`)
-- 単位: ピンク (`text-pink-600`)
+- 単位: グレー (`text-gray-600`)
 - カラフルで視覚的に楽しいデザイン
 
 **和暦・年齢**:
 - グレー系 (`text-gray-600`)
 
+**フッター**:
+- 背景: `bg-white dark:bg-gray-800`
+- テキスト: `text-gray-800 dark:text-gray-400`
+- 右寄せ配置（EOF感を演出）
+
 ### recordingAnniversaries8との設計共通点
 
 このプロジェクトは、recordingAnniversaries8（Laravel版）の優れた設計思想を継承しています：
 
-1. **Entity中心の階層構造** - データ構造をUIに忠実に反映
+1. **Collection中心の階層構造** - データ構造をUIに忠実に反映
 2. **2ページ構成** - 一覧（閲覧）と編集を明確に分離
-3. **EntityからDayを追加** - グループが決まってから記念日を追加
+3. **CollectionからAnniversaryを追加** - グループが決まってから記念日を追加
 4. **モバイルファースト** - ハンバーガーメニュー、レスポンシブパディング
 5. **カラフルなカウントダウン** - 視覚的に楽しいUI
 
-技術スタックは異なりますが（Laravel + Inertia.js → Next.js 15）、UI/UX設計は同じ思想に基づいています。
+技術スタックは異なりますが（Laravel + Inertia.js → Next.js 16 + React 19）、UI/UX設計は同じ思想に基づいています。
 
 ### 設計判断の背景
 
-**なぜEntity中心なのか**:
+**なぜCollection中心なのか**:
 - 記念日はグループに属するものだから
 - 「家族の誕生日」「友人の記念日」など、カテゴリ分けが自然
-- データベースでも `days.entity_id` で Entity に紐付いている
+- データベースでも `anniversaries.collection_id` で Collection に紐付いている
 
 **なぜ2ページ構成なのか**:
 - シンプルで迷わない
@@ -508,15 +479,13 @@ users (ユーザー)
 **なぜフルスクリーンフォームなのか**:
 - モバイルで入力しやすい
 - 日付選択時にキーボードが出ても問題ない
-- react-datepickerのインラインカレンダーを広く表示できる
-
-詳細は `docs/UI_REFACTORING_PLAN.md` を参照。
+- DatePickerを広く表示できる
 
 ## 開発フロー
 
 ### 新機能追加時
 1. `docs/TODO.md`に追加
-2. 必要に応じてスキーマ変更（**既存テーブル変更禁止**）
+2. 必要に応じてスキーマ変更
 3. Server Actions実装（`app/actions/`）
 4. UI実装（`app/`）
 5. テスト
@@ -529,16 +498,21 @@ users (ユーザー)
 4. テスト
 5. コミット
 
-## Gitコミット履歴
+## 参考リソース
 
-```
-0f39a65 - ドキュメント整備とREADME更新
-5fcf784 - TypeScript/Biomeエラー修正とアクセシビリティ改善
-81c339f - fix: 型エラー修正とNext.js 16対応
-123463d - feat: Entity/Day の完全なCRUD機能実装
-27e2b00 - feat: recordingAnniversaries9 初期構造作成
-bfacba3 - Initial commit from Create Next App
-```
+### ドキュメント
+- Next.js 16: https://nextjs.org/docs
+- Auth.js v5: https://authjs.dev/
+- Drizzle ORM: https://orm.drizzle.team/
+- Tailwind CSS v4: https://tailwindcss.com/
+
+### 元プロジェクト
+- リポジトリ: https://github.com/takemitsu/RecordingAnniversaries8
+- ローカルパス: `../recordingAnniversaries8`
+- 参考実装:
+  - `resources/js/util/japanDate.ts` - 和暦変換
+  - `app/Services/DateCalculationService.php` - 日付計算
+  - `resources/js/Layouts/AuthenticatedLayout.tsx` - レイアウト設計
 
 ## ライセンス
 

@@ -5,55 +5,125 @@
 ## 技術スタック
 
 - **Next.js 16.0.1** - App Router, Turbopack
-- **React 19.2.0**
-- **TypeScript** - Strict mode
-- **Auth.js v5** - Google OAuth認証
-- **Drizzle ORM** - MySQL接続
+- **React 19.2.0** - useActionState統合
+- **TypeScript 5** - Strict mode
+- **Auth.js v5 (next-auth@beta.30)** - Google OAuth認証
+- **Drizzle ORM 0.44** - MySQL接続
+- **MySQL 8** - データベース
 - **Tailwind CSS v4** - スタイリング
-- **Biome** - Linter/Formatter
-- **dayjs** - 日付処理
-- **next-devtools-mcp** - 開発支援
+- **Biome 2.2** - Linter/Formatter
+- **dayjs 1.11** - 日付処理
+
+## プロジェクト概要
+
+recordingAnniversaries8（Laravel 11 + React）から Next.js 16 + TypeScript への移行プロジェクト。
+
+### 完了済み機能
+
+- ✅ Google OAuth認証
+- ✅ 記念日の作成・編集・削除
+- ✅ グループ（Collection）による分類
+- ✅ カウントダウン・カウントアップ表示
+- ✅ 和暦変換（令和、平成など）
+- ✅ ra8準拠のUI/UX（2ページ構成）
+- ✅ React 19統合（useActionState + HTML5バリデーション）
+- ✅ プロフィール設定
+- ✅ レスポンシブデザイン（モバイルファースト）
+- ✅ ダークモード対応
+
+### 未実装機能
+
+- ❌ Passkey（WebAuthn）認証
+- ❌ 記念日の並び替え
+- ❌ 検索・フィルター機能
+- ❌ カレンダー表示
+- ❌ 通知機能
 
 ## プロジェクト構造
 
 ```
 recording-anniversaries9/
 ├── app/
-│   ├── actions/          # Server Actions
-│   │   ├── entities.ts   # Entitiesの CRUD
-│   │   └── days.ts       # Daysの CRUD
-│   ├── api/auth/         # Auth.js API ルート
-│   ├── auth/signin/      # ログインページ
-│   ├── dashboard/        # ダッシュボード
-│   ├── entities/         # グループ管理
-│   ├── days/             # 記念日管理
-│   ├── layout.tsx        # ルートレイアウト
-│   └── page.tsx          # トップページ
+│   ├── (main)/
+│   │   ├── page.tsx                                    # 一覧ページ（閲覧専用）
+│   │   ├── edit/
+│   │   │   ├── page.tsx                               # 編集ページ
+│   │   │   ├── EditPageClient.tsx
+│   │   │   └── collection/
+│   │   │       ├── new/page.tsx                       # Collection作成
+│   │   │       ├── [collectionId]/page.tsx           # Collection編集
+│   │   │       └── [collectionId]/anniversary/
+│   │   │           ├── new/page.tsx                   # Anniversary作成
+│   │   │           └── [anniversaryId]/page.tsx      # Anniversary編集
+│   │   ├── profile/
+│   │   │   ├── page.tsx                               # プロフィール設定
+│   │   │   └── ProfileForm.tsx
+│   │   └── layout.tsx                                 # メインレイアウト
+│   ├── actions/                                        # Server Actions
+│   │   ├── collections.ts                             # Collection CRUD
+│   │   ├── anniversaries.ts                           # Anniversary CRUD
+│   │   └── profile.ts                                 # プロフィール更新
+│   ├── api/auth/[...nextauth]/route.ts               # Auth.js API
+│   ├── auth/signin/page.tsx                          # ログインページ
+│   └── layout.tsx                                     # ルートレイアウト
 ├── components/
-│   ├── layout/           # レイアウトコンポーネント
-│   │   └── Header.tsx
-│   └── ui/               # UIコンポーネント
+│   ├── CollectionCard.tsx                            # Collectionカード
+│   ├── AnniversaryCard.tsx                           # Anniversaryカード
+│   ├── forms/
+│   │   ├── CollectionForm.tsx                        # Collection作成・編集フォーム
+│   │   ├── AnniversaryForm.tsx                       # Anniversary作成・編集フォーム
+│   │   ├── DatePickerField.tsx                       # 日付選択フィールド
+│   │   └── FormField.tsx                             # 汎用フォームフィールド
+│   ├── layout/
+│   │   ├── Header.tsx                                 # ヘッダー（ハンバーガーメニュー）
+│   │   └── Footer.tsx                                 # フッター
+│   └── ui/
+│       └── Button.tsx                                 # 統一Buttonコンポーネント
 ├── lib/
-│   ├── db/               # データベース層
-│   │   ├── schema.ts     # Drizzle スキーマ
-│   │   ├── index.ts      # DB接続
-│   │   └── queries.ts    # クエリヘルパー
-│   ├── utils/            # ユーティリティ
-│   │   ├── japanDate.ts  # 和暦変換
-│   │   └── dateCalculation.ts  # カウントダウン計算
-│   └── auth-helpers.ts   # 認証ヘルパー
-├── docs/                 # ドキュメント
-│   ├── MIGRATION_PLAN.md # 移行計画
-│   ├── TASK_STATUS.md    # タスク進捗
-│   ├── TECH_DECISIONS.md # 技術的決定
-│   ├── CONSTRAINTS.md    # 制約事項
-│   ├── SETUP.md          # セットアップ手順
-│   └── COMPLETED.md      # 完了した作業
-├── auth.ts               # Auth.js 設定
-├── proxy.ts              # Next.js 16 認証プロキシ
-├── drizzle.config.ts     # Drizzle 設定
-└── .env.local            # 環境変数（要設定）
+│   ├── db/
+│   │   ├── schema.ts                                  # Drizzle スキーマ
+│   │   ├── index.ts                                   # DB接続
+│   │   └── queries.ts                                 # クエリヘルパー
+│   ├── utils/
+│   │   ├── japanDate.ts                              # 和暦変換
+│   │   └── dateCalculation.ts                        # カウントダウン計算
+│   ├── constants.ts                                   # 定数定義
+│   └── auth-helpers.ts                                # 認証ヘルパー
+├── docs/                                              # プロジェクトドキュメント
+│   ├── MIGRATION_PLAN.md                             # 移行計画
+│   ├── TASK_STATUS.md                                # タスク進捗
+│   ├── TECH_DECISIONS.md                             # 技術的決定
+│   ├── CONSTRAINTS.md                                # 制約事項
+│   ├── SETUP.md                                      # セットアップ手順
+│   ├── COMPLETED.md                                  # 完了した作業
+│   └── TODO.md                                       # 未実装機能
+├── auth.ts                                            # Auth.js v5 設定
+├── proxy.ts                                           # Next.js 16 認証プロキシ
+├── drizzle.config.ts                                 # Drizzle設定
+└── .env.local                                        # 環境変数（要設定）
 ```
+
+## データ構造
+
+### 3層モデル
+
+```
+Users (ユーザー)
+  └─ Collections (記念日グループ)
+      └─ Anniversaries (個別の記念日)
+```
+
+### テーブル
+
+| テーブル名 | 説明 | 主要フィールド |
+|-----------|------|--------------|
+| **users** | ユーザー情報 | id, name, email, google_id |
+| **collections** | 記念日グループ | id, user_id, name, description, is_visible |
+| **anniversaries** | 個別の記念日 | id, collection_id, name, anniversary_date (DATE型), description |
+| **accounts** | OAuth連携情報 | (Auth.js用) |
+| **sessions** | セッション情報 | (Auth.js用) |
+
+**注**: ソフトデリート（deleted_at）は実装されていません。
 
 ## セットアップ
 
@@ -66,12 +136,18 @@ recording-anniversaries9/
 npm install
 ```
 
-2. 環境変数の設定
-```bash
-# .env.local を編集
-# - DATABASE_URL: MySQLデータベース接続文字列
-# - AUTH_SECRET: openssl rand -base64 32 で生成
-# - GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET: Google Cloud Consoleから取得
+2. 環境変数の設定（.env.local）
+```env
+# Database
+DATABASE_URL="mysql://user:password@127.0.0.1:3306/database"
+
+# Auth.js
+AUTH_SECRET="LiLwuByyqzL8IX2EyVtFSlpzuaQMHg3YFSxgMP9kZmQ="
+AUTH_URL="http://localhost:3000"
+
+# Google OAuth
+GOOGLE_CLIENT_ID="your-client-id"
+GOOGLE_CLIENT_SECRET="your-client-secret"
 ```
 
 3. 開発サーバーの起動
@@ -81,38 +157,38 @@ npm run dev
 
 4. http://localhost:3000 にアクセス
 
-## データ構造
-
-### 3層モデル
-
-```
-Users (ユーザー)
-  └─ Entities (記念日グループ)
-      └─ Days (個別の記念日)
-```
-
-### テーブル
-
-- **users** - ユーザー情報（Google OAuth対応）
-- **entities** - 記念日グループ（ソフトデリート対応）
-- **days** - 個別の記念日（DATE型、ソフトデリート対応）
-
 ## 主な機能
 
 ### 認証
-- Google OAuth ログイン
-- セッション管理
+- **Google OAuth** - ワンクリックログイン
+- **セッション管理** - database strategy
+- **認証ヘルパー** - getUserId()でユーザーID取得
 
 ### 記念日管理
-- グループ（Entities）でカテゴリ分け
-- カウントダウン表示（次の記念日まであと何日）
-- カウントアップ表示（何年経過したか）
-- 和暦変換（令和、平成など）
+- **Collection（グループ）** でカテゴリ分け（家族、友人など）
+- **カウントダウン表示** - 次の記念日まであと何日
+- **カウントアップ表示** - 何年経過したか（例: 5年（6年目））
+- **和暦変換** - 令和、平成などの元号表示
+- **日付表示** - 西暦（和暦）形式（例: 2014-11-01（平成26年））
 
-### 日付計算
-- 年次繰り返し対応（毎年同じ日付で記念日が来る）
-- 日本語表示対応
-- タイムゾーン対応（Asia/Tokyo）
+### UI/UX（ra8準拠）
+- **2ページ構成**
+  - `/` - 一覧ページ（閲覧専用）
+  - `/edit` - 編集ページ（全機能アクセス可能）
+- **フルスクリーンフォーム** - モバイルで入力しやすい
+- **レスポンシブデザイン** - モバイル: p-2, デスクトップ: lg:p-12
+- **ハンバーガーメニュー** - モバイル向けナビゲーション
+- **カラフルなカウントダウン** - 視覚的に楽しいデザイン
+
+### React 19統合
+- **useActionState** - フォーム状態管理
+- **HTML5バリデーション** - required, minLength属性
+- **サーバーサイドエラーハンドリング** - 重複チェック、バリデーション
+- **Pending状態表示** - ボタンdisable、ローディング表示
+
+### プロフィール設定
+- **ユーザー名変更** - `/profile`ページ
+- **useActionState統合** - React 19標準パターン
 
 ## 開発コマンド
 
@@ -131,18 +207,48 @@ npm run lint
 
 # フォーマット
 npm run format
+
+# Drizzle Studio（DBビューアー）
+npx drizzle-kit studio
 ```
+
+## Next.js 16 対応
+
+- **params/searchParams** は必ず `await`
+  ```typescript
+  const { id } = await params;
+  ```
+- **"use cache"** でキャッシング明示（未使用）
+- **Server Actions 優先** - API Routesより推奨
+- **Turbopack** デフォルト使用
+- **proxy.ts** で認証制御
+
+## 日付計算の仕組み
+
+### カウントダウン計算（年次繰り返し対応）
+
+`lib/utils/dateCalculation.ts: calculateDiffDays()`
+
+- 過去日の場合、**次回の記念日までの日数**を計算
+- 例: 誕生日（1990-05-15）→ 次の誕生日（2025-05-15）までの日数
+
+### 和暦変換
+
+`lib/utils/japanDate.ts: japanDate()`
+
+- 令和、平成、昭和、大正、明治に対応
+- 元年表示対応（例: 令和元年）
 
 ## 重要な制約事項
 
-⚠️ **既存MySQLデータベースへの変更は禁止**
-
-recordingAnniversaries8が使用中のため、以下を厳守：
-- テーブル構造の変更禁止
-- マイグレーション実行禁止
-- 既存データの削除・更新は慎重に（読み取りを優先）
+⚠️ **データベース制約**
 
 詳細は [docs/CONSTRAINTS.md](docs/CONSTRAINTS.md) を参照。
+
+**現在の実装**:
+- テーブル名: `collections`, `anniversaries`
+- フィールド名: `description`, `anniversary_date` (camelCase in code)
+- ソフトデリート: **未実装**
 
 ## ドキュメント
 
@@ -152,13 +258,41 @@ recordingAnniversaries8が使用中のため、以下を厳守：
 - [CONSTRAINTS.md](docs/CONSTRAINTS.md) - プロジェクト制約
 - [SETUP.md](docs/SETUP.md) - セットアップ手順
 - [COMPLETED.md](docs/COMPLETED.md) - 完了した作業内容
+- [TODO.md](docs/TODO.md) - 未実装機能リスト
 
-## Next.js 16 対応
+## 技術的決定事項
 
-- params/searchParams は必ず `await`
-- "use cache" ディレクティブでキャッシング明示
-- Server Actions 優先使用
-- Turbopack デフォルト使用
+主要な設計判断については [docs/TECH_DECISIONS.md](docs/TECH_DECISIONS.md) を参照。
+
+### データベース
+- **DATE vs DATETIME**: DATE型採用（時刻不要、タイムゾーン問題回避）
+- **Drizzle vs Prisma**: Drizzle（軽量、型安全、SQL的）
+
+### 認証
+- **Auth.js vs Better Auth**: Auth.js v5（Next.js統合、実績）
+
+### UI
+- **Tailwind CSS v4**: ユーティリティファースト
+- **モバイルファースト**: p-2 → lg:p-12のパディング戦略
+- **2ページ構成**: シンプルで迷わない
+
+### ライブラリ
+- **dayjs**: 軽量、日本語対応
+- **Biome**: ESLint + Prettier統合
+
+## 元プロジェクトとの違い
+
+| 項目 | recordingAnniversaries8 | recordingAnniversaries9 |
+|------|------------------------|------------------------|
+| フレームワーク | Laravel 11 | Next.js 16 |
+| フロントエンド | React (Inertia.js) | React Server Components |
+| 言語 | PHP + TypeScript | TypeScript |
+| データ取得 | Controller → Inertia | Server Actions |
+| 認証 | Laravel Sanctum + Socialite | Auth.js v5 |
+| ORM | Eloquent | Drizzle |
+| スタイリング | Tailwind CSS v3 | Tailwind CSS v4 |
+| ビルド | Vite | Turbopack |
+| フォーム | Inertia forms | React 19 useActionState |
 
 ## ライセンス
 
