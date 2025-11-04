@@ -17,6 +17,7 @@
 - **Auth.js v5 (next-auth@beta.30)** - 認証
 - **Drizzle ORM 0.44** - データベース接続
 - **MySQL 8** - データベース
+- **Zod 4.1** - スキーマバリデーション
 - **Tailwind CSS v4** - スタイリング
 - **Biome 2.2** - Linter/Formatter
 - **dayjs 1.11** - 日付処理
@@ -68,6 +69,9 @@ recording-anniversaries9/
 │   │   ├── schema.ts         # Drizzle スキーマ定義
 │   │   ├── index.ts          # DB接続
 │   │   └── queries.ts        # クエリヘルパー（collectionQueries, anniversaryQueries）
+│   ├── schemas/
+│   │   ├── collection.ts     # Collection Zodスキーマ
+│   │   └── anniversary.ts    # Anniversary Zodスキーマ
 │   ├── utils/
 │   │   ├── japanDate.ts      # 和暦変換（令和、平成など）
 │   │   └── dateCalculation.ts  # 日付計算（カウントダウン/カウントアップ）
@@ -155,7 +159,12 @@ Users (ユーザー)
   - CollectionForm
   - AnniversaryForm
   - ProfileForm
-- ✅ HTML5バリデーション統合（required, minLength）
+- ✅ **Zodバリデーション**（lib/schemas/）
+  - 型安全なサーバーサイドバリデーション
+  - FormData → Zod → TypeScript（自動型推論）
+  - フィールドごとのエラー表示（`errors: Record<string, string[]>`）
+  - バリデーションエラー時のフォーム値保持（fieldValues）
+- ✅ HTML5バリデーション統合（required属性）
 - ✅ サーバーサイドエラーハンドリング
 - ✅ Pending状態表示（ボタンdisable、ローディング表示）
 

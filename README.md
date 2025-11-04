@@ -10,6 +10,7 @@
 - **Auth.js v5 (next-auth@beta.30)** - Google OAuth認証
 - **Drizzle ORM 0.44** - MySQL接続
 - **MySQL 8** - データベース
+- **Zod 4.1** - スキーマバリデーション
 - **Tailwind CSS v4** - スタイリング
 - **Biome 2.2** - Linter/Formatter
 - **dayjs 1.11** - 日付処理
@@ -26,7 +27,8 @@
 - ✅ カウントダウン・カウントアップ表示
 - ✅ 和暦変換（令和、平成など）
 - ✅ 2ページ構成のシンプルなUI/UX
-- ✅ React 19統合（useActionState + HTML5バリデーション）
+- ✅ React 19統合（useActionState + Zodバリデーション）
+- ✅ フィールドごとのエラー表示とフォーム値保持
 - ✅ プロフィール設定
 - ✅ レスポンシブデザイン（モバイルファースト）
 - ✅ ダークモード対応
@@ -84,6 +86,9 @@ recording-anniversaries9/
 │   │   ├── schema.ts                                  # Drizzle スキーマ
 │   │   ├── index.ts                                   # DB接続
 │   │   └── queries.ts                                 # クエリヘルパー
+│   ├── schemas/
+│   │   ├── collection.ts                              # Collection Zodスキーマ
+│   │   └── anniversary.ts                             # Anniversary Zodスキーマ
 │   ├── utils/
 │   │   ├── japanDate.ts                              # 和暦変換
 │   │   └── dateCalculation.ts                        # カウントダウン計算
@@ -180,8 +185,10 @@ npm run dev
 
 ### React 19統合
 - **useActionState** - フォーム状態管理
-- **HTML5バリデーション** - required, minLength属性
-- **サーバーサイドエラーハンドリング** - 重複チェック、バリデーション
+- **Zodバリデーション** - 型安全なサーバーサイドバリデーション
+- **フィールドごとのエラー表示** - 複数フィールドのエラーを同時表示
+- **フォーム値保持** - バリデーションエラー時も入力値を保持
+- **HTML5バリデーション** - required属性による即座のフィードバック
 - **Pending状態表示** - ボタンdisable、ローディング表示
 
 ### プロフィール設定

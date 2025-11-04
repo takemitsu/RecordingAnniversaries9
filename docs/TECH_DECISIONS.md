@@ -139,6 +139,54 @@
 - TypeScript の型安全性を維持
 - コード量が削減できる
 
+## バリデーション
+
+### Zodバリデーション
+
+**決定**: **Zod** をServer Actionsのフォームバリデーションに使用
+
+**理由**:
+- **型安全性**: FormData → Zod → TypeScript（自動型推論、`as string`不要）
+- **宣言的**: スキーマで一元管理、可読性向上
+- **フィールドごとのエラー**: `flatten().fieldErrors`で複数フィールドのエラーを同時表示
+- **クライアント・サーバー両対応**: 同じスキーマをReact Hook Form等でも使用可能（将来的に）
+- **Next.js 16 + React 19のベストプラクティス**: useActionState + Zodが2025年の標準パターン
+
+**実装パターン**:
+```typescript
+// Server Action
+const result = schema.safeParse(rawData);
+if (!result.success) {
+  return {
+    errors: result.error.flatten().fieldErrors,
+    fieldValues: rawData, // フォーム値保持
+  };
+}
+```
+
+**対象**:
+- `lib/schemas/collection.ts`: Collection作成・更新
+- `lib/schemas/anniversary.ts`: Anniversary作成・更新
+
+**React Hook Form 非採用の理由**:
+- 現在のフォームはシンプル（3-5フィールド）
+- useActionState + Zodで十分
+- React Hook Form + useActionStateの統合は「hacky」（コミュニティ評価）
+- 複雑なフォームが必要になったら再検討
+
+### フォーム値保持（React 19対応）
+
+**問題**: React 19のuseActionStateはフォーム送信時にフォームをリセット
+
+**解決策**:
+- Server ActionのFormStateに`fieldValues`を追加
+- バリデーションエラー時に入力値も一緒に返す
+- TSX側で`state?.fieldValues ?? defaultValue`で値を復元
+
+**効果**:
+- バリデーションエラー時もユーザーの入力値が失われない
+- エラー修正時の再入力が不要（UX向上）
+
 ## 未決定事項
 
 ### 1. Passkey の保存先
