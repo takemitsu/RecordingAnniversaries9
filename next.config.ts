@@ -10,6 +10,15 @@ const nextConfig: NextConfig = {
           }
         : false,
   },
+
+  // Server Actions CSRF対策
+  // Next.js 16はOrigin/Host headerを自動比較してCSRF攻撃を防ぐ
+  // 本番環境でリバースプロキシ等を使用する場合は allowedOrigins を設定
+  experimental: {
+    serverActions: {
+      // allowedOrigins: ["example.com", "*.example.com"], // 必要に応じて設定
+    },
+  },
 };
 
 export default nextConfig;

@@ -1,5 +1,6 @@
 import { and, asc, eq } from "drizzle-orm";
 import { calculateDiffDays } from "@/lib/utils/dateCalculation";
+import { verifyUserAccess } from "./auth-helpers";
 import { db } from "./index";
 import { anniversaries, collections } from "./schema";
 
@@ -12,6 +13,8 @@ export const collectionQueries = {
    * 記念日は次の記念日までの日数が少ない順にソート
    */
   async findByUserId(userId: string) {
+    await verifyUserAccess(userId);
+
     const result = await db.query.collections.findMany({
       where: eq(collections.userId, userId),
       orderBy: asc(collections.createdAt),
@@ -38,6 +41,8 @@ export const collectionQueries = {
    * セキュリティ: userIdで所有者確認を行う
    */
   async findById(id: number, userId: string) {
+    await verifyUserAccess(userId);
+
     return await db.query.collections.findFirst({
       where: and(eq(collections.id, id), eq(collections.userId, userId)),
     });
@@ -49,6 +54,8 @@ export const collectionQueries = {
     description?: string | null;
     isVisible?: number;
   }) {
+    await verifyUserAccess(data.userId);
+
     const result = await db.insert(collections).values(data);
     return result[0].insertId;
   },
@@ -58,6 +65,8 @@ export const collectionQueries = {
     userId: string,
     data: { name?: string; description?: string | null; isVisible?: number },
   ) {
+    await verifyUserAccess(userId);
+
     await db
       .update(collections)
       .set(data)
@@ -65,6 +74,8 @@ export const collectionQueries = {
   },
 
   async delete(id: number, userId: string) {
+    await verifyUserAccess(userId);
+
     await db
       .delete(collections)
       .where(and(eq(collections.id, id), eq(collections.userId, userId)));
@@ -80,6 +91,8 @@ export const anniversaryQueries = {
    * セキュリティ: コレクションを経由してユーザー所有確認
    */
   async findById(id: number, userId: string) {
+    await verifyUserAccess(userId);
+
     const anniversary = await db.query.anniversaries.findFirst({
       where: eq(anniversaries.id, id),
       with: {
@@ -105,6 +118,17 @@ export const anniversaryQueries = {
     description?: string | null;
     anniversaryDate: string;
   }) {
+    // Collection所有権確認
+    const collection = await db.query.collections.findFirst({
+      where: eq(collections.id, data.collectionId),
+    });
+    if (!collection) {
+      throw new Error("Collection not found");
+    }
+
+    // Data Layer認証チェック（多層防御）
+    await verifyUserAccess(collection.userId);
+
     const result = await db.insert(anniversaries).values(data);
     return result[0].insertId;
   },
