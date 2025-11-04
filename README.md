@@ -16,7 +16,7 @@
 
 ## プロジェクト概要
 
-recordingAnniversaries8（Laravel 11 + React）から Next.js 16 + TypeScript への移行プロジェクト。
+大切な記念日を記録・管理するWebアプリケーション。Next.js 16とReact 19を使用し、モダンな技術スタックで構築されています。
 
 ### 完了済み機能
 
@@ -25,7 +25,7 @@ recordingAnniversaries8（Laravel 11 + React）から Next.js 16 + TypeScript �
 - ✅ グループ（Collection）による分類
 - ✅ カウントダウン・カウントアップ表示
 - ✅ 和暦変換（令和、平成など）
-- ✅ ra8準拠のUI/UX（2ページ構成）
+- ✅ 2ページ構成のシンプルなUI/UX
 - ✅ React 19統合（useActionState + HTML5バリデーション）
 - ✅ プロフィール設定
 - ✅ レスポンシブデザイン（モバイルファースト）
@@ -171,7 +171,7 @@ npm run dev
 - **和暦変換** - 令和、平成などの元号表示
 - **日付表示** - 西暦（和暦）形式（例: 2014-11-01（平成26年））
 
-### UI/UX（ra8準拠）
+### UI/UX
 - **2ページ構成**
   - `/` - 一覧ページ（閲覧専用）
   - `/edit` - 編集ページ（全機能アクセス可能）
@@ -252,13 +252,9 @@ npx drizzle-kit studio
 
 ## ドキュメント
 
-- [MIGRATION_PLAN.md](docs/MIGRATION_PLAN.md) - 移行計画の全体像
-- [TASK_STATUS.md](docs/TASK_STATUS.md) - 現在の進捗状況
 - [TECH_DECISIONS.md](docs/TECH_DECISIONS.md) - 技術的な決定事項
-- [CONSTRAINTS.md](docs/CONSTRAINTS.md) - プロジェクト制約
-- [SETUP.md](docs/SETUP.md) - セットアップ手順
-- [COMPLETED.md](docs/COMPLETED.md) - 完了した作業内容
 - [TODO.md](docs/TODO.md) - 未実装機能リスト
+- [SETUP.md](docs/SETUP.md) - セットアップ手順
 
 ## 技術的決定事項
 
@@ -280,24 +276,6 @@ npx drizzle-kit studio
 - **dayjs**: 軽量、日本語対応
 - **Biome**: ESLint + Prettier統合
 
-## 元プロジェクトとの違い
-
-| 項目 | recordingAnniversaries8 | recordingAnniversaries9 |
-|------|------------------------|------------------------|
-| フレームワーク | Laravel 11 | Next.js 16 |
-| フロントエンド | React (Inertia.js) | React Server Components |
-| 言語 | PHP + TypeScript | TypeScript |
-| データ取得 | Controller → Inertia | Server Actions |
-| 認証 | Laravel Sanctum + Socialite | Auth.js v5 |
-| ORM | Eloquent | Drizzle |
-| スタイリング | Tailwind CSS v3 | Tailwind CSS v4 |
-| ビルド | Vite | Turbopack |
-| フォーム | Inertia forms | React 19 useActionState |
-
 ## ライセンス
 
 Private
-
-## 作成者
-
-recordingAnniversaries8 からの移植プロジェクト

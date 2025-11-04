@@ -1,13 +1,14 @@
 # Recording Anniversaries 9 - Claude 向けプロジェクトガイド
 
-大切な記念日を記録・管理するNext.js 16アプリケーション。recordingAnniversaries8（Laravel 11 + React）からの移行プロジェクト。
+大切な記念日を記録・管理するNext.js 16アプリケーション。
 
 ## プロジェクト概要
 
 ### 目的
-- recordingAnniversaries8 を Next.js 16 + TypeScript で書き換え
-- 既存MySQL DBを使用
-- モダンなスタックへの移行（App Router, Server Actions, Auth.js v5, React 19）
+- 記念日の記録・管理機能の提供
+- グループ（Collection）による記念日の分類
+- カウントダウン・カウントアップ・和暦表示機能
+- モダンな技術スタック（App Router, Server Actions, Auth.js v5, React 19）
 
 ### 技術スタック
 - **Next.js 16.0.1** - App Router, Turbopack
@@ -75,13 +76,9 @@ recording-anniversaries9/
 ├── hooks/
 │   └── useConfirmDelete.tsx  # 削除確認フック
 ├── docs/                     # プロジェクトドキュメント
-│   ├── MIGRATION_PLAN.md     # 移行計画
-│   ├── TASK_STATUS.md        # タスク進捗
 │   ├── TECH_DECISIONS.md     # 技術的決定
-│   ├── CONSTRAINTS.md        # 制約事項
-│   ├── SETUP.md              # セットアップ手順
-│   ├── COMPLETED.md          # 完了した作業
-│   └── TODO.md               # 未実装機能
+│   ├── TODO.md               # 未実装機能
+│   └── SETUP.md              # セットアップ手順
 ├── auth.ts                   # Auth.js v5 設定
 ├── proxy.ts                  # Next.js 16 認証プロキシ
 ├── drizzle.config.ts         # Drizzle設定
@@ -90,11 +87,6 @@ recording-anniversaries9/
 ```
 
 ## データベース設計
-
-### 重要な制約 🚨
-**データベース構造について**
-
-詳細: `docs/CONSTRAINTS.md`
 
 ### データ構造（3層モデル）
 
@@ -358,20 +350,6 @@ npx drizzle-kit generate # マイグレーションファイル生成
 - **dayjs**: 軽量、日本語対応
 - **Biome**: ESLint + Prettier統合
 
-## 元プロジェクトとの違い
-
-| 項目 | recordingAnniversaries8 | recordingAnniversaries9 |
-|------|------------------------|------------------------|
-| フレームワーク | Laravel 11 | Next.js 16 |
-| フロントエンド | React (Inertia.js) | React Server Components |
-| 言語 | PHP + TypeScript | TypeScript |
-| データ取得 | Controller → Inertia | Server Actions |
-| 認証 | Laravel Sanctum + Socialite | Auth.js v5 |
-| ORM | Eloquent | Drizzle |
-| スタイリング | Tailwind CSS v3 | Tailwind CSS v4 |
-| ビルド | Vite | Turbopack |
-| フォーム | Inertia forms | React 19 useActionState |
-
 ## UI/UX設計の意図
 
 ### 設計思想：Collection中心アーキテクチャ
@@ -452,17 +430,13 @@ users (ユーザー)
 - テキスト: `text-gray-800 dark:text-gray-400`
 - 右寄せ配置（EOF感を演出）
 
-### recordingAnniversaries8との設計共通点
-
-このプロジェクトは、recordingAnniversaries8（Laravel版）の優れた設計思想を継承しています：
+### UI/UX設計の原則
 
 1. **Collection中心の階層構造** - データ構造をUIに忠実に反映
 2. **2ページ構成** - 一覧（閲覧）と編集を明確に分離
 3. **CollectionからAnniversaryを追加** - グループが決まってから記念日を追加
 4. **モバイルファースト** - ハンバーガーメニュー、レスポンシブパディング
 5. **カラフルなカウントダウン** - 視覚的に楽しいUI
-
-技術スタックは異なりますが（Laravel + Inertia.js → Next.js 16 + React 19）、UI/UX設計は同じ思想に基づいています。
 
 ### 設計判断の背景
 
@@ -505,14 +479,6 @@ users (ユーザー)
 - Auth.js v5: https://authjs.dev/
 - Drizzle ORM: https://orm.drizzle.team/
 - Tailwind CSS v4: https://tailwindcss.com/
-
-### 元プロジェクト
-- リポジトリ: https://github.com/takemitsu/RecordingAnniversaries8
-- ローカルパス: `../recordingAnniversaries8`
-- 参考実装:
-  - `resources/js/util/japanDate.ts` - 和暦変換
-  - `app/Services/DateCalculationService.php` - 日付計算
-  - `resources/js/Layouts/AuthenticatedLayout.tsx` - レイアウト設計
 
 ## ライセンス
 

@@ -3,7 +3,7 @@
 ## 前提条件
 
 - Node.js 20.9以上
-- 既存のMySQLデータベース（recordingAnniversaries8と共有）
+- MySQL 8
 - Google Cloud Consoleでのプロジェクト作成（OAuth認証用）
 
 ## 1. 環境変数の設定
