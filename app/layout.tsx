@@ -13,8 +13,26 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Recording Anniversaries",
+  title: {
+    default: "Recording Anniversaries",
+    template: "%s | Recording Anniversaries",
+  },
   description: "大切な記念日を記録・管理するアプリケーション",
+  openGraph: {
+    title: "Recording Anniversaries",
+    description: "大切な記念日を記録・管理するアプリケーション",
+    type: "website",
+    locale: "ja_JP",
+  },
+};
+
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#1f2937" },
+  ],
 };
 
 export default function RootLayout({

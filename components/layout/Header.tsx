@@ -92,11 +92,14 @@ export function Header({ session, today }: HeaderProps) {
                 {showUserDropdown && (
                   <>
                     {/* Backdrop */}
-                    {/* biome-ignore lint/a11y/noStaticElementInteractions: Backdrop for closing dropdown - keyboard users can use Esc or Tab away */}
-                    <div
-                      role="presentation"
-                      className="fixed inset-0 z-10"
+                    <button
+                      type="button"
+                      className="fixed inset-0 z-10 cursor-default"
                       onClick={() => setShowUserDropdown(false)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Escape") setShowUserDropdown(false);
+                      }}
+                      aria-label="メニューを閉じる"
                     />
                     {/* Dropdown Menu */}
                     <div className="absolute right-0 z-20 mt-2 w-48 rounded-md shadow-lg bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5">
