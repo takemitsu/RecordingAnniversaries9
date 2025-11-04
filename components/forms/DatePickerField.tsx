@@ -1,18 +1,12 @@
 "use client";
 
-import { ja } from "date-fns/locale/ja";
-import DatePicker, { registerLocale } from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
+import { useState } from "react";
 import { getAges, japanDate } from "@/lib/utils/japanDate";
-
-// 日本語ロケールを登録
-registerLocale("ja", ja);
 
 interface DatePickerFieldProps {
   label: string;
   name: string;
-  selectedDate: Date | null;
-  onDateChange: (date: Date | null) => void;
+  defaultValue?: string;
   error?: string;
   required?: boolean;
   showJapanDate?: boolean;
@@ -22,24 +16,17 @@ interface DatePickerFieldProps {
 export function DatePickerField({
   label,
   name,
-  selectedDate,
-  onDateChange,
+  defaultValue,
   error,
   required = false,
   showJapanDate = true,
   showAge = true,
 }: DatePickerFieldProps) {
+  const [currentDate, setCurrentDate] = useState<string>(defaultValue || "");
+
   const errorClasses = error
     ? "border-red-500 focus:border-red-500 focus:ring-red-500"
     : "border-gray-300 dark:border-gray-700";
-
-  // ローカルタイムゾーンでのYYYY-MM-DD形式の文字列を生成
-  const formatDateForInput = (date: Date): string => {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
-    return `${year}-${month}-${day}`;
-  };
 
   return (
     <div className="mb-4">
@@ -51,35 +38,27 @@ export function DatePickerField({
         {required && <span className="text-red-500 ml-1">*</span>}
       </label>
 
-      <DatePicker
-        selected={selectedDate}
-        onChange={onDateChange}
-        locale="ja"
-        dateFormat="yyyy/MM/dd"
-        inline
-        className={`mt-1 block w-full rounded-md shadow-sm focus:border-sky-500 focus:ring-sky-500 ${errorClasses}`}
-        calendarClassName="dark:bg-gray-800 dark:text-white"
-      />
-
-      {/* Hidden input for form submission */}
       <input
-        type="hidden"
+        id={name}
+        type="date"
         name={name}
-        value={selectedDate ? formatDateForInput(selectedDate) : ""}
+        defaultValue={defaultValue}
         required={required}
+        onChange={(e) => setCurrentDate(e.target.value)}
+        className={`mt-1 block w-full rounded-md shadow-sm px-3 py-2 focus:outline-none focus:ring-sky-500 focus:border-sky-500 dark:bg-gray-700 dark:text-white ${errorClasses}`}
       />
 
       {/* 和暦表示 */}
-      {showJapanDate && selectedDate && (
+      {showJapanDate && currentDate && (
         <div className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-          和暦: {japanDate(formatDateForInput(selectedDate))}
+          和暦: {japanDate(currentDate)}
         </div>
       )}
 
       {/* 年齢表示 */}
-      {showAge && selectedDate && (
+      {showAge && currentDate && (
         <div className="mt-1 text-sm text-gray-600 dark:text-gray-400">
-          経過年数: {getAges(formatDateForInput(selectedDate))}
+          経過年数: {getAges(currentDate)}
         </div>
       )}
 

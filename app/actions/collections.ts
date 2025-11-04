@@ -6,7 +6,14 @@ import { getUserId } from "@/lib/auth-helpers";
 import { VISIBILITY } from "@/lib/constants";
 import { collectionQueries } from "@/lib/db/queries";
 
-export async function createCollection(formData: FormData) {
+type CollectionFormState = {
+  error?: string;
+} | null;
+
+export async function createCollection(
+  _prevState: CollectionFormState,
+  formData: FormData,
+): Promise<CollectionFormState> {
   const userId = await getUserId();
 
   const name = formData.get("name") as string;
@@ -18,17 +25,12 @@ export async function createCollection(formData: FormData) {
   }
 
   try {
-    const collectionId = await collectionQueries.create({
+    await collectionQueries.create({
       userId,
       name: name.trim(),
       description: description?.trim() || null,
       isVisible,
     });
-
-    revalidatePath("/");
-    revalidatePath("/edit");
-
-    return { success: true, collectionId };
   } catch (error) {
     console.error("Collection creation error:", error);
 
@@ -43,12 +45,18 @@ export async function createCollection(formData: FormData) {
 
     return { error: "グループの作成に失敗しました。もう一度お試しください。" };
   }
+
+  revalidatePath("/");
+  revalidatePath("/edit");
+  redirect("/edit");
 }
 
 export async function updateCollection(
-  collectionId: number | undefined,
+  _prevState: CollectionFormState,
   formData: FormData,
-) {
+): Promise<CollectionFormState> {
+  const collectionId = Number(formData.get("collectionId"));
+
   if (!collectionId) {
     return { error: "グループIDが指定されていません" };
   }
@@ -69,11 +77,6 @@ export async function updateCollection(
       description: description?.trim() || null,
       isVisible,
     });
-
-    revalidatePath("/");
-    revalidatePath("/edit");
-
-    return { success: true };
   } catch (error) {
     console.error("Collection update error:", error);
 
@@ -85,6 +88,10 @@ export async function updateCollection(
 
     return { error: "グループの更新に失敗しました。もう一度お試しください。" };
   }
+
+  revalidatePath("/");
+  revalidatePath("/edit");
+  redirect("/edit");
 }
 
 export async function deleteCollection(collectionId: number) {

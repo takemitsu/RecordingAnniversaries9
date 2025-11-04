@@ -6,10 +6,20 @@ import { redirect } from "next/navigation";
 import { getUserId } from "@/lib/auth-helpers";
 import { anniversaryQueries, collectionQueries } from "@/lib/db/queries";
 
+type AnniversaryFormState = {
+  error?: string;
+} | null;
+
 export async function createAnniversary(
-  collectionId: number,
+  _prevState: AnniversaryFormState,
   formData: FormData,
-) {
+): Promise<AnniversaryFormState> {
+  const collectionId = Number(formData.get("collectionId"));
+
+  if (!collectionId) {
+    return { error: "グループIDが指定されていません" };
+  }
+
   const userId = await getUserId();
 
   const collection = await collectionQueries.findById(collectionId, userId);
@@ -33,17 +43,12 @@ export async function createAnniversary(
   }
 
   try {
-    const anniversaryId = await anniversaryQueries.create({
+    await anniversaryQueries.create({
       collectionId,
       name: name.trim(),
       description: description?.trim() || null,
       anniversaryDate,
     });
-
-    revalidatePath("/");
-    revalidatePath("/edit");
-
-    return { success: true, anniversaryId };
   } catch (error) {
     console.error("Anniversary creation error:", error);
 
@@ -58,12 +63,18 @@ export async function createAnniversary(
 
     return { error: "記念日の作成に失敗しました。もう一度お試しください。" };
   }
+
+  revalidatePath("/");
+  revalidatePath("/edit");
+  redirect("/edit");
 }
 
 export async function updateAnniversary(
-  anniversaryId: number | undefined,
+  _prevState: AnniversaryFormState,
   formData: FormData,
-) {
+): Promise<AnniversaryFormState> {
+  const anniversaryId = Number(formData.get("anniversaryId"));
+
   if (!anniversaryId) {
     return { error: "記念日IDが指定されていません" };
   }
@@ -91,11 +102,6 @@ export async function updateAnniversary(
       description: description?.trim() || null,
       ...(anniversaryDate && { anniversaryDate }),
     });
-
-    revalidatePath("/");
-    revalidatePath("/edit");
-
-    return { success: true };
   } catch (error) {
     console.error("Anniversary update error:", error);
 
@@ -107,6 +113,10 @@ export async function updateAnniversary(
 
     return { error: "記念日の更新に失敗しました。もう一度お試しください。" };
   }
+
+  revalidatePath("/");
+  revalidatePath("/edit");
+  redirect("/edit");
 }
 
 export async function deleteAnniversary(anniversaryId: number) {
