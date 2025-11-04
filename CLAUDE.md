@@ -291,6 +291,24 @@ npx drizzle-kit studio  # Drizzle Studio（DBビューアー）
 npx drizzle-kit generate # マイグレーションファイル生成
 ```
 
+## Serena MCPサーバーのセットアップ（任意）
+
+このプロジェクトでは、Claude Codeでコードベース分析を効率化するためにSerena MCPサーバーを使用できます。
+
+### セットアップ手順
+
+各開発者が個別にローカルスコープで設定してください：
+
+```bash
+claude mcp add --transport stdio serena --scope local -- uvx --from git+https://github.com/oraios/serena serena start-mcp-server --context ide-assistant --project "$(pwd)"
+```
+
+### 注意事項
+
+- `.serena/`と`.mcp.json`は`.gitignore`に含まれています（各自の環境固有のため）
+- Serenaは初回起動時に`.serena/`ディレクトリを作成し、プロジェクトの知識をメモリとして保存します
+- 詳細は https://github.com/oraios/serena を参照
+
 ## Next.js 16 対応
 
 ### 重要な変更点

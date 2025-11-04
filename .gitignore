@@ -39,3 +39,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Serena MCP Server (各開発者がローカルで設定)
+.serena/
+.mcp.json
