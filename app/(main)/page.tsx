@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getCollectionsWithAnniversaries } from "@/app/actions/collections";
 import { auth } from "@/auth";
@@ -30,12 +31,12 @@ export default async function HomePage() {
           <p className="text-gray-600 dark:text-gray-400 mb-4">
             まだ記念日がありません
           </p>
-          <a
+          <Link
             href="/edit"
             className="text-sky-600 hover:text-sky-700 dark:text-sky-400 dark:hover:text-sky-300"
           >
             編集ページから記念日を追加しましょう
-          </a>
+          </Link>
         </div>
       )}
     </div>

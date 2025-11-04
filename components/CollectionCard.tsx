@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { Button } from "@/components/ui/Button";
 import { VISIBILITY } from "@/lib/constants";
 import type { Anniversary, Collection } from "@/lib/db/schema";
 import { AnniversaryCard } from "./AnniversaryCard";
@@ -57,22 +58,24 @@ export function CollectionCard({
       {/* Action Buttons (編集ページのみ) */}
       {showActions && (
         <div className="flex justify-end gap-2 mt-2 mb-2">
-          <button
+          <Button
             type="button"
+            variant="danger"
+            size="sm"
             onClick={() => onDelete?.(collection.id, collection.name)}
-            className="px-2 py-1 text-xs bg-pink-500 hover:bg-pink-600 text-white rounded-md whitespace-nowrap"
+            className="whitespace-nowrap"
           >
             削除
-          </button>
+          </Button>
           <Link
             href={`/edit/collection/${collection.id}`}
-            className="px-2 py-1 text-xs bg-yellow-500 hover:bg-yellow-600 text-white rounded-md whitespace-nowrap"
+            className="px-2 py-1 text-xs bg-yellow-500 hover:bg-yellow-600 text-white rounded-md whitespace-nowrap transition"
           >
             編集
           </Link>
           <Link
             href={`/edit/collection/${collection.id}/anniversary/new`}
-            className="px-2 py-1 text-xs bg-sky-500 hover:bg-sky-600 text-white rounded-md whitespace-nowrap"
+            className="px-2 py-1 text-xs bg-sky-500 hover:bg-sky-600 text-white rounded-md whitespace-nowrap transition"
           >
             記念日追加
           </Link>

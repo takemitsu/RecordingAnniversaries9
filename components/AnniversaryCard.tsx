@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { Button } from "@/components/ui/Button";
 import type { Anniversary } from "@/lib/db/schema";
 import {
   calculateDiffDays,
@@ -67,16 +68,18 @@ export function AnniversaryCard({
       {/* Action Buttons (編集ページのみ) */}
       {showActions && (
         <div className="flex justify-end gap-2">
-          <button
+          <Button
             type="button"
+            variant="danger"
+            size="sm"
             onClick={() => onDelete?.(anniversary.id, anniversary.name)}
-            className="px-2 py-1 text-xs bg-pink-500 hover:bg-pink-600 text-white rounded-md whitespace-nowrap"
+            className="whitespace-nowrap"
           >
             削除
-          </button>
+          </Button>
           <Link
             href={`/edit/collection/${collectionId}/anniversary/${anniversary.id}`}
-            className="px-2 py-1 text-xs bg-yellow-500 hover:bg-yellow-600 text-white rounded-md whitespace-nowrap"
+            className="px-2 py-1 text-xs bg-yellow-500 hover:bg-yellow-600 text-white rounded-md whitespace-nowrap transition"
           >
             編集
           </Link>
