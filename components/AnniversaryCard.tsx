@@ -24,7 +24,7 @@ export function AnniversaryCard({
 }: AnniversaryCardProps) {
   const diffDays = calculateDiffDays(anniversary.anniversaryDate);
   const _countdown = formatCountdown(diffDays);
-  const japanDateStr = japanDate(anniversary.anniversaryDate);
+  const japanDateStr = japanDate(anniversary.anniversaryDate, true); // 年のみ取得
   const ages = getAges(anniversary.anniversaryDate);
 
   return (
@@ -53,10 +53,10 @@ export function AnniversaryCard({
         )}
       </div>
 
-      {/* 和暦・年齢 */}
+      {/* 西暦（和暦）・年齢 */}
       <div className="text-base text-gray-600 dark:text-gray-200 mb-1">
-        <span>{japanDateStr}</span>
-        {ages && <span className="ml-3">{ages}</span>}
+        <span>{anniversary.anniversaryDate}（{japanDateStr}）</span>
+        {ages && <span className="ml-1">{ages}</span>}
       </div>
 
       {anniversary.description && (
