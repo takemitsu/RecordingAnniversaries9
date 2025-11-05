@@ -11,6 +11,8 @@ export const authConfig = {
     accountsTable: accounts,
     sessionsTable: sessions,
   }),
+  debug: true, // E2Eテスト用: セッション検証フローをログ出力
+  useSecureCookies: false, // E2Eテスト対応: Cookie名を authjs.session-token に固定
   providers: [
     Google({
       clientId: process.env.GOOGLE_CLIENT_ID,

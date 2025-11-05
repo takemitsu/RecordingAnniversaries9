@@ -23,6 +23,10 @@ export default async function EditAnniversaryPage({
   const collection = await getCollection(collectionId);
   const anniversary = await getAnniversary(anniversaryId);
 
+  if (!collection || !anniversary) {
+    redirect("/edit");
+  }
+
   return (
     <div>
       <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">

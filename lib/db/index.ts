@@ -4,7 +4,7 @@ import * as schema from "./schema";
 
 // テスト環境ではTEST_DATABASE_URLを使用
 const connectionString =
-  process.env.NODE_ENV === "test"
+  process.env.NODE_ENV === "test" || process.env.E2E_TEST === "true"
     ? process.env.TEST_DATABASE_URL
     : process.env.DATABASE_URL;
 

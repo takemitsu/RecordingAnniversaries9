@@ -43,3 +43,10 @@ next-env.d.ts
 # Serena MCP Server (各開発者がローカルで設定)
 .serena/
 .mcp.json
+
+# Playwright
+/playwright/.auth/
+/test-results/
+/playwright-report/
+/playwright/.cache/
+/e2e/.auth/

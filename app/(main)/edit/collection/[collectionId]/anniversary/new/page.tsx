@@ -18,6 +18,10 @@ export default async function NewAnniversaryPage({
   const collectionId = Number(collectionIdStr);
   const collection = await getCollection(collectionId);
 
+  if (!collection) {
+    redirect("/edit");
+  }
+
   return (
     <div>
       <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
