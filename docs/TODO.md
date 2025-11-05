@@ -39,35 +39,10 @@
 
 ### テスト
 
-- [x] **Phase 1実装完了: Unit Tests** ✅ 完了（2025-11-04）
-  - 日付計算（14テスト）- `lib/utils/dateCalculation.test.ts`
-  - 和暦変換（14テスト）- `lib/utils/japanDate.test.ts`
-  - Zodスキーマ（27テスト）- `lib/schemas/*.test.ts`
-  - カバレッジ: utils 98%+, schemas 100%
-  - 55テスト全通過
-
-- [x] **Phase 2実装完了: Integration Tests** ✅ 完了（2025-11-05）
-  - Server Actions + MySQL テストDB（TEST_DATABASE_URL）
-  - Collections CRUD（14テスト）- `__tests__/app/actions/collections.integration.test.ts`
-  - Anniversaries CRUD（10テスト）- `__tests__/app/actions/anniversaries.integration.test.ts`
-  - Profile（3テスト）- `__tests__/app/actions/profile.integration.test.ts`
-  - 認証・権限分離テスト実装済み
-  - CASCADE削除動作の検証
-  - 27テスト全通過
-
-- [x] **Phase 3実装完了: Component Tests** ✅ 完了（2025-11-05）
-  - フォーム（CollectionForm 11テスト, AnniversaryForm 11テスト, ProfileForm 9テスト）
-  - カード（CollectionCard 11テスト, AnniversaryCard 5テスト）
-  - ボタン（Button 4テスト）
-  - React Testing Library使用
-  - querySelector削除、ベストプラクティス遵守
-  - 51テスト全通過（改善により80件 → 51件に削減、-36.25%）
-
+- [x] **Phase 1: Unit Tests（55テスト）** ✅ 完了（2025-11-04）
+- [x] **Phase 2: Integration Tests（27テスト）** ✅ 完了（2025-11-05）
+- [x] **Phase 3: Component Tests（51テスト）** ✅ 完了（2025-11-05）
 - [ ] **Phase 4: E2E Tests** 🚧 将来の課題
-  - Playwright + 認証モック
-  - Collection/Anniversary CRUD フロー
-  - ダッシュボード表示確認
-  - プロフィール設定
 
 **詳細**: `docs/TEST_STRATEGY.md` 参照
 

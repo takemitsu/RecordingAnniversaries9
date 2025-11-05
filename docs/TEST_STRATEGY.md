@@ -690,7 +690,6 @@ Duration   ~1.5s
 ```
 
 **設計判断**:
-- **MySQL vs SQLite**: 本番環境と同じMySQLを使用し、外部キー制約やDATE型の挙動を正確にテスト
 - **fileParallelism: false**: DB競合回避のため直列実行（パフォーマンスより正確性優先）
 - **TRUNCATE戦略**: `SET FOREIGN_KEY_CHECKS = 0` で外部キー制約を一時無効化し、高速クリーンアップ
 - **globalSetup**: 全テスト実行前に1回だけマイグレーション実行（効率的）

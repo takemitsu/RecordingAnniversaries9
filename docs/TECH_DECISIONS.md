@@ -222,24 +222,14 @@ if (!result.success) {
 - **依存関係**: Integration Tests は Unit Tests に依存
 - **段階的**: 各Phaseで品質を確保しながら進む
 
-### 実装完了（Phase 1 + Phase 2）
+### 実装完了（Phase 1 + Phase 2 + Phase 3）
 
 - ✅ **Phase 1: Unit Tests**（55テスト）- 2025-11-04完了
-  - 日付計算（14テスト）- `lib/utils/dateCalculation.test.ts`
-  - 和暦変換（14テスト）- `lib/utils/japanDate.test.ts`
-  - Zodスキーマ（27テスト）- `lib/schemas/*.test.ts`
-  - カバレッジ: utils 98%+, schemas 100%
-
 - ✅ **Phase 2: Integration Tests**（27テスト）- 2025-11-05完了
-  - Collections CRUD（14テスト）- `__tests__/app/actions/collections.integration.test.ts`
-  - Anniversaries CRUD（10テスト）- `__tests__/app/actions/anniversaries.integration.test.ts`
-  - Profile更新（3テスト）- `__tests__/app/actions/profile.integration.test.ts`
-  - 認証・権限分離テスト実装済み
-  - CASCADE削除動作の検証
+- ✅ **Phase 3: Component Tests**（51テスト）- 2025-11-05完了
 
-### 未実装（Phase 3, 4）
+### 未実装（Phase 4）
 
-- **Phase 3: Component Tests** - フォーム、カード、ボタン
 - **Phase 4: E2E Tests** - Playwright使用
 
 詳細は `docs/TEST_STRATEGY.md` 参照。

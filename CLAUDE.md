@@ -225,26 +225,15 @@ Users (ユーザー)
 - ✅ **テスト環境構築完了**
   - Vitest 4.0.6 + React Testing Library 16.3.0
   - MySQL テストDB（TEST_DATABASE_URL）
-  - globalSetup.ts でマイグレーション自動実行
-  - TRUNCATE戦略でテストデータクリーンアップ
 - ✅ **Unit Tests実装完了（55テスト）**
-  - 日付計算（14テスト）- `lib/utils/dateCalculation.test.ts`
-  - 和暦変換（14テスト）- `lib/utils/japanDate.test.ts`
-  - Zodスキーマ（27テスト）- `lib/schemas/*.test.ts`
+  - 日付計算、和暦変換、Zodバリデーション
   - カバレッジ: utils 98%+, schemas 100%
 - ✅ **Integration Tests実装完了（27テスト）**
-  - Collections CRUD（14テスト）- `__tests__/app/actions/collections.integration.test.ts`
-  - Anniversaries CRUD（10テスト）- `__tests__/app/actions/anniversaries.integration.test.ts`
-  - Profile更新（3テスト）- `__tests__/app/actions/profile.integration.test.ts`
-  - 認証・権限分離テスト実装済み
-  - CASCADE削除動作の検証
+  - Collections CRUD、Anniversaries CRUD、Profile更新
+  - 認証・権限分離、CASCADE削除動作の検証
 - ✅ **Component Tests実装完了（51テスト）**
-  - フォーム（CollectionForm 11, AnniversaryForm 11, ProfileForm 9）
-  - カード（CollectionCard 11, AnniversaryCard 5）
-  - ボタン（Button 4）
+  - フォーム、カード、ボタン
   - React Testing Library使用、ベストプラクティス遵守
-  - querySelector削除、getByLabelText使用
-  - 改善により80件 → 51件に削減（-36.25%）
 
 ## 未実装機能・次にやること 🚧
 
@@ -326,7 +315,7 @@ npm run lint
 npm run format
 
 # テスト
-npm test              # Unit + Integration Tests（82テスト）
+npm test              # 全テスト（133テスト）
 npm run test:ui       # Vitest UI（ブラウザで結果確認）
 npm run test:coverage # カバレッジレポート生成
 
@@ -535,21 +524,16 @@ users (ユーザー)
 
 ## テスト戦略
 
-### 実装完了（Phase 1 + Phase 2）
+### 実装完了（Phase 1 + Phase 2 + Phase 3）
 - ✅ **Unit Tests**: 日付計算、和暦変換、Zodバリデーション（55テスト）
 - ✅ **Integration Tests**: Server Actions + MySQL（27テスト）
+- ✅ **Component Tests**: フォーム、カード、ボタン（51テスト）
 - ✅ **カバレッジ**: utils 98%+, schemas 100%
-
-### テストDB設定
-- **MySQL テストDB**: 本番環境と同じMySQLを使用（外部キー、DATE型の挙動を正確にテスト）
-- **TEST_DATABASE_URL**: `.env.local`に設定必須
-- **TRUNCATE戦略**: `SET FOREIGN_KEY_CHECKS = 0` で外部キー制約を一時無効化し、高速クリーンアップ
-- **globalSetup**: 全テスト実行前に1回だけマイグレーション実行（効率的）
-- **fileParallelism: false**: DB競合回避のため直列実行
+- **総計**: 133テスト全通過
 
 ### テスト実行コマンド
 ```bash
-# 全テスト実行（Unit 55 + Integration 27 + Component 51 = 133テスト）
+# 全テスト実行（133テスト）
 npm test
 
 # Vitest UI（ブラウザで結果確認）
@@ -559,9 +543,8 @@ npm run test:ui
 npm run test:coverage
 ```
 
-### 実装完了と未実装
-- ✅ **Component Tests**: フォーム、カード（Phase 3完了 - 51テスト）
-- [ ] **E2E Tests**: Playwright（Phase 4 - 未実装）
+### 未実装
+- [ ] **E2E Tests**: Playwright（Phase 4）
 
 詳細は `docs/TEST_STRATEGY.md` 参照。
 
