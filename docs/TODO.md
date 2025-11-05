@@ -55,11 +55,13 @@
   - CASCADE削除動作の検証
   - 27テスト全通過
 
-- [ ] **Phase 3: Component Tests** 🚧 次の課題
-  - フォーム（CollectionForm, AnniversaryForm, ProfileForm）
-  - カード（CollectionCard, AnniversaryCard）
-  - ボタン（Button）
+- [x] **Phase 3実装完了: Component Tests** ✅ 完了（2025-11-05）
+  - フォーム（CollectionForm 11テスト, AnniversaryForm 11テスト, ProfileForm 9テスト）
+  - カード（CollectionCard 11テスト, AnniversaryCard 5テスト）
+  - ボタン（Button 4テスト）
   - React Testing Library使用
+  - querySelector削除、ベストプラクティス遵守
+  - 51テスト全通過（改善により80件 → 51件に削減、-36.25%）
 
 - [ ] **Phase 4: E2E Tests** 🚧 将来の課題
   - Playwright + 認証モック

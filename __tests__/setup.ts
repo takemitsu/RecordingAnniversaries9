@@ -13,6 +13,11 @@ vi.mock("next/cache", () => ({
 
 vi.mock("next/navigation", () => ({
   redirect: vi.fn(),
+  useRouter: vi.fn(() => ({
+    push: vi.fn(),
+    replace: vi.fn(),
+    refresh: vi.fn(),
+  })),
 }));
 
 // 各テスト後にクリーンアップ

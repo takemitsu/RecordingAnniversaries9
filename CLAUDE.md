@@ -238,6 +238,13 @@ Users (ユーザー)
   - Profile更新（3テスト）- `__tests__/app/actions/profile.integration.test.ts`
   - 認証・権限分離テスト実装済み
   - CASCADE削除動作の検証
+- ✅ **Component Tests実装完了（51テスト）**
+  - フォーム（CollectionForm 11, AnniversaryForm 11, ProfileForm 9）
+  - カード（CollectionCard 11, AnniversaryCard 5）
+  - ボタン（Button 4）
+  - React Testing Library使用、ベストプラクティス遵守
+  - querySelector削除、getByLabelText使用
+  - 改善により80件 → 51件に削減（-36.25%）
 
 ## 未実装機能・次にやること 🚧
 
@@ -259,7 +266,7 @@ Users (ユーザー)
 - [ ] 記念日のインポート/エクスポート
 
 ### テスト（残タスク）
-- [ ] Component Tests（フォーム、カード）- Phase 3
+- [x] Component Tests（フォーム、カード）- Phase 3 ✅ 完了
 - [ ] E2Eテスト（Playwright）- Phase 4
 
 ### デプロイ
@@ -542,7 +549,7 @@ users (ユーザー)
 
 ### テスト実行コマンド
 ```bash
-# 全テスト実行（Unit + Integration）
+# 全テスト実行（Unit 55 + Integration 27 + Component 51 = 133テスト）
 npm test
 
 # Vitest UI（ブラウザで結果確認）
@@ -552,9 +559,9 @@ npm run test:ui
 npm run test:coverage
 ```
 
-### 未実装（Phase 3, 4）
-- **Component Tests**: フォーム、カード（Phase 3）
-- **E2E Tests**: Playwright（Phase 4）
+### 実装完了と未実装
+- ✅ **Component Tests**: フォーム、カード（Phase 3完了 - 51テスト）
+- [ ] **E2E Tests**: Playwright（Phase 4 - 未実装）
 
 詳細は `docs/TEST_STRATEGY.md` 参照。
 

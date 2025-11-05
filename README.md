@@ -32,10 +32,12 @@
 - ✅ プロフィール設定
 - ✅ レスポンシブデザイン（モバイルファースト）
 - ✅ ダークモード対応
-- ✅ **テスト実装（Phase 1 + Phase 2完了）**
+- ✅ **テスト実装（Phase 1 + Phase 2 + Phase 3完了）**
   - Unit Tests: 55テスト（日付計算、和暦変換、Zodバリデーション）
   - Integration Tests: 27テスト（Server Actions + MySQL）
+  - Component Tests: 51テスト（フォーム、カード、UI）
   - カバレッジ: utils 98%+, schemas 100%
+  - **総計: 133テスト全通過**
 
 ### 未実装機能
 
@@ -229,7 +231,7 @@ npm run lint
 npm run format
 
 # テスト
-npm test              # Unit + Integration Tests（82テスト）
+npm test              # All Tests（133テスト: Unit 55 + Integration 27 + Component 51）
 npm run test:ui       # Vitest UI（ブラウザで結果確認）
 npm run test:coverage # カバレッジレポート生成
 
@@ -269,7 +271,7 @@ npm run test:coverage
 open coverage/index.html
 ```
 
-### テスト構成
+### テスト構成（総計: 133テスト）
 
 - **Unit Tests**: 日付計算、和暦変換、Zodバリデーション（55テスト）
   - `lib/utils/dateCalculation.test.ts` - カウントダウン計算（14テスト）
@@ -279,6 +281,13 @@ open coverage/index.html
   - `__tests__/app/actions/collections.integration.test.ts` - Collections CRUD（14テスト）
   - `__tests__/app/actions/anniversaries.integration.test.ts` - Anniversaries CRUD（10テスト）
   - `__tests__/app/actions/profile.integration.test.ts` - Profile更新（3テスト）
+- **Component Tests**: React Testing Library（51テスト）
+  - `__tests__/components/ui/Button.test.tsx` - Buttonコンポーネント（4テスト）
+  - `__tests__/components/AnniversaryCard.test.tsx` - Anniversaryカード（5テスト）
+  - `__tests__/components/CollectionCard.test.tsx` - Collectionカード（11テスト）
+  - `__tests__/components/forms/CollectionForm.test.tsx` - Collectionフォーム（11テスト）
+  - `__tests__/components/forms/AnniversaryForm.test.tsx` - Anniversaryフォーム（11テスト）
+  - `__tests__/app/(main)/profile/ProfileForm.test.tsx` - プロフィールフォーム（9テスト）
 - **カバレッジ**: utils 98%+, schemas 100%
 
 詳細は [docs/TEST_STRATEGY.md](docs/TEST_STRATEGY.md) 参照。
