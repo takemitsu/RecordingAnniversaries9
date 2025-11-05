@@ -865,31 +865,276 @@ describe("AnniversaryCard", () => {
 npx playwright install
 ```
 
-#### 4.1.2 認証モック（Auth.js bypass）
+#### 4.1.2 認証戦略: Setup Projects + Storage State
 
-**`e2e/fixtures/auth.ts`**
+**重要**: Auth.js v5 (Database strategy) では、Cookie認証の完全な実装が必要です。単純なCookie追加では動作しません。
+
+**アーキテクチャ**:
+1. **Setup Project**: テスト実行前に1回だけ認証セッションを作成
+2. **Storage State**: 認証済みブラウザ状態をJSON保存
+3. **テスト**: 保存したStorage Stateを再利用
+
+**`playwright.config.ts`**
 
 ```typescript
-import { test as base } from "@playwright/test";
+import { defineConfig, devices } from "@playwright/test";
 
-export const test = base.extend({
-  // 認証済みセッションを自動セット
-  context: async ({ context }, use) => {
-    // Auth.jsセッションCookieをモック
-    await context.addCookies([
-      {
-        name: "authjs.session-token",
-        value: "test-session-token",
-        domain: "localhost",
-        path: "/",
+export default defineConfig({
+  testDir: "./e2e",
+  fullyParallel: false, // E2Eテストは順次実行（DB競合回避）
+  forbidOnly: !!process.env.CI,
+  retries: process.env.CI ? 2 : 0,
+  workers: 1, // シーケンシャル実行
+  reporter: "list",
+  globalSetup: require.resolve("./e2e/helpers/global-setup.ts"),
+  use: {
+    baseURL: "http://localhost:3000",
+    trace: "on-first-retry",
+  },
+
+  projects: [
+    // Setup: 認証を1回だけ実行
+    {
+      name: "setup",
+      testMatch: /.*\.setup\.ts/,
+    },
+    // Tests: 認証済み状態を再利用
+    {
+      name: "chromium",
+      use: {
+        ...devices["Desktop Chrome"],
+        storageState: "e2e/.auth/user.json", // 認証状態を読み込み
       },
-    ]);
+      dependencies: ["setup"], // setupプロジェクトが先に実行
+    },
+  ],
 
-    await use(context);
+  webServer: {
+    command: "E2E_TEST=true npm run dev",
+    url: "http://localhost:3000",
+    reuseExistingServer: false, // 常に新規起動してauth.tsの変更を反映
+    env: {
+      E2E_TEST: "true",
+      AUTH_URL: "http://localhost:3000",
+    },
   },
 });
+```
 
-export { expect } from "@playwright/test";
+#### 4.1.3 認証セットアップ
+
+**`e2e/auth.setup.ts`**
+
+```typescript
+import { test as setup } from "@playwright/test";
+import { getTestDb } from "./helpers/db-seed";
+import * as schema from "@/lib/db/schema";
+import crypto from "node:crypto";
+
+const authFile = "e2e/.auth/user.json";
+
+/**
+ * Setup Project: 認証状態を作成
+ * Database strategyに対応した直接セッション作成方式
+ */
+setup("authenticate", async ({ browser }) => {
+  console.log("🔐 Authenticating E2E user...");
+
+  // セッショントークン生成
+  const sessionToken = crypto.randomUUID();
+  const expires = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30日後
+
+  // テストDBに直接セッションを作成
+  const db = await getTestDb();
+  await db.insert(schema.sessions).values({
+    userId: "e2e-user-id",
+    sessionToken,
+    expires,
+  });
+
+  console.log(`✅ Session created: ${sessionToken}`);
+
+  // ブラウザコンテキストを作成
+  const context = await browser.newContext();
+
+  // Cookieをブラウザに追加（重要: ブラウザコンテキストに追加）
+  await context.addCookies([
+    {
+      name: "authjs.session-token",
+      value: sessionToken,
+      domain: "localhost",
+      path: "/",
+      expires: expires.getTime() / 1000,
+      httpOnly: true, // Auth.js必須属性
+      secure: false, // HTTPなのでfalse
+      sameSite: "Lax",
+    },
+  ]);
+
+  console.log("🍪 Cookie added to browser context");
+
+  // 認証が有効か確認（ページを開いてテスト）
+  const page = await context.newPage();
+  await page.goto("http://localhost:3000/");
+
+  // リダイレクトされていないか確認
+  const currentUrl = page.url();
+  if (currentUrl.includes("/auth/signin")) {
+    throw new Error(`❌ Authentication failed: redirected to ${currentUrl}`);
+  }
+
+  console.log(`✅ Authentication verified: ${currentUrl}`);
+
+  // ブラウザの状態をStorage Stateとして保存
+  await context.storageState({ path: authFile });
+
+  console.log(`✅ Storage state saved to ${authFile}`);
+  console.log(`🍪 Cookie: ${sessionToken.substring(0, 30)}...`);
+
+  await context.close();
+});
+```
+
+#### 4.1.4 テストDB操作ヘルパー
+
+**`e2e/helpers/db-seed.ts`**
+
+```typescript
+import { config } from "dotenv";
+import { drizzle } from "drizzle-orm/mysql2";
+import mysql from "mysql2/promise";
+import * as schema from "@/lib/db/schema";
+import { eq } from "drizzle-orm";
+
+config({ path: ".env.local" });
+
+let testDb: ReturnType<typeof drizzle> | null = null;
+let connection: mysql.Connection | null = null;
+
+export async function getTestDb() {
+  if (!testDb) {
+    const connectionString = process.env.TEST_DATABASE_URL;
+    if (!connectionString) {
+      throw new Error("TEST_DATABASE_URL is not set");
+    }
+    connection = await mysql.createConnection(connectionString);
+    testDb = drizzle(connection, { schema, mode: "default" });
+  }
+  return testDb;
+}
+
+export async function closeTestDb() {
+  if (connection) {
+    await connection.end();
+    testDb = null;
+    connection = null;
+  }
+}
+
+export async function cleanupE2EData() {
+  const db = await getTestDb();
+
+  // CASCADE削除により、anniversariesも自動削除される
+  await db
+    .delete(schema.collections)
+    .where(eq(schema.collections.userId, "e2e-user-id"));
+
+  console.log("🧹 E2E data cleaned up");
+}
+
+export async function seedE2EUser() {
+  const db = await getTestDb();
+
+  await db
+    .insert(schema.users)
+    .values({
+      id: "e2e-user-id",
+      email: "e2e@example.com",
+      name: "E2E Test User",
+    })
+    .onDuplicateKeyUpdate({
+      set: {
+        email: "e2e@example.com",
+        name: "E2E Test User",
+      },
+    });
+
+  console.log("✅ E2E user seeded");
+}
+```
+
+**`e2e/helpers/global-setup.ts`**
+
+```typescript
+import { config } from "dotenv";
+import { drizzle } from "drizzle-orm/mysql2";
+import { migrate } from "drizzle-orm/mysql2/migrator";
+import mysql from "mysql2/promise";
+import { cleanupE2EData, closeTestDb, seedE2EUser } from "./db-seed";
+
+export default async function globalSetup() {
+  config({ path: ".env.local" });
+  console.log("🔧 Setting up E2E test environment...");
+
+  const connectionString = process.env.TEST_DATABASE_URL;
+
+  if (!connectionString) {
+    throw new Error("TEST_DATABASE_URL is not set in .env.local");
+  }
+
+  let connection: mysql.Connection | null = null;
+
+  try {
+    connection = await mysql.createConnection(connectionString);
+    const db = drizzle(connection);
+
+    // マイグレーション実行
+    console.log("📦 Running migrations...");
+    await migrate(db, { migrationsFolder: "./drizzle" });
+    console.log("✅ Migrations complete");
+
+    // 既存のE2Eデータをクリーンアップ
+    await cleanupE2EData();
+
+    // E2Eユーザーを作成
+    await seedE2EUser();
+
+    console.log("✅ E2E test environment setup complete");
+  } catch (error) {
+    console.error("❌ E2E test environment setup failed:", error);
+    throw error;
+  } finally {
+    if (connection) {
+      await connection.end();
+    }
+    await closeTestDb();
+  }
+}
+```
+
+#### 4.1.5 重要: アプリケーション側の修正
+
+**`lib/db/index.ts`（E2E_TEST環境変数対応）**
+
+```typescript
+// テスト環境ではTEST_DATABASE_URLを使用
+const connectionString =
+  process.env.NODE_ENV === "test" || process.env.E2E_TEST === "true" // ← E2E対応
+    ? process.env.TEST_DATABASE_URL
+    : process.env.DATABASE_URL;
+```
+
+**⚠️ この修正がないと、Auth.jsが本番DBを参照してセッションが見つからない**
+
+**`auth.ts`（E2E用設定）**
+
+```typescript
+export const authConfig = {
+  // ...
+  debug: true, // E2Eテスト用: セッション検証フローをログ出力
+  useSecureCookies: false, // E2Eテスト対応: Cookie名を authjs.session-token に固定
+  // ...
+} satisfies NextAuthConfig;
 ```
 
 ### 4.2 E2E Tests実装
@@ -1014,6 +1259,115 @@ test.describe("Dashboard", () => {
 });
 ```
 
+### 🚧 Phase 4 実装途中（2025-11-05） - 認証完了・テスト45%通過
+
+**ステータス**: 認証基盤は完全動作、22テスト中10テスト通過（残り12テスト要修正）
+
+**実装内容**:
+- ✅ Playwright 1.56.1インストール完了
+- ✅ Setup Projects + Storage State認証実装
+- ✅ E2Eテストスペック4ファイル・22テスト実装
+  - `e2e/dashboard.spec.ts` - 6テスト
+  - `e2e/collection-crud.spec.ts` - 6テスト
+  - `e2e/anniversary-crud.spec.ts` - 7テスト
+  - `e2e/profile.spec.ts` - 3テスト
+- ✅ MySQL testDB統合（TEST_DATABASE_URL使用）
+- ✅ 認証問題の根本解決（lib/db/index.ts修正）
+
+**テスト結果**:
+```
+Test Files  1 passed (Setup Project)
+           + 22 E2E tests
+Tests      10 passed / 12 failed (45%)
+Duration   ~2分
+```
+
+**通過テスト（10件）**:
+1. Setup Project - 認証セットアップ ✅
+2. Anniversary CRUD:
+   - Anniversary編集 → 更新確認 ✅
+   - Anniversaryの日付順序確認 ✅
+3. Collection CRUD:
+   - Collection編集のみ ✅
+   - Collection削除のみ ✅
+   - is_visible変更 ✅
+4. Dashboard:
+   - is_visible=0のCollectionは非表示 ✅
+   - 記念日がないCollectionは表示されない ✅
+5. Profile: 基本機能 ✅ (2件)
+
+**失敗テスト（12件）**:
+1. **カウントダウン表示が見つからない** (5テスト)
+   - `text=/あと\d+日|今日|明日/`が見つからない
+   - 和暦は表示されている（`text=/令和2年/`は通過）
+   - 原因: UIレンダリング問題またはテストセレクター問題
+2. **バリデーションエラーが表示されない** (4テスト)
+   - Anniversary/Collection作成時のバリデーションエラーテスト失敗
+   - 原因: フォームバリデーション表示の問題
+3. **タイムアウト** (3テスト)
+   - Anniversary削除テスト (30秒タイムアウト)
+   - ページ遷移の待機条件が不十分
+
+**設計判断**:
+- **Setup Projects**: 認証を1回だけ実行し、Storage Stateで再利用（効率的）
+- **Database strategy対応**: 直接sessionsテーブルにレコード挿入（Auth.js v5対応）
+- **context.addCookies()**: ブラウザコンテキストに直接Cookie追加（正しいアプローチ）
+- **workers: 1**: シーケンシャル実行でDB競合回避
+- **E2E_TEST環境変数**: lib/db/index.tsで認識してTEST_DATABASE_URL使用
+
+**認証問題の解決過程**:
+1. **初回試行**: 単純なCookie追加 → 失敗（Auth.jsが認識しない）
+2. **調査**: Auth.jsソースコード解析 → useSecureCookies設定が必要
+3. **2回目**: useSecureCookies設定 → 失敗（まだ認識しない）
+4. **根本原因発見**: lib/db/index.tsがE2E_TEST環境変数を認識せず、Auth.jsが本番DBを参照
+5. **最終解決**: lib/db/index.tsに`|| process.env.E2E_TEST === "true"`追加 → 成功 ✅
+
+**アプリケーション改善**:
+- `app/(main)/edit/collection/[collectionId]/anniversary/new/page.tsx`: collectionがnullの場合のリダイレクト追加
+- `app/(main)/edit/collection/[collectionId]/anniversary/[anniversaryId]/page.tsx`: collection/anniversaryがnullの場合のリダイレクト追加
+- エラーハンドリング強化
+
+**品質チェック**:
+- ✅ Setup Project認証: 完全動作
+- ✅ DB接続: テストDB使用（E2E_TEST環境変数）
+- ⚠️ テスト通過率: 45%（10/22）
+- ⚠️ 残課題: UIレンダリング・バリデーション表示
+
+**注意点**:
+- **重要**: lib/db/index.tsのE2E_TEST対応が必須（ないと認証が動作しない）
+- テストはシーケンシャル実行（workers: 1）
+- Storage State JSON: e2e/.auth/user.json（.gitignore済み）
+- セッションはafterEachでクリーンアップしない（Setup Projectセッションを保持）
+
+**残課題（次のセッションで対応）**:
+1. カウントダウン表示問題の調査（AnniversaryCardコンポーネント確認）
+2. バリデーションエラー表示問題の調査（フォームバリデーション確認）
+3. タイムアウト問題の解決（ページ遷移待機条件見直し）
+4. テストセレクターの改善（strict mode violation対策）
+
+**🎯 次のセッションで最初にやること**:
+
+```bash
+# ブランチ確認
+git branch  # → feature/e2e
+
+# テスト状況確認
+npm run test:e2e  # → 10/22 passed (45%)
+```
+
+**修正すべき12テスト**:
+1. **カウントダウン表示** (5テスト) - `AnniversaryCard.tsx`の確認
+2. **バリデーションエラー表示** (4テスト) - フォームコンポーネントの確認
+3. **タイムアウト** (3テスト) - 待機条件の見直し
+
+**推奨アプローチ**:
+1. まず単独のテストを実行して問題を特定: `npm run test:e2e -- e2e/anniversary-crud.spec.ts:21`
+2. ブラウザでスクリーンショット確認: `await page.screenshot({ path: "debug.png" })`
+3. 実際のHTMLを確認: `const html = await page.content(); console.log(html);`
+4. 問題修正後、全テスト実行: `npm run test:e2e`
+
+**重要**: 認証基盤は完全動作しているので、認証周りは触らないこと
+
 ---
 
 ## 実装チェックリスト
@@ -1053,13 +1407,20 @@ test.describe("Dashboard", () => {
 - [ ] Phase 3テスト実行: `npm test`
 
 ### Phase 4: E2E Tests
-- [ ] Playwrightインストール: `npx playwright install`
-- [ ] `e2e/fixtures/auth.ts` 作成（認証モック）
-- [ ] `e2e/collection-crud.spec.ts` 実装
-- [ ] `e2e/anniversary-crud.spec.ts` 実装
-- [ ] `e2e/dashboard.spec.ts` 実装
-- [ ] `e2e/profile.spec.ts` 実装
-- [ ] Phase 4テスト実行: `npm run test:e2e`
+- [x] Playwrightインストール: `npx playwright install`
+- [x] Setup Projects + Storage State認証実装
+- [x] `e2e/auth.setup.ts` 作成（Database strategy対応）
+- [x] `e2e/helpers/db-seed.ts` 作成（テストDB操作）
+- [x] `e2e/helpers/global-setup.ts` 作成（マイグレーション）
+- [x] `e2e/fixtures/test-data.ts` 作成（テストデータヘルパー）
+- [x] `e2e/collection-crud.spec.ts` 実装（6テスト）
+- [x] `e2e/anniversary-crud.spec.ts` 実装（7テスト）
+- [x] `e2e/dashboard.spec.ts` 実装（6テスト）
+- [x] `e2e/profile.spec.ts` 実装（3テスト）
+- [x] `lib/db/index.ts` E2E_TEST環境変数対応（重要）
+- [x] `auth.ts` debug/useSecureCookies設定
+- [x] Anniversary編集/作成ページ nullチェック追加
+- [x] Phase 4テスト実行: `npm run test:e2e` → 10/22 passed (45%) ⚠️
 
 ### カバレッジ確認
 - [ ] カバレッジレポート生成: `npm run test:coverage`
@@ -1125,8 +1486,70 @@ use: {
 },
 ```
 
-#### 問題: 認証が必要なページでリダイレクト
-**解決**: `e2e/fixtures/auth.ts` でセッションCookieをモック
+#### 問題: Auth.js v5 (Database strategy) で認証が動作しない
+**症状**: Storage State JSONは作成されるが、テストで`/auth/signin`にリダイレクトされる
+
+**調査過程**:
+1. Cookieは正しく送信されている（確認済み）
+2. セッションはDBに存在する（確認済み）
+3. しかしAuth.jsがセッションを認識しない
+
+**根本原因**: `lib/db/index.ts`がE2E_TEST環境変数を認識せず、Auth.jsが本番DBを参照していた
+
+**解決**:
+```typescript
+// lib/db/index.ts
+const connectionString =
+  process.env.NODE_ENV === "test" || process.env.E2E_TEST === "true" // ← 追加
+    ? process.env.TEST_DATABASE_URL
+    : process.env.DATABASE_URL;
+```
+
+**追加設定**:
+```typescript
+// auth.ts
+export const authConfig = {
+  debug: true, // E2Eテスト用: セッション検証フローをログ出力
+  useSecureCookies: false, // Cookie名を authjs.session-token に固定
+  // ...
+};
+```
+
+**検証方法**:
+- Setup Projectのauth.setup.tsで`page.goto("/")`して、URLが`/auth/signin`でないことを確認
+- Auth.jsのdebugログでセッション検証フローを確認
+
+#### 問題: Storage State Cookieが実際のHTTPリクエストで送信されない
+**症状**: Storage State JSONにCookieがあるのに、ブラウザがCookieを送信しない
+
+**原因**: `fs.writeFileSync()`で手動作成したJSONは、ブラウザコンテキストにCookieを追加しない
+
+**誤ったアプローチ**:
+```typescript
+// ❌ これは動作しない
+const storageState = { cookies: [...] };
+fs.writeFileSync(authFile, JSON.stringify(storageState, null, 2));
+```
+
+**正しいアプローチ**:
+```typescript
+// ✅ ブラウザコンテキストにCookieを追加してから保存
+const context = await browser.newContext();
+await context.addCookies([...]); // ブラウザに追加
+await context.storageState({ path: authFile }); // ブラウザ状態を保存
+```
+
+#### 問題: 並列実行でテストが失敗する
+**症状**: 単独実行では成功するが、並列実行で失敗
+
+**原因**: DB競合（複数テストが同時にE2Eユーザーのデータを操作）
+
+**解決**:
+```typescript
+// playwright.config.ts
+fullyParallel: false,
+workers: 1, // シーケンシャル実行
+```
 
 ---
 
