@@ -12,6 +12,8 @@
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest --coverage",
+    "test:unit": "vitest run __tests__/lib",
+    "test:integration": "vitest run __tests__/app",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui"
   },

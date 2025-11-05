@@ -121,6 +121,9 @@ export async function updateCollection(
     console.error("Collection update error:", error);
 
     if (error instanceof Error) {
+      if (error.message.includes("not found")) {
+        return { error: "グループが見つかりません" };
+      }
       if (error.message.includes("Duplicate entry")) {
         return { error: "同じ名前のグループが既に存在します" };
       }
@@ -148,8 +151,8 @@ export async function deleteCollection(collectionId: number) {
     console.error("Collection deletion error:", error);
 
     if (error instanceof Error) {
-      if (error.message.includes("Foreign key constraint")) {
-        return { error: "このグループには記念日が含まれています" };
+      if (error.message.includes("not found")) {
+        return { error: "グループが見つかりません" };
       }
     }
 
@@ -191,14 +194,9 @@ export const getCollection = cache(async (collectionId: number) => {
 
   try {
     const collection = await collectionQueries.findById(collectionId, userId);
-
-    if (!collection) {
-      redirect("/edit");
-    }
-
     return collection;
   } catch (error) {
     console.error("Collection fetch error:", error);
-    redirect("/edit");
+    return null;
   }
 });

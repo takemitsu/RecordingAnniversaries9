@@ -71,7 +71,7 @@ export const collections = mysqlTable(
       .references(() => users.id, { onDelete: "cascade" }),
     name: varchar("name", { length: 255 }).notNull(),
     description: text("description"),
-    isVisible: tinyint("is_visible", { unsigned: true }).notNull().default(0),
+    isVisible: tinyint("is_visible", { unsigned: true }).notNull().default(1),
     createdAt: timestamp("created_at", { mode: "date" }).defaultNow(),
     updatedAt: timestamp("updated_at", { mode: "date" })
       .defaultNow()

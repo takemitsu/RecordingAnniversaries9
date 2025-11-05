@@ -126,6 +126,7 @@ Users (ユーザー)
 - `anniversaries.anniversary_date` は `date("anniversary_date", { mode: "string" })`
 - リレーション定義済み（Drizzle Relations）
 - ソフトデリート（deleted_at）は**未実装**
+- **CASCADE設計**: Collection削除時、紐づくAnniversariesも自動削除（`onDelete: "cascade"`）でデータ整合性を保証
 
 ## 完了済み機能 ✅
 
@@ -220,6 +221,24 @@ Users (ユーザー)
 - ✅ 詳細ドキュメント（docs/）
 - ✅ セットアップ手順
 
+### テスト
+- ✅ **テスト環境構築完了**
+  - Vitest 4.0.6 + React Testing Library 16.3.0
+  - MySQL テストDB（TEST_DATABASE_URL）
+  - globalSetup.ts でマイグレーション自動実行
+  - TRUNCATE戦略でテストデータクリーンアップ
+- ✅ **Unit Tests実装完了（55テスト）**
+  - 日付計算（14テスト）- `lib/utils/dateCalculation.test.ts`
+  - 和暦変換（14テスト）- `lib/utils/japanDate.test.ts`
+  - Zodスキーマ（27テスト）- `lib/schemas/*.test.ts`
+  - カバレッジ: utils 98%+, schemas 100%
+- ✅ **Integration Tests実装完了（27テスト）**
+  - Collections CRUD（14テスト）- `__tests__/app/actions/collections.integration.test.ts`
+  - Anniversaries CRUD（10テスト）- `__tests__/app/actions/anniversaries.integration.test.ts`
+  - Profile更新（3テスト）- `__tests__/app/actions/profile.integration.test.ts`
+  - 認証・権限分離テスト実装済み
+  - CASCADE削除動作の検証
+
 ## 未実装機能・次にやること 🚧
 
 ### 🔴 優先: Passkey（WebAuthn）実装
@@ -239,9 +258,9 @@ Users (ユーザー)
 - [ ] 通知機能（メール/プッシュ通知）
 - [ ] 記念日のインポート/エクスポート
 
-### テスト
-- [ ] E2Eテスト（Playwright）
-- [ ] Unitテスト（Vitest）
+### テスト（残タスク）
+- [ ] Component Tests（フォーム、カード）- Phase 3
+- [ ] E2Eテスト（Playwright）- Phase 4
 
 ### デプロイ
 - [ ] 本番環境設定
@@ -254,6 +273,9 @@ Users (ユーザー)
 ```env
 # Database
 DATABASE_URL="mysql://user:password@127.0.0.1:3306/database"
+
+# Test Database (Integration Tests用)
+TEST_DATABASE_URL="mysql://user:password@127.0.0.1:3306/ra9_test"
 
 # Auth.js
 AUTH_SECRET="LiLwuByyqzL8IX2EyVtFSlpzuaQMHg3YFSxgMP9kZmQ=" # 生成済み
@@ -295,6 +317,11 @@ npm run lint
 
 # フォーマット
 npm run format
+
+# テスト
+npm test              # Unit + Integration Tests（82テスト）
+npm run test:ui       # Vitest UI（ブラウザで結果確認）
+npm run test:coverage # カバレッジレポート生成
 
 # Drizzle
 npx drizzle-kit studio  # Drizzle Studio（DBビューアー）
@@ -498,6 +525,38 @@ users (ユーザー)
 3. 修正
 4. テスト
 5. コミット
+
+## テスト戦略
+
+### 実装完了（Phase 1 + Phase 2）
+- ✅ **Unit Tests**: 日付計算、和暦変換、Zodバリデーション（55テスト）
+- ✅ **Integration Tests**: Server Actions + MySQL（27テスト）
+- ✅ **カバレッジ**: utils 98%+, schemas 100%
+
+### テストDB設定
+- **MySQL テストDB**: 本番環境と同じMySQLを使用（外部キー、DATE型の挙動を正確にテスト）
+- **TEST_DATABASE_URL**: `.env.local`に設定必須
+- **TRUNCATE戦略**: `SET FOREIGN_KEY_CHECKS = 0` で外部キー制約を一時無効化し、高速クリーンアップ
+- **globalSetup**: 全テスト実行前に1回だけマイグレーション実行（効率的）
+- **fileParallelism: false**: DB競合回避のため直列実行
+
+### テスト実行コマンド
+```bash
+# 全テスト実行（Unit + Integration）
+npm test
+
+# Vitest UI（ブラウザで結果確認）
+npm run test:ui
+
+# カバレッジレポート生成
+npm run test:coverage
+```
+
+### 未実装（Phase 3, 4）
+- **Component Tests**: フォーム、カード（Phase 3）
+- **E2E Tests**: Playwright（Phase 4）
+
+詳細は `docs/TEST_STRATEGY.md` 参照。
 
 ## 参考リソース
 

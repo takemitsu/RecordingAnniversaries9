@@ -6,8 +6,8 @@
  * コレクション（グループ）の表示設定
  */
 export const VISIBILITY = {
-  VISIBLE: 0,
-  HIDDEN: 1,
+  VISIBLE: 1,
+  HIDDEN: 0,
 } as const;
 
 export type VisibilityValue = (typeof VISIBILITY)[keyof typeof VISIBILITY];

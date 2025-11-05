@@ -7,7 +7,12 @@ export default defineConfig({
   test: {
     globals: true,
     environment: "happy-dom",
+    globalSetup: ["./__tests__/globalSetup.ts"],
     setupFiles: ["./__tests__/setup.ts"],
+    env: {
+      NODE_ENV: "test", // テストDBに自動切り替え
+    },
+    fileParallelism: false, // Integration Testsを直列実行（DB競合回避）
     coverage: {
       provider: "v8",
       reporter: ["text", "json", "html"],

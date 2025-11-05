@@ -126,6 +126,9 @@ export async function updateAnniversary(
     console.error("Anniversary update error:", error);
 
     if (error instanceof Error) {
+      if (error.message.includes("not found")) {
+        return { error: "記念日が見つかりません" };
+      }
       if (error.message.includes("Duplicate entry")) {
         return { error: "同じ名前の記念日が既に存在します" };
       }
@@ -163,14 +166,9 @@ export const getAnniversary = cache(async (anniversaryId: number) => {
       anniversaryId,
       userId,
     );
-
-    if (!anniversary) {
-      redirect("/edit");
-    }
-
     return anniversary;
   } catch (error) {
     console.error("Anniversary fetch error:", error);
-    redirect("/edit");
+    return null;
   }
 });

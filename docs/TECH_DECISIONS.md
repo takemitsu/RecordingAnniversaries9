@@ -187,6 +187,63 @@ if (!result.success) {
 - バリデーションエラー時もユーザーの入力値が失われない
 - エラー修正時の再入力が不要（UX向上）
 
+## テスト戦略
+
+### テストツール選定
+
+**決定**: **Vitest** + **React Testing Library** + **Playwright**
+
+**理由**:
+- **Vitest**: Vite互換、高速、Jestライクな使いやすさ
+- **React Testing Library**: React 19対応、ユーザー視点のテスト（実装詳細に依存しない）
+- **Playwright**: E2Eテスト、クロスブラウザ対応（Phase 4で実装予定）
+
+### テストDB: MySQL vs SQLite
+
+**決定**: **MySQL テストDB**（TEST_DATABASE_URL）
+
+**理由**:
+- **本番環境と同じDB**: 外部キー制約、DATE型の挙動を正確にテスト
+- **CASCADE設計のテスト**: Collection削除時のAnniversaries自動削除を検証
+- **型の正確性**: MySQLのDATE型とDrizzleの`date("anniversary_date", { mode: "string" })`の挙動確認
+- **トレードオフ**: SQLiteより遅いが、本番環境と同じ挙動を保証（正確性 > 速度）
+
+**設計判断**:
+- `fileParallelism: false`: DB競合回避のため直列実行
+- **TRUNCATE戦略**: `SET FOREIGN_KEY_CHECKS = 0` で外部キー制約を一時無効化し、高速クリーンアップ
+- **globalSetup**: 全テスト実行前に1回だけマイグレーション実行（効率的）
+
+### テスト実装順序
+
+**決定**: Phase順に実装（Unit → Integration → Component → E2E）
+
+**理由**:
+- **ビジネスロジックから優先**: 日付計算、和暦変換が最重要
+- **依存関係**: Integration Tests は Unit Tests に依存
+- **段階的**: 各Phaseで品質を確保しながら進む
+
+### 実装完了（Phase 1 + Phase 2）
+
+- ✅ **Phase 1: Unit Tests**（55テスト）- 2025-11-04完了
+  - 日付計算（14テスト）- `lib/utils/dateCalculation.test.ts`
+  - 和暦変換（14テスト）- `lib/utils/japanDate.test.ts`
+  - Zodスキーマ（27テスト）- `lib/schemas/*.test.ts`
+  - カバレッジ: utils 98%+, schemas 100%
+
+- ✅ **Phase 2: Integration Tests**（27テスト）- 2025-11-05完了
+  - Collections CRUD（14テスト）- `__tests__/app/actions/collections.integration.test.ts`
+  - Anniversaries CRUD（10テスト）- `__tests__/app/actions/anniversaries.integration.test.ts`
+  - Profile更新（3テスト）- `__tests__/app/actions/profile.integration.test.ts`
+  - 認証・権限分離テスト実装済み
+  - CASCADE削除動作の検証
+
+### 未実装（Phase 3, 4）
+
+- **Phase 3: Component Tests** - フォーム、カード、ボタン
+- **Phase 4: E2E Tests** - Playwright使用
+
+詳細は `docs/TEST_STRATEGY.md` 参照。
+
 ## 未決定事項
 
 ### 1. Passkey の保存先

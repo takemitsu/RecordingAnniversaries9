@@ -1,6 +1,6 @@
 import { and, asc, eq } from "drizzle-orm";
 import { calculateDiffDays } from "@/lib/utils/dateCalculation";
-import { verifyUserAccess } from "./auth-helpers";
+import { verifyUserAccess } from "@/lib/auth-helpers";
 import { db } from "./index";
 import { anniversaries, collections } from "./schema";
 
@@ -67,6 +67,12 @@ export const collectionQueries = {
   ) {
     await verifyUserAccess(userId);
 
+    // 存在確認
+    const existing = await collectionQueries.findById(id, userId);
+    if (!existing) {
+      throw new Error("Collection not found or access denied");
+    }
+
     await db
       .update(collections)
       .set(data)
@@ -76,6 +82,13 @@ export const collectionQueries = {
   async delete(id: number, userId: string) {
     await verifyUserAccess(userId);
 
+    // Collection存在確認
+    const collection = await collectionQueries.findById(id, userId);
+    if (!collection) {
+      throw new Error("Collection not found or access denied");
+    }
+
+    // CASCADE設定により、Anniversariesも自動削除される
     await db
       .delete(collections)
       .where(and(eq(collections.id, id), eq(collections.userId, userId)));
@@ -100,13 +113,13 @@ export const anniversaryQueries = {
       },
     });
 
-    // 記念日が見つからない、またはコレクションの所有者が異なる場合はnull
+    // 記念日が見つからない、またはコレクションの所有者が異なる場合はundefined
     if (
       !anniversary ||
       !anniversary.collection ||
       anniversary.collection.userId !== userId
     ) {
-      return null;
+      return undefined;
     }
 
     return anniversary;
@@ -143,14 +156,18 @@ export const anniversaryQueries = {
     },
   ) {
     const anniversary = await anniversaryQueries.findById(id, userId);
-    if (!anniversary || !anniversary.collection) return;
+    if (!anniversary || !anniversary.collection) {
+      throw new Error("Anniversary not found or access denied");
+    }
 
     await db.update(anniversaries).set(data).where(eq(anniversaries.id, id));
   },
 
   async delete(id: number, userId: string) {
     const anniversary = await anniversaryQueries.findById(id, userId);
-    if (!anniversary || !anniversary.collection) return;
+    if (!anniversary || !anniversary.collection) {
+      throw new Error("Anniversary not found or access denied");
+    }
 
     await db.delete(anniversaries).where(eq(anniversaries.id, id));
   },

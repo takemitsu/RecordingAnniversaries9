@@ -38,15 +38,36 @@
   - シンプルなZodバリデーション採用（@t3-oss/env-nextjsは不採用）
 
 ### テスト
-- [ ] **テスト実装（実装準備完了）** 🚀
-  - **詳細**: `docs/TEST_STRATEGY.md` 参照
-  - **戦略**: Vitest（Unit + Integration）+ React Testing Library（Component）+ Playwright（E2E）
-  - **DB**: SQLite（`:memory:`）でテスト専用環境
-  - **Phase 1**: Unit Tests（日付計算、和暦、Zod）
-  - **Phase 2**: Integration Tests（Server Actions + SQLite）
-  - **Phase 3**: Component Tests（フォーム、カード）
-  - **Phase 4**: E2E Tests（ユーザーフロー全体）
-  - **実装手順**: `TEST_STRATEGY.md` のチェックリストに従って段階的に実装
+
+- [x] **Phase 1実装完了: Unit Tests** ✅ 完了（2025-11-04）
+  - 日付計算（14テスト）- `lib/utils/dateCalculation.test.ts`
+  - 和暦変換（14テスト）- `lib/utils/japanDate.test.ts`
+  - Zodスキーマ（27テスト）- `lib/schemas/*.test.ts`
+  - カバレッジ: utils 98%+, schemas 100%
+  - 55テスト全通過
+
+- [x] **Phase 2実装完了: Integration Tests** ✅ 完了（2025-11-05）
+  - Server Actions + MySQL テストDB（TEST_DATABASE_URL）
+  - Collections CRUD（14テスト）- `__tests__/app/actions/collections.integration.test.ts`
+  - Anniversaries CRUD（10テスト）- `__tests__/app/actions/anniversaries.integration.test.ts`
+  - Profile（3テスト）- `__tests__/app/actions/profile.integration.test.ts`
+  - 認証・権限分離テスト実装済み
+  - CASCADE削除動作の検証
+  - 27テスト全通過
+
+- [ ] **Phase 3: Component Tests** 🚧 次の課題
+  - フォーム（CollectionForm, AnniversaryForm, ProfileForm）
+  - カード（CollectionCard, AnniversaryCard）
+  - ボタン（Button）
+  - React Testing Library使用
+
+- [ ] **Phase 4: E2E Tests** 🚧 将来の課題
+  - Playwright + 認証モック
+  - Collection/Anniversary CRUD フロー
+  - ダッシュボード表示確認
+  - プロフィール設定
+
+**詳細**: `docs/TEST_STRATEGY.md` 参照
 
 ### デプロイ
 - [ ] 本番環境設定

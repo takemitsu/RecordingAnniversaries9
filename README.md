@@ -32,6 +32,10 @@
 - ✅ プロフィール設定
 - ✅ レスポンシブデザイン（モバイルファースト）
 - ✅ ダークモード対応
+- ✅ **テスト実装（Phase 1 + Phase 2完了）**
+  - Unit Tests: 55テスト（日付計算、和暦変換、Zodバリデーション）
+  - Integration Tests: 27テスト（Server Actions + MySQL）
+  - カバレッジ: utils 98%+, schemas 100%
 
 ### 未実装機能
 
@@ -147,6 +151,9 @@ npm install
 # Database
 DATABASE_URL="mysql://user:password@127.0.0.1:3306/database"
 
+# Test Database (Integration Tests用)
+TEST_DATABASE_URL="mysql://user:password@127.0.0.1:3306/ra9_test"
+
 # Auth.js
 AUTH_SECRET="LiLwuByyqzL8IX2EyVtFSlpzuaQMHg3YFSxgMP9kZmQ="
 AUTH_URL="http://localhost:3000"
@@ -221,9 +228,60 @@ npm run lint
 # フォーマット
 npm run format
 
+# テスト
+npm test              # Unit + Integration Tests（82テスト）
+npm run test:ui       # Vitest UI（ブラウザで結果確認）
+npm run test:coverage # カバレッジレポート生成
+
 # Drizzle Studio（DBビューアー）
 npx drizzle-kit studio
 ```
+
+## テスト実行
+
+### 前提条件
+
+Integration Tests実行にはテスト専用のMySQLデータベースが必要です。
+
+```sql
+CREATE DATABASE ra9_test CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+```
+
+`.env.local` に `TEST_DATABASE_URL` を設定:
+
+```env
+TEST_DATABASE_URL="mysql://user:password@127.0.0.1:3306/ra9_test"
+```
+
+### テスト実行コマンド
+
+```bash
+# 全テスト実行（Unit + Integration）
+npm test
+
+# Vitest UI（ブラウザで結果確認）
+npm run test:ui
+
+# カバレッジレポート生成
+npm run test:coverage
+
+# カバレッジをブラウザで確認
+open coverage/index.html
+```
+
+### テスト構成
+
+- **Unit Tests**: 日付計算、和暦変換、Zodバリデーション（55テスト）
+  - `lib/utils/dateCalculation.test.ts` - カウントダウン計算（14テスト）
+  - `lib/utils/japanDate.test.ts` - 和暦変換（14テスト）
+  - `lib/schemas/*.test.ts` - Zodスキーマ（27テスト）
+- **Integration Tests**: Server Actions + MySQL（27テスト）
+  - `__tests__/app/actions/collections.integration.test.ts` - Collections CRUD（14テスト）
+  - `__tests__/app/actions/anniversaries.integration.test.ts` - Anniversaries CRUD（10テスト）
+  - `__tests__/app/actions/profile.integration.test.ts` - Profile更新（3テスト）
+- **カバレッジ**: utils 98%+, schemas 100%
+
+詳細は [docs/TEST_STRATEGY.md](docs/TEST_STRATEGY.md) 参照。
 
 ## Next.js 16 対応
 

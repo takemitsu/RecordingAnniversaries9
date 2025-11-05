@@ -93,6 +93,67 @@ export const authConfig = {
 -- 手動でCREATE TABLEを実行
 ```
 
+## 2.5 テストDB設定（Integration Tests用）
+
+Integration Testsを実行する場合、テスト専用のMySQLデータベースが必要です。
+
+### 2.5.1 テストDB作成
+
+```sql
+CREATE DATABASE ra9_test CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+```
+
+### 2.5.2 環境変数設定
+
+`.env.local` に追加:
+
+```env
+TEST_DATABASE_URL="mysql://USERNAME:PASSWORD@127.0.0.1:3306/ra9_test"
+```
+
+**注意**: `TEST_DATABASE_URL` は `DATABASE_URL` と同じユーザー名・パスワードでOKですが、**データベース名は別のものを指定**してください（本番データとテストデータの分離のため）。
+
+### 2.5.3 マイグレーション自動実行
+
+テスト実行時、`__tests__/globalSetup.ts` が自動的にマイグレーションを実行します。手動でのマイグレーション実行は不要です。
+
+### 2.5.4 テスト実行
+
+```bash
+# 全テスト実行（Unit + Integration）
+npm test
+
+# Vitest UI（ブラウザで結果確認）
+npm run test:ui
+
+# カバレッジレポート生成
+npm run test:coverage
+```
+
+### トラブルシューティング
+
+#### 問題: `TEST_DATABASE_URL is not set`
+
+→ `.env.local` に `TEST_DATABASE_URL` を追加してください。
+
+#### 問題: テストDB接続エラー
+
+→ `TEST_DATABASE_URL` の接続情報を確認してください。
+
+```bash
+# 接続確認
+mysql -h 127.0.0.1 -P 3306 -u USERNAME -pPASSWORD ra9_test
+```
+
+#### 問題: マイグレーションエラー
+
+→ テストDBを作り直してください。
+
+```sql
+DROP DATABASE IF EXISTS ra9_test;
+CREATE DATABASE ra9_test CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+```
+
 ## 3. 依存関係のインストール確認
 
 ```bash

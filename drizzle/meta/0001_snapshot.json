@@ -1,8 +1,8 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "a7e0d90f-0fa1-4e4a-b968-631d2b7281f3",
-  "prevId": "00000000-0000-0000-0000-000000000000",
+  "id": "ef627ef1-d32f-4145-92b0-06aa9810010f",
+  "prevId": "a7e0d90f-0fa1-4e4a-b968-631d2b7281f3",
   "tables": {
     "accounts": {
       "name": "accounts",
@@ -189,7 +189,7 @@
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
+          "onDelete": "restrict",
           "onUpdate": "no action"
         }
       },
@@ -241,7 +241,7 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false,
-          "default": 0
+          "default": 1
         },
         "created_at": {
           "name": "created_at",

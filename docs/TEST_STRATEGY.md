@@ -6,7 +6,7 @@
 
 - **範囲**: 全Phase（Unit → Integration → Component → E2E）
 - **期間**: 6-10日
-- **DB戦略**: SQLite（`:memory:`）でテスト専用環境
+- **DB戦略**: MySQL テストDB（`TEST_DATABASE_URL`）で実環境に近いテスト
 - **ツール**: Vitest + React Testing Library + Playwright
 - **優先度**: 日付計算 → 和暦 → Zod → Server Actions → Component → E2E
 
@@ -428,163 +428,199 @@ utils/             |   98.11 |    97.29 |     100 |     100
 
 ---
 
-## Phase 2: Integration Tests - Server Actions + SQLite（2-3日）
+## Phase 2: Integration Tests - Server Actions + MySQL（2-3日）
 
-### 2.1 SQLite テスト環境構築
+### 2.1 MySQL テスト環境構築
 
-#### 2.1.1 テスト用DB接続
+#### 2.1.1 環境変数設定
 
-**`lib/db/test-db.ts`**
+**.env.local に追加**
+
+```env
+# Test Database (Integration Tests用)
+TEST_DATABASE_URL="mysql://ra8_user:ZmvXXXX@127.0.0.1:3306/ra9_test"
+```
+
+#### 2.1.2 DB接続の環境切り替え
+
+**`lib/db/index.ts`（修正）**
 
 ```typescript
-import Database from "better-sqlite3";
-import { drizzle } from "drizzle-orm/better-sqlite3";
-import * as schema from "./schema";
+const connectionString =
+  process.env.NODE_ENV === "test"
+    ? process.env.TEST_DATABASE_URL
+    : process.env.DATABASE_URL;
 
-// `:memory:` でインメモリDB（高速、テスト間分離）
-export function createTestDb() {
-  const sqlite = new Database(":memory:");
-  return drizzle(sqlite, { schema });
+if (!connectionString) {
+  throw new Error(
+    `${process.env.NODE_ENV === "test" ? "TEST_DATABASE_URL" : "DATABASE_URL"} is not set`
+  );
 }
 
-// テスト用マイグレーション実行
-export async function setupTestDb(db: ReturnType<typeof createTestDb>) {
-  // Drizzleスキーマから自動でテーブル作成
-  // または migrations/ からSQLを実行
+export const connection = await mysql.createConnection(connectionString);
+export const db = drizzle(connection, { schema, mode: "default" });
+```
 
-  // 簡易版: 必要なテーブルを手動作成
-  db.run(`
-    CREATE TABLE users (
-      id TEXT PRIMARY KEY,
-      name TEXT,
-      email TEXT NOT NULL UNIQUE,
-      email_verified INTEGER,
-      image TEXT,
-      google_id TEXT,
-      created_at INTEGER DEFAULT (strftime('%s', 'now')),
-      updated_at INTEGER DEFAULT (strftime('%s', 'now'))
-    )
-  `);
+#### 2.1.3 globalSetup でマイグレーション
 
-  db.run(`
-    CREATE TABLE collections (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      user_id TEXT NOT NULL,
-      name TEXT NOT NULL,
-      description TEXT,
-      is_visible INTEGER DEFAULT 1,
-      created_at INTEGER DEFAULT (strftime('%s', 'now')),
-      updated_at INTEGER DEFAULT (strftime('%s', 'now')),
-      FOREIGN KEY (user_id) REFERENCES users(id)
-    )
-  `);
+**`__tests__/globalSetup.ts`**
 
-  db.run(`
-    CREATE TABLE anniversaries (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      collection_id INTEGER NOT NULL,
-      name TEXT NOT NULL,
-      anniversary_date TEXT NOT NULL,
-      description TEXT,
-      created_at INTEGER DEFAULT (strftime('%s', 'now')),
-      updated_at INTEGER DEFAULT (strftime('%s', 'now')),
-      FOREIGN KEY (collection_id) REFERENCES collections(id) ON DELETE CASCADE
-    )
-  `);
+```typescript
+import { config } from "dotenv";
+import { drizzle } from "drizzle-orm/mysql2";
+import { migrate } from "drizzle-orm/mysql2/migrator";
+import mysql from "mysql2/promise";
 
-  // Auth.js用テーブル（必要に応じて）
-  // ...
+export default async function globalSetup() {
+  config({ path: ".env.local" });
+  console.log("🔧 Setting up test database...");
+
+  const connectionString = process.env.TEST_DATABASE_URL;
+
+  if (!connectionString) {
+    throw new Error("TEST_DATABASE_URL is not set");
+  }
+
+  let connection;
+  try {
+    connection = await mysql.createConnection(connectionString);
+    const db = drizzle(connection);
+
+    // マイグレーション実行
+    await migrate(db, { migrationsFolder: "./drizzle" });
+
+    console.log("✅ Test database setup complete");
+  } catch (error) {
+    console.error("❌ Test database setup failed:", error);
+    if (connection) {
+      await connection.end();
+    }
+    throw error;
+  }
+
+  await connection.end();
 }
 ```
 
-### 2.2 モック化ヘルパー
+### 2.2 テストヘルパー
 
-**`__tests__/mocks/auth.ts`**
+**`__tests__/helpers/db.ts`**
 
 ```typescript
-import { vi } from "vitest";
+import { sql } from "drizzle-orm";
+import { db } from "@/lib/db/index";
+import { users } from "@/lib/db/schema";
 
-export const mockUserId = "test-user-id";
-
-export function mockGetUserId() {
-  vi.mock("@/lib/auth-helpers", () => ({
-    getUserId: vi.fn(async () => mockUserId),
-    requireAuth: vi.fn(async () => ({
-      user: { id: mockUserId, email: "test@example.com" },
-    })),
-  }));
+export async function cleanupTestDb() {
+  // 外部キー制約を一時無効化してTRUNCATE
+  await db.execute(sql`SET FOREIGN_KEY_CHECKS = 0`);
+  await db.execute(sql`TRUNCATE TABLE anniversaries`);
+  await db.execute(sql`TRUNCATE TABLE collections`);
+  await db.execute(sql`TRUNCATE TABLE users`);
+  await db.execute(sql`SET FOREIGN_KEY_CHECKS = 1`);
 }
-```
 
-**`__tests__/mocks/nextjs.ts`**
-
-```typescript
-import { vi } from "vitest";
-
-export function mockNextjsServerFunctions() {
-  vi.mock("next/cache", () => ({
-    revalidatePath: vi.fn(),
-  }));
-
-  vi.mock("next/navigation", () => ({
-    redirect: vi.fn((path: string) => {
-      throw new Error(`REDIRECT: ${path}`);
-    }),
-  }));
-}
-```
-
-### 2.3 テストヘルパー
-
-**`__tests__/helpers/test-context.ts`**
-
-```typescript
-import { createTestDb, setupTestDb } from "@/lib/db/test-db";
-
-export async function createTestContext() {
-  const db = createTestDb();
-  await setupTestDb(db);
-
-  // テストユーザー作成
-  await db.insert(schema.users).values({
-    id: "test-user-id",
-    email: "test@example.com",
-    name: "Test User",
+export async function createTestUser(
+  id: string = "test-user-id",
+  email: string = "test@example.com",
+  name: string = "Test User",
+) {
+  await db.insert(users).values({
+    id,
+    email,
+    name,
   });
-
-  return { db };
 }
 ```
 
-### 2.4 Integration Tests実装
+### 2.3 モック設定
 
-**`__tests__/app/actions/collections.test.ts`**
+**`__tests__/setup.ts`（追加）**
 
 ```typescript
-import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
-import { createTestContext } from "@/__tests__/helpers/test-context";
-import { mockGetUserId, mockNextjsServerFunctions } from "@/__tests__/mocks";
+import "@testing-library/jest-dom";
+import { cleanup } from "@testing-library/react";
+import { config } from "dotenv";
+import { afterEach, vi } from "vitest";
+
+config({ path: ".env.local" });
+
+// Next.jsのrevalidatePathとredirectをモック
+vi.mock("next/cache", () => ({
+  revalidatePath: vi.fn(),
+}));
+
+vi.mock("next/navigation", () => ({
+  redirect: vi.fn(),
+}));
+
+afterEach(() => {
+  cleanup();
+});
+```
+
+### 2.4 Vitest設定
+
+**`vitest.config.ts`（追加）**
+
+```typescript
+globalSetup: ["./__tests__/globalSetup.ts"],
+setupFiles: ["./__tests__/setup.ts"],
+env: {
+  NODE_ENV: "test",
+},
+fileParallelism: false, // Integration Testsを直列実行（DB競合回避）
+```
+
+### 2.5 Integration Tests実装
+
+**`__tests__/app/actions/collections.integration.test.ts`**
+
+```typescript
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { cleanupTestDb, createTestUser } from "@/__tests__/helpers/db";
 import {
   createCollection,
   updateCollection,
   deleteCollection,
   getCollections,
 } from "@/app/actions/collections";
+import { db } from "@/lib/db/index";
+import { anniversaries, collections } from "@/lib/db/schema";
 
-// モック化
-mockGetUserId();
-mockNextjsServerFunctions();
+// 認証モック（test-user-idを返す）
+vi.mock("@/lib/auth-helpers", () => ({
+  getUserId: vi.fn(async () => "test-user-id"),
+  requireAuth: vi.fn(async () => ({
+    user: {
+      id: "test-user-id",
+      email: "test@example.com",
+      name: "Test User",
+    },
+    expires: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+  })),
+  getSession: vi.fn(async () => ({
+    user: {
+      id: "test-user-id",
+      email: "test@example.com",
+      name: "Test User",
+    },
+    expires: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+  })),
+  verifyUserAccess: vi.fn(async () => {
+    // テスト環境では常に成功
+  }),
+}));
 
-describe("Collections Server Actions", () => {
-  let db: ReturnType<typeof createTestDb>;
-
-  beforeEach(async () => {
-    const context = await createTestContext();
-    db = context.db;
+describe("Collections Integration Tests", () => {
+  afterEach(async () => {
+    await cleanupTestDb();
   });
 
   describe("createCollection", () => {
     it("有効なデータでCollection作成成功", async () => {
+      await createTestUser();
+
       const formData = new FormData();
       formData.append("name", "家族");
       formData.append("description", "家族の記念日");
@@ -592,194 +628,94 @@ describe("Collections Server Actions", () => {
 
       const result = await createCollection(null, formData);
 
-      expect(result.success).toBe(true);
-      expect(result.message).toBeTruthy();
+      expect(result?.error).toBeUndefined();
+      expect(result?.errors).toBeUndefined();
+
+      // DBから直接確認
+      const dbCollections = await db.query.collections.findMany();
+      expect(dbCollections).toHaveLength(1);
+      expect(dbCollections[0].name).toBe("家族");
     });
 
-    it("名前が空の場合、バリデーションエラー", async () => {
+    it("バリデーションエラー: 名前が空", async () => {
+      await createTestUser();
+
       const formData = new FormData();
       formData.append("name", "");
       formData.append("isVisible", "1");
 
       const result = await createCollection(null, formData);
 
-      expect(result.success).toBe(false);
-      expect(result.errors?.name).toBeTruthy();
+      expect(result?.errors?.name).toBeTruthy();
+
+      // DBには保存されていない
+      const dbCollections = await db.query.collections.findMany();
+      expect(dbCollections).toHaveLength(0);
     });
   });
 
-  describe("updateCollection", () => {
-    it("所有者がCollection更新成功", async () => {
-      // 事前にCollection作成
-      const collection = await db.insert(schema.collections).values({
-        userId: "test-user-id",
-        name: "家族",
-      }).returning();
-
-      const formData = new FormData();
-      formData.append("collectionId", collection[0].id.toString());
-      formData.append("name", "家族（更新）");
-
-      const result = await updateCollection(null, formData);
-
-      expect(result.success).toBe(true);
-    });
-
-    it("他ユーザーのCollectionは更新不可", async () => {
-      // 他ユーザーのCollection作成
-      const collection = await db.insert(schema.collections).values({
-        userId: "other-user-id",
-        name: "他ユーザー",
-      }).returning();
-
-      const formData = new FormData();
-      formData.append("collectionId", collection[0].id.toString());
-      formData.append("name", "更新試行");
-
-      const result = await updateCollection(null, formData);
-
-      expect(result.success).toBe(false);
-      expect(result.message).toContain("権限");
-    });
-  });
-
-  describe("deleteCollection", () => {
-    it("記念日がないCollectionは削除成功", async () => {
-      const collection = await db.insert(schema.collections).values({
-        userId: "test-user-id",
-        name: "削除対象",
-      }).returning();
-
-      const formData = new FormData();
-      formData.append("collectionId", collection[0].id.toString());
-
-      const result = await deleteCollection(null, formData);
-
-      expect(result.success).toBe(true);
-    });
-
-    it("記念日があるCollectionは外部キー制約エラー", async () => {
-      // Collection + Anniversary作成
-      const collection = await db.insert(schema.collections).values({
-        userId: "test-user-id",
-        name: "家族",
-      }).returning();
-
-      await db.insert(schema.anniversaries).values({
-        collectionId: collection[0].id,
-        name: "誕生日",
-        anniversaryDate: "2020-11-04",
-      });
-
-      const formData = new FormData();
-      formData.append("collectionId", collection[0].id.toString());
-
-      const result = await deleteCollection(null, formData);
-
-      expect(result.success).toBe(false);
-      expect(result.message).toContain("記念日");
-    });
-  });
-
-  describe("getCollections", () => {
-    it("ユーザーごとにデータ分離", async () => {
-      // 自分のCollection
-      await db.insert(schema.collections).values({
-        userId: "test-user-id",
-        name: "自分のCollection",
-      });
-
-      // 他ユーザーのCollection
-      await db.insert(schema.collections).values({
-        userId: "other-user-id",
-        name: "他ユーザーのCollection",
-      });
-
-      const collections = await getCollections();
-
-      expect(collections).toHaveLength(1);
-      expect(collections[0].name).toBe("自分のCollection");
-    });
-  });
+  // ... 他のテストケース（14テスト）
 });
 ```
 
-**`__tests__/app/actions/anniversaries.test.ts`**
+**`__tests__/app/actions/anniversaries.integration.test.ts`**
 
 ```typescript
-import { describe, it, expect, beforeEach } from "vitest";
-import { createTestContext } from "@/__tests__/helpers/test-context";
-import { mockGetUserId, mockNextjsServerFunctions } from "@/__tests__/mocks";
-import {
-  createAnniversary,
-  updateAnniversary,
-  deleteAnniversary,
-} from "@/app/actions/anniversaries";
-
-mockGetUserId();
-mockNextjsServerFunctions();
-
-describe("Anniversaries Server Actions", () => {
-  let db: ReturnType<typeof createTestDb>;
-  let collectionId: number;
-
-  beforeEach(async () => {
-    const context = await createTestContext();
-    db = context.db;
-
-    // テスト用Collection作成
-    const collection = await db.insert(schema.collections).values({
-      userId: "test-user-id",
-      name: "家族",
-    }).returning();
-
-    collectionId = collection[0].id;
-  });
-
-  describe("createAnniversary", () => {
-    it("有効なデータでAnniversary作成成功", async () => {
-      const formData = new FormData();
-      formData.append("name", "誕生日");
-      formData.append("anniversaryDate", "2020-11-04");
-      formData.append("collectionId", collectionId.toString());
-
-      const result = await createAnniversary(null, formData);
-
-      expect(result.success).toBe(true);
-    });
-
-    it("無効な日付形式はバリデーションエラー", async () => {
-      const formData = new FormData();
-      formData.append("name", "誕生日");
-      formData.append("anniversaryDate", "2020-13-32");
-      formData.append("collectionId", collectionId.toString());
-
-      const result = await createAnniversary(null, formData);
-
-      expect(result.success).toBe(false);
-      expect(result.errors?.anniversaryDate).toBeTruthy();
-    });
-
-    it("他ユーザーのCollectionには作成不可", async () => {
-      // 他ユーザーのCollection
-      const otherCollection = await db.insert(schema.collections).values({
-        userId: "other-user-id",
-        name: "他ユーザー",
-      }).returning();
-
-      const formData = new FormData();
-      formData.append("name", "誕生日");
-      formData.append("anniversaryDate", "2020-11-04");
-      formData.append("collectionId", otherCollection[0].id.toString());
-
-      const result = await createAnniversary(null, formData);
-
-      expect(result.success).toBe(false);
-      expect(result.message).toContain("権限");
-    });
-  });
-});
+// 同様に10テスト実装
 ```
+
+**`__tests__/app/actions/profile.integration.test.ts`**
+
+```typescript
+// 同様に3テスト実装
+```
+
+### ✅ Phase 2 実装完了（2025-11-05）
+
+**実装内容**:
+- ✅ MySQL テストDB環境構築（TEST_DATABASE_URL）
+- ✅ globalSetup.ts でマイグレーション自動実行
+- ✅ テストヘルパー実装（cleanupTestDb, createTestUser）
+- ✅ 認証モック実装（verifyUserAccess含む）
+- ✅ Integration Tests実装完了（27テスト）
+  - `collections.integration.test.ts` - 14テスト
+  - `anniversaries.integration.test.ts` - 10テスト
+  - `profile.integration.test.ts` - 3テスト
+
+**テスト結果**:
+```
+Test Files  3 passed (3)
+Tests      27 passed (27)
+Duration   ~1.5s
+```
+
+**設計判断**:
+- **MySQL vs SQLite**: 本番環境と同じMySQLを使用し、外部キー制約やDATE型の挙動を正確にテスト
+- **fileParallelism: false**: DB競合回避のため直列実行（パフォーマンスより正確性優先）
+- **TRUNCATE戦略**: `SET FOREIGN_KEY_CHECKS = 0` で外部キー制約を一時無効化し、高速クリーンアップ
+- **globalSetup**: 全テスト実行前に1回だけマイグレーション実行（効率的）
+
+**データベース変更**:
+- `isVisible` default値: 0 → 1（直感的に）
+- `anniversaries` 外部キー: `onDelete: "cascade"` → `onDelete: "restrict"`（データ保護）
+- `VISIBILITY` 定数: `VISIBLE: 0, HIDDEN: 1` → `VISIBLE: 1, HIDDEN: 0`（命名と一致）
+
+**認証・エラーハンドリング改善**:
+- `lib/auth-helpers.ts`: `verifyUserAccess`統合（多層防御）
+- `lib/db/queries.ts`: エラーハンドリング追加（存在確認、明示的エラー）
+- `app/actions/*.ts`: エラーメッセージ改善（ユーザーフレンドリー）
+
+**品質チェック**:
+- ✅ 全テスト通過（27/27）
+- ✅ AAA（Arrange-Act-Assert）パターン遵守
+- ✅ テストの独立性確保（afterEach cleanupTestDb）
+- ✅ 境界値テスト実装済み（正常系・異常系・エッジケース）
+- ✅ 認証・権限分離テスト実装済み
+
+**注意点**:
+- テストDB（ra9_test）は開発者が手動で作成する必要あり
+- TEST_DATABASE_URLを.env.localに設定必須
+- マイグレーション失敗時はテスト全体が失敗（try-catch追加済み）
 
 ---
 
@@ -1084,26 +1020,29 @@ test.describe("Dashboard", () => {
 ## 実装チェックリスト
 
 ### Phase 1: セットアップ + Unit Tests
-- [ ] 依存関係インストール（Vitest、React Testing Library、Playwright、better-sqlite3）
-- [ ] `vitest.config.ts` 作成
-- [ ] `__tests__/setup.ts` 作成
-- [ ] `playwright.config.ts` 作成
-- [ ] `package.json` スクリプト追加
-- [ ] `__tests__/lib/utils/dateCalculation.test.ts` 実装
-- [ ] `__tests__/lib/utils/japanDate.test.ts` 実装
-- [ ] `__tests__/lib/schemas/collection.test.ts` 実装
-- [ ] `__tests__/lib/schemas/anniversary.test.ts` 実装
-- [ ] Phase 1テスト実行: `npm test`
+- [x] 依存関係インストール（Vitest、React Testing Library、Playwright、better-sqlite3）
+- [x] `vitest.config.ts` 作成
+- [x] `__tests__/setup.ts` 作成
+- [x] `playwright.config.ts` 作成
+- [x] `package.json` スクリプト追加
+- [x] `__tests__/lib/utils/dateCalculation.test.ts` 実装（14テスト）
+- [x] `__tests__/lib/utils/japanDate.test.ts` 実装（14テスト）
+- [x] `__tests__/lib/schemas/collection.test.ts` 実装（12テスト）
+- [x] `__tests__/lib/schemas/anniversary.test.ts` 実装（15テスト）
+- [x] Phase 1テスト実行: `npm test` → 55/55 passed ✅
 
 ### Phase 2: Integration Tests
-- [ ] `lib/db/test-db.ts` 作成（SQLite接続）
-- [ ] `__tests__/mocks/auth.ts` 作成
-- [ ] `__tests__/mocks/nextjs.ts` 作成
-- [ ] `__tests__/helpers/test-context.ts` 作成
-- [ ] `__tests__/app/actions/collections.test.ts` 実装
-- [ ] `__tests__/app/actions/anniversaries.test.ts` 実装
-- [ ] `__tests__/app/actions/profile.test.ts` 実装
-- [ ] Phase 2テスト実行: `npm test`
+- [x] TEST_DATABASE_URL 環境変数設定（.env.local）
+- [x] `lib/db/index.ts` 環境切り替え実装
+- [x] `__tests__/globalSetup.ts` 作成（マイグレーション自動実行）
+- [x] `__tests__/helpers/db.ts` 作成（cleanupTestDb, createTestUser）
+- [x] `__tests__/setup.ts` 修正（dotenv, Next.jsモック）
+- [x] vitest.config.ts 更新（globalSetup, NODE_ENV, fileParallelism）
+- [x] `__tests__/app/actions/collections.integration.test.ts` 実装（14テスト）
+- [x] `__tests__/app/actions/anniversaries.integration.test.ts` 実装（10テスト）
+- [x] `__tests__/app/actions/profile.integration.test.ts` 実装（3テスト）
+- [x] 認証モック実装（verifyUserAccess含む）
+- [x] Phase 2テスト実行: `npm run test:integration` → 27/27 passed ✅
 
 ### Phase 3: Component Tests
 - [ ] `__tests__/helpers/render.tsx` 作成

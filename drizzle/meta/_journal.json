@@ -5,8 +5,15 @@
     {
       "idx": 0,
       "version": "5",
-      "when": 1761814021699,
-      "tag": "0000_add_auth_tables",
+      "when": 1762313294186,
+      "tag": "0000_curious_wallop",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1762322083432,
+      "tag": "0001_steep_warpath",
       "breakpoints": true
     }
   ]
