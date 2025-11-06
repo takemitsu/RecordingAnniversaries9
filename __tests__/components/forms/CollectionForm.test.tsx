@@ -147,8 +147,15 @@ describe("CollectionForm", () => {
   describe("Cancel Button", () => {
     it("キャンセルボタンクリックでrouter.pushが呼ばれる", async () => {
       const user = userEvent.setup();
-      const mockRouter = { push: vi.fn(), replace: vi.fn(), refresh: vi.fn() };
-      vi.mocked(useRouter).mockReturnValue(mockRouter);
+      const mockRouter = {
+        push: vi.fn(),
+        replace: vi.fn(),
+        refresh: vi.fn(),
+        back: vi.fn(),
+        forward: vi.fn(),
+        prefetch: vi.fn(),
+      };
+      vi.mocked(useRouter).mockReturnValue(mockRouter as any);
       mockUseActionState.mockReturnValue([null, vi.fn(), false]);
 
       render(<CollectionForm mode="create" />);

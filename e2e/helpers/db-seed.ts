@@ -1,6 +1,6 @@
 import { config } from "dotenv";
 import { eq, sql } from "drizzle-orm";
-import { drizzle } from "drizzle-orm/mysql2";
+import { type MySql2Database, drizzle } from "drizzle-orm/mysql2";
 import mysql from "mysql2/promise";
 import * as schema from "@/lib/db/schema";
 
@@ -8,12 +8,12 @@ import * as schema from "@/lib/db/schema";
 config({ path: ".env.local" });
 
 let connection: mysql.Connection | null = null;
-let testDb: ReturnType<typeof drizzle> | null = null;
+let testDb: MySql2Database<typeof schema> | null = null;
 
 /**
  * テストDB接続を取得
  */
-export async function getTestDb() {
+export async function getTestDb(): Promise<MySql2Database<typeof schema>> {
   if (testDb) return testDb;
 
   const connectionString = process.env.TEST_DATABASE_URL;
@@ -40,7 +40,6 @@ export async function seedE2EUser() {
       id: "e2e-user-id",
       email: "e2e@example.com",
       name: "E2E Test User",
-      google_id: null,
     })
     .onDuplicateKeyUpdate({
       set: {

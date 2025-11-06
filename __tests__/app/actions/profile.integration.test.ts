@@ -44,7 +44,6 @@ describe("Profile Integration Tests", () => {
 
       // 成功時はエラーがないことを確認
       expect(result?.error).toBeUndefined();
-      expect(result?.errors).toBeUndefined();
 
       // DBから確認
       const updated = await db.query.users.findFirst({

@@ -9,6 +9,7 @@ export default defineConfig({
     environment: "happy-dom",
     globalSetup: ["./__tests__/globalSetup.ts"],
     setupFiles: ["./__tests__/setup.ts"],
+    exclude: ["**/node_modules/**", "**/e2e/**"], // E2Eテストを除外（Playwright用）
     env: {
       NODE_ENV: "test", // テストDBに自動切り替え
     },
