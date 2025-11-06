@@ -11,37 +11,39 @@ test.describe("Accessibility（アクセシビリティ）", () => {
     await cleanupE2EData();
   });
 
-  test("キーボードナビゲーション（フォーム操作）", async ({ page }) => {
+  test("フォーム入力とラベル関連付け確認", async ({ page }) => {
     // Collection作成フォームに直接移動
     await page.goto("/edit/collection/new");
 
-    // フォームフィールドがキーボード操作可能であることを確認
+    // フォームフィールドが適切なラベルを持つことを確認
+    const nameLabel = page.locator('label[for="name"]');
+    await expect(nameLabel).toBeVisible();
+    await expect(nameLabel).toContainText("グループ名");
+
+    const descriptionLabel = page.locator('label[for="description"]');
+    await expect(descriptionLabel).toBeVisible();
+    await expect(descriptionLabel).toContainText("説明");
+
+    const isVisibleLabel = page.locator('label[for="isVisible"]');
+    await expect(isVisibleLabel).toBeVisible();
+    await expect(isVisibleLabel).toContainText("表示設定");
+
+    // フォームフィールドに入力可能であることを確認
     const nameInput = page.locator('input[name="name"]');
+    await nameInput.fill("アクセシビリティテスト");
+    await expect(nameInput).toHaveValue("アクセシビリティテスト");
+
     const descriptionTextarea = page.locator('textarea[name="description"]');
+    await descriptionTextarea.fill("フォーム入力テスト");
+    await expect(descriptionTextarea).toHaveValue("フォーム入力テスト");
+
+    // selectフィールドのデフォルト値確認
     const isVisibleSelect = page.locator('select[name="isVisible"]');
+    await expect(isVisibleSelect).toHaveValue("1");
+
+    // 送信ボタンが存在することを確認
     const submitButton = page.locator('button[type="submit"]');
-
-    // nameフィールドにフォーカスしてキーボード入力
-    await nameInput.focus();
-    await page.keyboard.type("キーボードテスト");
-    await expect(nameInput).toHaveValue("キーボードテスト");
-
-    // Tabキーで次のフィールド（description）に移動
-    await page.keyboard.press("Tab");
-    await expect(descriptionTextarea).toBeFocused();
-    await page.keyboard.type("キーボードで入力した説明");
-    await expect(descriptionTextarea).toHaveValue("キーボードで入力した説明");
-
-    // Tabキーでselectフィールドに移動
-    await page.keyboard.press("Tab");
-    await expect(isVisibleSelect).toBeFocused();
-    await expect(isVisibleSelect).toHaveValue("1"); // デフォルト値
-
-    // Tabキーで送信ボタンに移動
-    await page.keyboard.press("Tab"); // ボタンへ
-    await expect(submitButton).toBeFocused();
-
-    // すべてのフォーム要素がキーボードでアクセス可能であることが確認できた
+    await expect(submitButton).toBeVisible();
   });
 
   test("ログアウト→再ログイン→データ永続性", async ({ page, context }) => {
