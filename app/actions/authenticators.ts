@@ -30,4 +30,5 @@ export async function deleteAuthenticator(credentialID: string) {
     );
 
   revalidatePath("/profile");
+  return { success: true };
 }

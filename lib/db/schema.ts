@@ -80,6 +80,8 @@ export const authenticators = mysqlTable(
     }).notNull(),
     credentialBackedUp: boolean("credential_backed_up").notNull(),
     transports: varchar("transports", { length: 255 }),
+    createdAt: timestamp("created_at", { mode: "date" }).defaultNow(),
+    lastUsedAt: timestamp("last_used_at", { mode: "date" }),
   },
   (authenticator) => ({
     compositePK: primaryKey({

@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { signIn as reactSignIn } from "next-auth/react";
 import { signIn as passkeySignIn } from "next-auth/webauthn";
 import { useState } from "react";
@@ -7,14 +8,64 @@ import { useState } from "react";
 export default function SignInForm() {
   const [isPasskeyLoading, setIsPasskeyLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
   const handlePasskeySignIn = async () => {
     try {
       setIsPasskeyLoading(true);
-      await passkeySignIn("passkey");
+      setError(null);
+      const result = await passkeySignIn("passkey", { redirect: false });
+
+      // Auth.js のエラーレスポンスを処理（ok: true でもerrorがある場合がある）
+      if (result?.error) {
+        // エラーの種類で分岐
+        if (result.error === "Configuration") {
+          // DBにPasskeyが存在しない（削除済み）
+          setError(
+            "このPasskeyは登録されていません。Googleログインをお試しください。",
+          );
+        } else {
+          setError(
+            "Passkeyでのログインに失敗しました。Googleログインをお試しください。",
+          );
+        }
+        return;
+      }
+
+      // 成功したらホームにリダイレクト
+      if (result?.ok) {
+        router.push("/");
+        return;
+      }
     } catch (error) {
       console.error("Passkey sign in error:", error);
-      // エラーハンドリングは後のフェーズで実装
+
+      // WebAuthn API のエラーを処理（PASSKEY_UX_FLOW.md Proposal B）
+      if (error instanceof Error) {
+        switch (error.name) {
+          case "NotAllowedError":
+            // ユーザーがキャンセル → 静かに戻る（エラー表示なし）
+            setError(null);
+            break;
+          case "InvalidStateError":
+            // Passkey未登録
+            setError(
+              "Passkeyが登録されていません。Googleログインをお試しください。",
+            );
+            break;
+          default:
+            // その他のエラー
+            setError(
+              "Passkeyでのログインに失敗しました。Googleログインをお試しください。",
+            );
+            break;
+        }
+      } else {
+        setError(
+          "Passkeyでのログインに失敗しました。Googleログインをお試しください。",
+        );
+      }
     } finally {
       setIsPasskeyLoading(false);
     }
@@ -23,9 +74,11 @@ export default function SignInForm() {
   const handleGoogleSignIn = async () => {
     try {
       setIsGoogleLoading(true);
+      setError(null);
       await reactSignIn("google", { redirectTo: "/" });
     } catch (error) {
       console.error("Google sign in error:", error);
+      setError("ログインに失敗しました。もう一度お試しください。");
     } finally {
       setIsGoogleLoading(false);
     }
@@ -33,34 +86,12 @@ export default function SignInForm() {
 
   return (
     <div className="mt-8 space-y-4">
-      {/* Passkey ボタン */}
-      <button
-        type="button"
-        onClick={handlePasskeySignIn}
-        disabled={isPasskeyLoading}
-        className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-gray-300 dark:border-gray-700 rounded-lg shadow-sm bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
-      >
-        {isPasskeyLoading ? (
-          <>
-            <span className="animate-spin">⏳</span>
-            認証中...
-          </>
-        ) : (
-          <>🔑 Passkeyでログイン</>
-        )}
-      </button>
-
-      {/* 区切り線 */}
-      <div className="relative">
-        <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-gray-300 dark:border-gray-700" />
+      {/* エラー表示 */}
+      {error && (
+        <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+          <p className="text-sm text-red-800 dark:text-red-200">{error}</p>
         </div>
-        <div className="relative flex justify-center text-sm">
-          <span className="px-2 bg-white dark:bg-gray-900 text-gray-500">
-            または
-          </span>
-        </div>
-      </div>
+      )}
 
       {/* Google OAuth ボタン */}
       <button
@@ -107,6 +138,35 @@ export default function SignInForm() {
       <div className="text-center text-sm text-gray-500 dark:text-gray-400">
         <p>Googleアカウントでログインまたは新規登録</p>
       </div>
+
+      {/* 区切り線 */}
+      <div className="relative">
+        <div className="absolute inset-0 flex items-center">
+          <div className="w-full border-t border-gray-300 dark:border-gray-700" />
+        </div>
+        <div className="relative flex justify-center text-sm">
+          <span className="px-2 bg-white dark:bg-gray-900 text-gray-500">
+            または
+          </span>
+        </div>
+      </div>
+
+      {/* Passkey ボタン */}
+      <button
+        type="button"
+        onClick={handlePasskeySignIn}
+        disabled={isPasskeyLoading}
+        className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-gray-300 dark:border-gray-700 rounded-lg shadow-sm bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
+      >
+        {isPasskeyLoading ? (
+          <>
+            <span className="animate-spin">⏳</span>
+            認証中...
+          </>
+        ) : (
+          <>🔑 Passkeyでログイン</>
+        )}
+      </button>
     </div>
   );
 }

@@ -1,4 +1,5 @@
 import { DrizzleAdapter } from "@auth/drizzle-adapter";
+import { eq } from "drizzle-orm";
 import type { NextAuthConfig } from "next-auth";
 import NextAuth from "next-auth";
 import Google from "next-auth/providers/google";
@@ -13,8 +14,19 @@ export const authConfig = {
     sessionsTable: sessions,
     authenticatorsTable: authenticators,
   }),
-  debug: true, // E2Eテスト用: セッション検証フローをログ出力
+  debug: false, // 本番: false、デバッグ時のみ true
   useSecureCookies: false, // E2Eテスト対応: Cookie名を authjs.session-token に固定
+  logger: {
+    error(code, ...message) {
+      console.error(code, ...message);
+    },
+    warn() {
+      // 警告ログを抑制（experimental-webauthn など）
+    },
+    debug() {
+      // デバッグログを抑制
+    },
+  },
   providers: [
     Google({
       clientId: process.env.GOOGLE_CLIENT_ID,
@@ -27,6 +39,16 @@ export const authConfig = {
     enableWebAuthn: true,
   },
   callbacks: {
+    async signIn({ account }) {
+      // Passkey認証時に lastUsedAt を更新
+      if (account?.provider === "passkey" && account.providerAccountId) {
+        await db
+          .update(authenticators)
+          .set({ lastUsedAt: new Date() })
+          .where(eq(authenticators.credentialID, account.providerAccountId));
+      }
+      return true;
+    },
     async session({ session, user }) {
       if (session.user) {
         session.user.id = user.id;

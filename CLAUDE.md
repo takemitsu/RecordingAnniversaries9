@@ -320,6 +320,10 @@ npm run test:e2e:ui   # E2E UI Mode（ブラウザでデバッグ）
 # Drizzle
 npx drizzle-kit studio  # Drizzle Studio（DBビューアー）
 npx drizzle-kit generate # マイグレーションファイル生成
+npm run db:migrate       # マイグレーション実行（本番環境推奨）
+
+# ⚠️ 重要: マイグレーション実行は必ず npm run db:migrate を使用すること
+# npx drizzle-kit migrate は環境変数の読み込みに問題があるため使用禁止
 ```
 
 ## コミット前チェックリスト

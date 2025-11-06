@@ -1,21 +1,34 @@
 "use client";
 
+import dayjs from "dayjs";
+import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/webauthn";
 import { useState } from "react";
 import { deleteAuthenticator } from "@/app/actions/authenticators";
+import { useConfirmDelete } from "@/hooks/useConfirmDelete";
 import type { Authenticator } from "@/lib/db/schema";
 
 type PasskeyManagerProps = {
   authenticators: Authenticator[];
 };
 
+// timestamp フォーマット (YYYY-MM-DD HH:mm)
+function formatTimestamp(date: Date | null | undefined): string {
+  if (!date) return "未使用";
+  return dayjs(date).format("YYYY-MM-DD HH:mm");
+}
+
 export function PasskeyManager({ authenticators }: PasskeyManagerProps) {
   const [isCreating, setIsCreating] = useState(false);
+  const { confirmDelete, isPending } = useConfirmDelete();
+  const router = useRouter();
 
   const handleCreatePasskey = async () => {
     try {
       setIsCreating(true);
-      await signIn("passkey", { action: "register" });
+      await signIn("passkey", { action: "register", redirect: false });
+      // 成功したらページをリフレッシュして新しいPasskeyを表示
+      router.refresh();
     } catch (error) {
       console.error("Passkey creation error:", error);
       // エラーハンドリングは後のフェーズで実装
@@ -66,28 +79,26 @@ export function PasskeyManager({ authenticators }: PasskeyManagerProps) {
             {authenticators.map((auth) => (
               <li
                 key={auth.credentialID}
-                className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded"
+                className="flex items-center justify-between gap-3 p-3 bg-gray-50 dark:bg-gray-700 rounded"
               >
-                <div>
-                  <span className="font-medium text-gray-900 dark:text-white">
-                    {auth.credentialDeviceType}
-                  </span>
-                  <span className="text-sm text-gray-500 dark:text-gray-400 ml-2">
-                    {auth.credentialBackedUp
-                      ? "☁️ バックアップ済み"
-                      : "📱 このデバイスのみ"}
-                  </span>
+                <div className="flex-1">
+                  <div className="text-sm text-gray-600 dark:text-gray-400">
+                    <div>{formatTimestamp(auth.createdAt)} 登録</div>
+                    <div>{formatTimestamp(auth.lastUsedAt)} 最終使用</div>
+                  </div>
                 </div>
-                <form
-                  action={deleteAuthenticator.bind(null, auth.credentialID)}
+                <button
+                  type="button"
+                  onClick={() =>
+                    confirmDelete("このPasskey", () =>
+                      deleteAuthenticator(auth.credentialID),
+                    )
+                  }
+                  disabled={isPending}
+                  className="flex-shrink-0 px-3 py-1 bg-pink-500 text-white rounded hover:bg-pink-600 disabled:opacity-50 disabled:cursor-not-allowed transition whitespace-nowrap"
                 >
-                  <button
-                    type="submit"
-                    className="px-3 py-1 bg-pink-500 text-white rounded hover:bg-pink-600 transition"
-                  >
-                    削除
-                  </button>
-                </form>
+                  削除
+                </button>
               </li>
             ))}
           </ul>
