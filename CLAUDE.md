@@ -252,15 +252,7 @@ Users (ユーザー)
 2. または`@simplewebauthn`で独自実装
 
 ### 機能拡張
-- [ ] 記念日の並び替え機能
-- [ ] 記念日の検索・フィルター機能
-- [ ] カレンダー表示
-- [ ] 通知機能（メール/プッシュ通知）
-- [ ] 記念日のインポート/エクスポート
-
-### テスト（残タスク）
-- [x] Component Tests（フォーム、カード）- Phase 3 ✅ 完了
-- [x] E2Eテスト（Playwright）- Phase 4 ✅ 完了
+- [ ] 通知機能（ブラウザプッシュ通知）
 
 ### デプロイ
 - [ ] 本番環境設定
@@ -536,32 +528,6 @@ users (ユーザー)
 3. 修正
 4. テスト
 5. コミット
-
-## テスト戦略
-
-### 実装完了（Phase 1-4）
-- ✅ **Unit Tests**: 日付計算、和暦変換、Zodバリデーション（55テスト）
-- ✅ **Integration Tests**: Server Actions + MySQL（27テスト）
-- ✅ **Component Tests**: フォーム、カード、ボタン（51テスト）
-- ✅ **E2E Tests**: Playwright、Auth.js対応（19テスト）
-- ✅ **カバレッジ**: utils 98%+, schemas 100%
-- **総計**: 155テスト全通過
-
-### テスト実行コマンド
-```bash
-# 全テスト実行
-npm test              # Unit/Integration/Component
-npm run test:e2e      # E2E
-
-# UIモード
-npm run test:ui       # Vitest UI
-npm run test:e2e:ui   # Playwright UI
-
-# カバレッジレポート
-npm run test:coverage
-```
-
-詳細は `docs/TESTING.md` 参照。
 
 ## 参考リソース
 

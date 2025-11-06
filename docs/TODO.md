@@ -19,33 +19,6 @@
 ### 機能
 - [ ] ブラウザプッシュ通知（検討）
 
-### UI/UX
-- [ ] アクセシビリティさらなる改善
-
-### コード品質
-- [x] **Zodバリデーションの導入** ✅ 完了
-  - Server Actions のフォームバリデーション強化
-  - 型安全性向上（FormData → Zod schema → TypeScript types）
-  - フィールドごとのエラー表示対応
-  - スキーマ: `lib/schemas/collection.ts`, `lib/schemas/anniversary.ts`
-  - 実装: `app/actions/collections.ts`, `app/actions/anniversaries.ts`
-  - UI: `components/forms/CollectionForm.tsx`, `components/forms/AnniversaryForm.tsx`
-
-- [x] **環境変数の型安全性向上** ✅ 完了
-  - `lib/env.ts` の作成（Zod + process.env）
-  - 環境変数の自動補完とバリデーション
-  - ビルド時の環境変数チェック（next.config.tsで実行）
-  - シンプルなZodバリデーション採用（@t3-oss/env-nextjsは不採用）
-
-### テスト
-
-- [x] **Phase 1: Unit Tests（55テスト）** ✅ 完了（2025-11-04）
-- [x] **Phase 2: Integration Tests（27テスト）** ✅ 完了（2025-11-05）
-- [x] **Phase 3: Component Tests（51テスト）** ✅ 完了（2025-11-05）
-- [x] **Phase 4: E2E Tests（19テスト）** ✅ 完了（2025-11-06）
-
-**詳細**: `docs/TESTING.md` 参照
-
 ### デプロイ
 - [ ] 本番環境設定
 - [ ] CI/CD設定

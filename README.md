@@ -2,19 +2,6 @@
 
 大切な記念日を記録・管理するNext.js 16アプリケーション
 
-## 技術スタック
-
-- **Next.js 16.0.1** - App Router, Turbopack
-- **React 19.2.0** - useActionState統合
-- **TypeScript 5** - Strict mode
-- **Auth.js v5 (next-auth@beta.30)** - Google OAuth認証
-- **Drizzle ORM 0.44** - MySQL接続
-- **MySQL 8** - データベース
-- **Zod 4.1** - スキーマバリデーション
-- **Tailwind CSS v4** - スタイリング
-- **Biome 2.2** - Linter/Formatter
-- **dayjs 1.11** - 日付処理
-
 ## プロジェクト概要
 
 大切な記念日を記録・管理するWebアプリケーション。Next.js 16とReact 19を使用し、モダンな技術スタックで構築されています。
@@ -32,94 +19,18 @@
 - ✅ プロフィール設定
 - ✅ レスポンシブデザイン（モバイルファースト）
 - ✅ ダークモード対応
-- ✅ **テスト実装（Phase 1 + Phase 2 + Phase 3完了）**
-  - **総計: 133テスト全通過**（Unit 55 + Integration 27 + Component 51）
+- ✅ **テスト実装完了（Phase 1-4）**
+  - **総計: 155テスト全通過**（Unit 55 + Integration 27 + Component 51 + E2E 19 + Setup 1）
   - 詳細は [docs/TESTING.md](docs/TESTING.md) 参照
 
 ### 未実装機能
 
 - ❌ Passkey（WebAuthn）認証
-- ❌ 記念日の並び替え
-- ❌ 検索・フィルター機能
-- ❌ カレンダー表示
-- ❌ 通知機能
+- ❌ 通知機能（ブラウザプッシュ）
 
-## プロジェクト構造
+詳細な技術スタック、プロジェクト構造、データ構造については [CLAUDE.md](CLAUDE.md) を参照してください。
 
-```
-recording-anniversaries9/
-├── app/
-│   ├── (main)/
-│   │   ├── page.tsx                                    # 一覧ページ（閲覧専用）
-│   │   ├── edit/
-│   │   │   ├── page.tsx                               # 編集ページ
-│   │   │   ├── EditPageClient.tsx
-│   │   │   └── collection/
-│   │   │       ├── new/page.tsx                       # Collection作成
-│   │   │       ├── [collectionId]/page.tsx           # Collection編集
-│   │   │       └── [collectionId]/anniversary/
-│   │   │           ├── new/page.tsx                   # Anniversary作成
-│   │   │           └── [anniversaryId]/page.tsx      # Anniversary編集
-│   │   ├── profile/
-│   │   │   ├── page.tsx                               # プロフィール設定
-│   │   │   └── ProfileForm.tsx
-│   │   └── layout.tsx                                 # メインレイアウト
-│   ├── actions/                                        # Server Actions
-│   │   ├── collections.ts                             # Collection CRUD
-│   │   ├── anniversaries.ts                           # Anniversary CRUD
-│   │   └── profile.ts                                 # プロフィール更新
-│   ├── api/auth/[...nextauth]/route.ts               # Auth.js API
-│   ├── auth/signin/page.tsx                          # ログインページ
-│   └── layout.tsx                                     # ルートレイアウト
-├── components/
-│   ├── CollectionCard.tsx                            # Collectionカード
-│   ├── AnniversaryCard.tsx                           # Anniversaryカード
-│   ├── forms/
-│   │   ├── CollectionForm.tsx                        # Collection作成・編集フォーム
-│   │   ├── AnniversaryForm.tsx                       # Anniversary作成・編集フォーム
-│   │   ├── DatePickerField.tsx                       # 日付選択フィールド
-│   │   └── FormField.tsx                             # 汎用フォームフィールド
-│   ├── layout/
-│   │   ├── Header.tsx                                 # ヘッダー（ハンバーガーメニュー）
-│   │   └── Footer.tsx                                 # フッター
-│   └── ui/
-│       └── Button.tsx                                 # 統一Buttonコンポーネント
-├── lib/
-│   ├── db/
-│   │   ├── schema.ts                                  # Drizzle スキーマ
-│   │   ├── index.ts                                   # DB接続
-│   │   └── queries.ts                                 # クエリヘルパー
-│   ├── schemas/
-│   │   ├── collection.ts                              # Collection Zodスキーマ
-│   │   └── anniversary.ts                             # Anniversary Zodスキーマ
-│   ├── utils/
-│   │   ├── japanDate.ts                              # 和暦変換
-│   │   └── dateCalculation.ts                        # カウントダウン計算
-│   ├── env.ts                                         # 環境変数バリデーション（Zod）
-│   ├── constants.ts                                   # 定数定義
-│   └── auth-helpers.ts                                # 認証ヘルパー
-├── hooks/
-│   └── useConfirmDelete.ts                           # 削除確認フック
-├── docs/                                              # プロジェクトドキュメント
-│   ├── TECH_DECISIONS.md                             # 技術的決定
-│   ├── TODO.md                                       # 未実装機能
-│   └── SETUP.md                                      # セットアップ手順
-├── auth.ts                                            # Auth.js v5 設定
-├── drizzle.config.ts                                 # Drizzle設定
-└── .env.local                                        # 環境変数（要設定）
-```
-
-## データ構造
-
-### 3層モデル
-
-```
-Users (ユーザー)
-  └─ Collections (記念日グループ)
-      └─ Anniversaries (個別の記念日)
-```
-
-### テーブル
+## テーブル
 
 | テーブル名 | 説明 | 主要フィールド |
 |-----------|------|--------------|
@@ -207,33 +118,6 @@ npm run dev
 ### プロフィール設定
 - **ユーザー名変更** - `/profile`ページ
 - **useActionState統合** - React 19標準パターン
-
-## 開発コマンド
-
-```bash
-# 開発サーバー起動
-npm run dev
-
-# ビルド
-npm run build
-
-# 本番サーバー起動
-npm start
-
-# Lint
-npm run lint
-
-# フォーマット
-npm run format
-
-# テスト
-npm test              # All Tests（133テスト: Unit 55 + Integration 27 + Component 51）
-npm run test:ui       # Vitest UI（ブラウザで結果確認）
-npm run test:coverage # カバレッジレポート生成
-
-# Drizzle Studio（DBビューアー）
-npx drizzle-kit studio
-```
 
 ## テスト実行
 
@@ -325,22 +209,11 @@ open coverage/index.html
 
 主要な設計判断については [docs/TECH_DECISIONS.md](docs/TECH_DECISIONS.md) を参照。
 
-### データベース
-- **DATE vs DATETIME**: DATE型採用（時刻不要、タイムゾーン問題回避）
-- **Drizzle vs Prisma**: Drizzle（軽量、型安全、SQL的）
+---
 
-### 認証
-- **Auth.js vs Better Auth**: Auth.js v5（Next.js統合、実績）
-
-### UI
-- **Tailwind CSS v4**: ユーティリティファースト
-- **モバイルファースト**: p-2 → lg:p-12のパディング戦略
-- **2ページ構成**: シンプルで迷わない
-
-### ライブラリ
-- **dayjs**: 軽量、日本語対応
-- **Biome**: ESLint + Prettier統合
-
-## ライセンス
-
-Private
+詳細なドキュメント：
+- **プロジェクト全体**: [CLAUDE.md](CLAUDE.md)
+- **技術的決定**: [docs/TECH_DECISIONS.md](docs/TECH_DECISIONS.md)
+- **セットアップ**: [docs/SETUP.md](docs/SETUP.md)
+- **テスト**: [docs/TESTING.md](docs/TESTING.md)
+- **TODO**: [docs/TODO.md](docs/TODO.md)
