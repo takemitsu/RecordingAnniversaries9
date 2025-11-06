@@ -15,6 +15,13 @@
       "when": 1762322083432,
       "tag": "0001_steep_warpath",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1762418779877,
+      "tag": "0002_flaky_radioactive_man",
+      "breakpoints": true
     }
   ]
 }

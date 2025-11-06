@@ -1,6 +1,7 @@
 import { relations } from "drizzle-orm";
 import {
   bigint,
+  boolean,
   date,
   index,
   int,
@@ -60,6 +61,33 @@ export const sessions = mysqlTable("sessions", {
   expires: timestamp("expires", { mode: "date" }).notNull(),
 });
 
+export const authenticators = mysqlTable(
+  "authenticators",
+  {
+    credentialID: varchar("credential_id", { length: 255 }).notNull(),
+    userId: varchar("user_id", { length: 255 })
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    providerAccountId: varchar("provider_account_id", {
+      length: 255,
+    }).notNull(),
+    credentialPublicKey: varchar("credential_public_key", {
+      length: 255,
+    }).notNull(),
+    counter: int("counter").notNull(),
+    credentialDeviceType: varchar("credential_device_type", {
+      length: 255,
+    }).notNull(),
+    credentialBackedUp: boolean("credential_backed_up").notNull(),
+    transports: varchar("transports", { length: 255 }),
+  },
+  (authenticator) => ({
+    compositePK: primaryKey({
+      columns: [authenticator.userId, authenticator.credentialID],
+    }),
+  }),
+);
+
 export const collections = mysqlTable(
   "collections",
   {
@@ -110,6 +138,7 @@ export const usersRelations = relations(users, ({ many }) => ({
   collections: many(collections),
   accounts: many(accounts),
   sessions: many(sessions),
+  authenticators: many(authenticators),
 }));
 
 export const accountsRelations = relations(accounts, ({ one }) => ({
@@ -122,6 +151,13 @@ export const accountsRelations = relations(accounts, ({ one }) => ({
 export const sessionsRelations = relations(sessions, ({ one }) => ({
   user: one(users, {
     fields: [sessions.userId],
+    references: [users.id],
+  }),
+}));
+
+export const authenticatorsRelations = relations(authenticators, ({ one }) => ({
+  user: one(users, {
+    fields: [authenticators.userId],
     references: [users.id],
   }),
 }));
@@ -149,6 +185,9 @@ export type NewAccount = typeof accounts.$inferInsert;
 
 export type Session = typeof sessions.$inferSelect;
 export type NewSession = typeof sessions.$inferInsert;
+
+export type Authenticator = typeof authenticators.$inferSelect;
+export type NewAuthenticator = typeof authenticators.$inferInsert;
 
 export type Collection = typeof collections.$inferSelect;
 export type NewCollection = typeof collections.$inferInsert;
