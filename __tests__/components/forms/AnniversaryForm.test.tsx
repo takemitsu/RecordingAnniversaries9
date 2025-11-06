@@ -188,8 +188,8 @@ describe("AnniversaryForm", () => {
         back: vi.fn(),
         forward: vi.fn(),
         prefetch: vi.fn(),
-      };
-      vi.mocked(useRouter).mockReturnValue(mockRouter as any);
+      } as ReturnType<typeof useRouter>;
+      vi.mocked(useRouter).mockReturnValue(mockRouter);
       mockUseActionState.mockReturnValue([null, vi.fn(), false]);
 
       render(<AnniversaryForm mode="create" collectionId={1} />);
