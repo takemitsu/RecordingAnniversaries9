@@ -79,13 +79,12 @@ recording-anniversaries9/
 │   ├── constants.ts          # 定数定義（VISIBILITY等）
 │   └── auth-helpers.ts       # 認証ヘルパー（getUserId）
 ├── hooks/
-│   └── useConfirmDelete.tsx  # 削除確認フック
+│   └── useConfirmDelete.ts   # 削除確認フック
 ├── docs/                     # プロジェクトドキュメント
 │   ├── TECH_DECISIONS.md     # 技術的決定
 │   ├── TODO.md               # 未実装機能
 │   └── SETUP.md              # セットアップ手順
 ├── auth.ts                   # Auth.js v5 設定
-├── proxy.ts                  # Next.js 16 認証プロキシ
 ├── drizzle.config.ts         # Drizzle設定
 ├── .env.local                # 環境変数
 └── package.json
@@ -379,18 +378,7 @@ claude mcp add --transport stdio serena --scope local -- uvx --from git+https://
    }
    ```
 
-2. **"use cache" でキャッシング明示**（未使用）
-   ```typescript
-   "use cache";
-   export async function getCachedData() {
-     // ...
-   }
-   ```
-
-3. **proxy.ts を使用**
-   - `middleware.ts`の代わりに`proxy.ts`で認証制御
-
-4. **Server Actions 優先**
+2. **Server Actions 優先**
    - API Routesより Server Actions を優先使用
 
 ## トラブルシューティング

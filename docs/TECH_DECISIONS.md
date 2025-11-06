@@ -114,18 +114,18 @@
 
 ## キャッシング戦略
 
-### Next.js 16 のキャッシング
+### React cache() によるServer Actionsキャッシング
 
-**決定**: "use cache" ディレクティブを明示的に使用
+**決定**: React `cache()`関数でServer Actions読み取り処理をキャッシュ
 
 **理由**:
-- Next.js 16 では明示的なキャッシング制御が推奨
-- パフォーマンス最適化
-- データの鮮度をコントロール可能
+- 同一リクエスト内で複数回呼ばれても1回だけDB問い合わせ
+- Reactの標準機能でシンプルに実装
+- Server Actionsのベストプラクティス
 
 **適用箇所**:
-- 日付計算結果（日単位でキャッシュ）
-- ユーザーの collections/anniversaries 一覧（変更時に再検証）
+- `app/actions/collections.ts`: getCollections, getCollectionsWithAnniversaries, getCollection
+- `app/actions/anniversaries.ts`: getAnniversary
 
 ## Server Actions
 

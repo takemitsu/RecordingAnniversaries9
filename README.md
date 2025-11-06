@@ -99,13 +99,12 @@ recording-anniversaries9/
 │   ├── constants.ts                                   # 定数定義
 │   └── auth-helpers.ts                                # 認証ヘルパー
 ├── hooks/
-│   └── useConfirmDelete.tsx                          # 削除確認フック
+│   └── useConfirmDelete.ts                           # 削除確認フック
 ├── docs/                                              # プロジェクトドキュメント
 │   ├── TECH_DECISIONS.md                             # 技術的決定
 │   ├── TODO.md                                       # 未実装機能
 │   └── SETUP.md                                      # セットアップ手順
 ├── auth.ts                                            # Auth.js v5 設定
-├── proxy.ts                                           # Next.js 16 認証プロキシ
 ├── drizzle.config.ts                                 # Drizzle設定
 └── .env.local                                        # 環境変数（要設定）
 ```
@@ -286,10 +285,10 @@ open coverage/index.html
   ```typescript
   const { id } = await params;
   ```
-- **"use cache"** でキャッシング明示（未使用）
+- **React cache()** で読み取り結果をキャッシュ（Server Actions）
 - **Server Actions 優先** - API Routesより推奨
 - **Turbopack** デフォルト使用
-- **proxy.ts** で認証制御
+- **lib/auth-helpers.ts** の requireAuth() で認証制御
 
 ## 日付計算の仕組み
 
