@@ -1,6 +1,6 @@
+import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { render, screen } from "@/__tests__/helpers/render";
-import userEvent from "@testing-library/user-event";
 import { AnniversaryCard } from "@/components/AnniversaryCard";
 import type { Anniversary } from "@/lib/db/schema";
 
@@ -97,8 +97,12 @@ describe("AnniversaryCard", () => {
         />,
       );
 
-      expect(screen.queryByRole("button", { name: "削除" })).not.toBeInTheDocument();
-      expect(screen.queryByRole("link", { name: "編集" })).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole("button", { name: "削除" }),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole("link", { name: "編集" }),
+      ).not.toBeInTheDocument();
     });
 
     it("削除ボタンクリック時にonDeleteが呼ばれる", async () => {

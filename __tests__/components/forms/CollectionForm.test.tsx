@@ -1,9 +1,9 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
-import { render, screen, waitFor } from "@/__tests__/helpers/render";
 import userEvent from "@testing-library/user-event";
+import { describe, expect, it, vi } from "vitest";
+import { render, screen, waitFor } from "@/__tests__/helpers/render";
 import { CollectionForm } from "@/components/forms/CollectionForm";
-import type { Collection } from "@/lib/db/schema";
 import { VISIBILITY } from "@/lib/constants";
+import type { Collection } from "@/lib/db/schema";
 
 // useActionState のモック - vi.hoisted で作成
 const mockUseActionState = vi.hoisted(() => vi.fn());
@@ -42,7 +42,9 @@ describe("CollectionForm", () => {
 
       render(<CollectionForm mode="create" />);
 
-      expect(screen.getByRole("textbox", { name: /グループ名/ })).toBeInTheDocument();
+      expect(
+        screen.getByRole("textbox", { name: /グループ名/ }),
+      ).toBeInTheDocument();
       expect(screen.getByRole("textbox", { name: /説明/ })).toBeInTheDocument();
       expect(screen.getByLabelText("表示設定")).toBeInTheDocument();
       expect(screen.getByRole("button", { name: "作成" })).toBeInTheDocument();
@@ -58,8 +60,12 @@ describe("CollectionForm", () => {
 
       render(<CollectionForm mode="edit" collection={mockCollection} />);
 
-      expect(screen.getByRole("textbox", { name: /グループ名/ })).toHaveValue("家族");
-      expect(screen.getByRole("textbox", { name: /説明/ })).toHaveValue("家族の記念日");
+      expect(screen.getByRole("textbox", { name: /グループ名/ })).toHaveValue(
+        "家族",
+      );
+      expect(screen.getByRole("textbox", { name: /説明/ })).toHaveValue(
+        "家族の記念日",
+      );
       expect(screen.getByRole("button", { name: "更新" })).toBeInTheDocument();
     });
 
@@ -68,8 +74,12 @@ describe("CollectionForm", () => {
 
       render(<CollectionForm mode="edit" collection={mockCollection} />);
 
-      expect(screen.getByRole("textbox", { name: /グループ名/ })).toHaveValue("家族");
-      expect(screen.getByRole("textbox", { name: /説明/ })).toHaveValue("家族の記念日");
+      expect(screen.getByRole("textbox", { name: /グループ名/ })).toHaveValue(
+        "家族",
+      );
+      expect(screen.getByRole("textbox", { name: /説明/ })).toHaveValue(
+        "家族の記念日",
+      );
       expect(screen.getByLabelText("表示設定")).toHaveValue(
         String(VISIBILITY.VISIBLE),
       );
@@ -108,7 +118,9 @@ describe("CollectionForm", () => {
 
       render(<CollectionForm mode="create" />);
 
-      expect(screen.getByRole("textbox", { name: /グループ名/ })).toHaveValue("テスト");
+      expect(screen.getByRole("textbox", { name: /グループ名/ })).toHaveValue(
+        "テスト",
+      );
       expect(screen.getByRole("textbox", { name: /説明/ })).toHaveValue("説明");
     });
   });
@@ -157,7 +169,10 @@ describe("CollectionForm", () => {
 
       render(<CollectionForm mode="create" />);
 
-      await user.type(screen.getByRole("textbox", { name: /グループ名/ }), "新しいグループ");
+      await user.type(
+        screen.getByRole("textbox", { name: /グループ名/ }),
+        "新しいグループ",
+      );
       await user.click(screen.getByRole("button", { name: "作成" }));
 
       await waitFor(() => {

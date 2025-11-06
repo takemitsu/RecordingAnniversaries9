@@ -1,8 +1,8 @@
+import userEvent from "@testing-library/user-event";
+import type { User } from "next-auth";
 import { describe, expect, it, vi } from "vitest";
 import { render, screen, waitFor } from "@/__tests__/helpers/render";
-import userEvent from "@testing-library/user-event";
 import { ProfileForm } from "@/app/(main)/profile/ProfileForm";
-import type { User } from "next-auth";
 
 // useActionState のモック - vi.hoisted で作成
 const mockUseActionState = vi.hoisted(() => vi.fn());
@@ -48,7 +48,9 @@ describe("ProfileForm", () => {
 
       render(<ProfileForm user={mockUser} />);
 
-      expect(screen.getByRole("textbox", { name: /名前/ })).toHaveValue("テストユーザー");
+      expect(screen.getByRole("textbox", { name: /名前/ })).toHaveValue(
+        "テストユーザー",
+      );
     });
 
     it("user.emailが表示される（読み取り専用）", () => {
@@ -116,7 +118,10 @@ describe("ProfileForm", () => {
       render(<ProfileForm user={mockUser} />);
 
       await user.clear(screen.getByRole("textbox", { name: /名前/ }));
-      await user.type(screen.getByRole("textbox", { name: /名前/ }), "新しい名前");
+      await user.type(
+        screen.getByRole("textbox", { name: /名前/ }),
+        "新しい名前",
+      );
       await user.click(screen.getByRole("button", { name: "保存" }));
 
       await waitFor(() => {

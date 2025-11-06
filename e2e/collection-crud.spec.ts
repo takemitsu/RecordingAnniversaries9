@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
-import { cleanupE2EData } from "./helpers/db-seed";
 import { createTestCollection } from "./fixtures/test-data";
+import { cleanupE2EData } from "./helpers/db-seed";
 
 test.describe("Collection CRUD", () => {
   // 各テスト後にデータをクリーンアップ

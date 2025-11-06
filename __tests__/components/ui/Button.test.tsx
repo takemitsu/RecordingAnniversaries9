@@ -7,7 +7,9 @@ describe("Button", () => {
     it("childrenを正しく表示", () => {
       render(<Button>クリック</Button>);
 
-      expect(screen.getByRole("button", { name: "クリック" })).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: "クリック" }),
+      ).toBeInTheDocument();
     });
   });
 
@@ -15,7 +17,9 @@ describe("Button", () => {
     it("loading=trueでスピナーが表示される", () => {
       render(<Button loading>読み込み中</Button>);
 
-      expect(screen.getByRole("img", { name: "読み込み中" })).toBeInTheDocument();
+      expect(
+        screen.getByRole("img", { name: "読み込み中" }),
+      ).toBeInTheDocument();
     });
 
     it("loading=trueでボタンがdisableになる", () => {

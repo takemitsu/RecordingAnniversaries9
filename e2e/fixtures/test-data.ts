@@ -1,6 +1,6 @@
-import { getTestDb } from "../helpers/db-seed";
 import type { Page } from "@playwright/test";
 import * as schema from "@/lib/db/schema";
+import { getTestDb } from "../helpers/db-seed";
 
 /**
  * テスト用Collectionを作成（DB直接挿入）
@@ -116,5 +116,7 @@ export async function createAnniversaryViaUI(
   // 編集ページにリダイレクトされるまで待機
   await page.waitForURL("/edit", { timeout: 10000 });
 
-  console.log(`🎉 Anniversary created via UI: ${name} (Date: ${anniversaryDate})`);
+  console.log(
+    `🎉 Anniversary created via UI: ${name} (Date: ${anniversaryDate})`,
+  );
 }

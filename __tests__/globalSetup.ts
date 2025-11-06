@@ -19,7 +19,7 @@ export default async function globalSetup() {
 
   console.log("🔧 Setting up test database...");
 
-  let connection;
+  let connection: mysql.Connection | undefined;
   try {
     connection = await mysql.createConnection(connectionString);
     const db = drizzle(connection);

@@ -1,9 +1,9 @@
 import { expect, test } from "@playwright/test";
-import { cleanupE2EData } from "./helpers/db-seed";
 import {
   createTestAnniversary,
   createTestCollection,
 } from "./fixtures/test-data";
+import { cleanupE2EData } from "./helpers/db-seed";
 
 test.describe("Anniversary CRUD", () => {
   let collectionId: number;
@@ -64,7 +64,9 @@ test.describe("Anniversary CRUD", () => {
     );
 
     // フォームが既存の値で埋められている
-    await expect(page.locator('input[name="name"]')).toHaveValue("編集前記念日");
+    await expect(page.locator('input[name="name"]')).toHaveValue(
+      "編集前記念日",
+    );
     await expect(page.locator('input[name="anniversaryDate"]')).toHaveValue(
       "2020-01-01",
     );

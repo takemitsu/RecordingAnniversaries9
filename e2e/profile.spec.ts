@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
-import { cleanupE2EData, getTestDb } from "./helpers/db-seed";
 import { eq } from "drizzle-orm";
 import * as schema from "@/lib/db/schema";
+import { cleanupE2EData, getTestDb } from "./helpers/db-seed";
 
 test.describe("Profile（プロフィール設定）", () => {
   // 各テスト前にユーザー名をリセット
@@ -79,9 +79,7 @@ test.describe("Profile（プロフィール設定）", () => {
     await page.click('button[type="submit"]');
 
     // エラーメッセージが表示される
-    await expect(
-      page.getByText(/名前を入力してください/),
-    ).toBeVisible();
+    await expect(page.getByText(/名前を入力してください/)).toBeVisible();
 
     // DBは変更されていない
     const db = await getTestDb();

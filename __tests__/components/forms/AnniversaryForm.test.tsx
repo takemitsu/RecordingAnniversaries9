@@ -1,6 +1,6 @@
+import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import { render, screen, waitFor } from "@/__tests__/helpers/render";
-import userEvent from "@testing-library/user-event";
 import { AnniversaryForm } from "@/components/forms/AnniversaryForm";
 import type { Anniversary } from "@/lib/db/schema";
 
@@ -41,9 +41,13 @@ describe("AnniversaryForm", () => {
 
       render(<AnniversaryForm mode="create" collectionId={1} />);
 
-      expect(screen.getByRole("textbox", { name: /記念日名/ })).toBeInTheDocument();
+      expect(
+        screen.getByRole("textbox", { name: /記念日名/ }),
+      ).toBeInTheDocument();
       expect(screen.getByRole("textbox", { name: /説明/ })).toBeInTheDocument();
-      expect(screen.getByLabelText(/^記念日/, { selector: 'input[type="date"]' })).toBeInTheDocument();
+      expect(
+        screen.getByLabelText(/^記念日/, { selector: 'input[type="date"]' }),
+      ).toBeInTheDocument();
       expect(screen.getByRole("button", { name: "作成" })).toBeInTheDocument();
       expect(
         screen.getByRole("button", { name: "キャンセル" }),
@@ -63,9 +67,15 @@ describe("AnniversaryForm", () => {
         />,
       );
 
-      expect(screen.getByRole("textbox", { name: /記念日名/ })).toHaveValue("誕生日");
-      expect(screen.getByRole("textbox", { name: /説明/ })).toHaveValue("大切な日");
-      expect(screen.getByLabelText(/^記念日/, { selector: 'input[type="date"]' })).toHaveValue("2020-11-04");
+      expect(screen.getByRole("textbox", { name: /記念日名/ })).toHaveValue(
+        "誕生日",
+      );
+      expect(screen.getByRole("textbox", { name: /説明/ })).toHaveValue(
+        "大切な日",
+      );
+      expect(
+        screen.getByLabelText(/^記念日/, { selector: 'input[type="date"]' }),
+      ).toHaveValue("2020-11-04");
       expect(screen.getByRole("button", { name: "更新" })).toBeInTheDocument();
     });
 
@@ -80,9 +90,15 @@ describe("AnniversaryForm", () => {
         />,
       );
 
-      expect(screen.getByRole("textbox", { name: /記念日名/ })).toHaveValue("誕生日");
-      expect(screen.getByRole("textbox", { name: /説明/ })).toHaveValue("大切な日");
-      expect(screen.getByLabelText(/^記念日/, { selector: 'input[type="date"]' })).toHaveValue("2020-11-04");
+      expect(screen.getByRole("textbox", { name: /記念日名/ })).toHaveValue(
+        "誕生日",
+      );
+      expect(screen.getByRole("textbox", { name: /説明/ })).toHaveValue(
+        "大切な日",
+      );
+      expect(
+        screen.getByLabelText(/^記念日/, { selector: 'input[type="date"]' }),
+      ).toHaveValue("2020-11-04");
     });
   });
 
@@ -133,9 +149,13 @@ describe("AnniversaryForm", () => {
 
       render(<AnniversaryForm mode="create" collectionId={1} />);
 
-      expect(screen.getByRole("textbox", { name: /記念日名/ })).toHaveValue("テスト");
+      expect(screen.getByRole("textbox", { name: /記念日名/ })).toHaveValue(
+        "テスト",
+      );
       expect(screen.getByRole("textbox", { name: /説明/ })).toHaveValue("説明");
-      expect(screen.getByLabelText(/^記念日/, { selector: 'input[type="date"]' })).toHaveValue("2025-12-31");
+      expect(
+        screen.getByLabelText(/^記念日/, { selector: 'input[type="date"]' }),
+      ).toHaveValue("2025-12-31");
     });
   });
 
@@ -183,8 +203,14 @@ describe("AnniversaryForm", () => {
 
       render(<AnniversaryForm mode="create" collectionId={1} />);
 
-      await user.type(screen.getByRole("textbox", { name: /記念日名/ }), "新しい記念日");
-      await user.type(screen.getByLabelText(/^記念日/, { selector: 'input[type="date"]' }), "2025-12-31");
+      await user.type(
+        screen.getByRole("textbox", { name: /記念日名/ }),
+        "新しい記念日",
+      );
+      await user.type(
+        screen.getByLabelText(/^記念日/, { selector: 'input[type="date"]' }),
+        "2025-12-31",
+      );
       await user.click(screen.getByRole("button", { name: "作成" }));
 
       await waitFor(() => {

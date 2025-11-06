@@ -1,6 +1,9 @@
 import { expect, test } from "@playwright/test";
+import {
+  createTestAnniversary,
+  createTestCollection,
+} from "./fixtures/test-data";
 import { cleanupE2EData } from "./helpers/db-seed";
-import { createTestAnniversary, createTestCollection } from "./fixtures/test-data";
 
 test.describe("Accessibility（アクセシビリティ）", () => {
   // 各テスト後にデータをクリーンアップ
@@ -62,7 +65,7 @@ test.describe("Accessibility（アクセシビリティ）", () => {
     await expect(page).toHaveURL(/\/auth\/signin/);
 
     // 再ログイン（Storage Stateを再読み込み）
-    const fs = await import("fs");
+    const fs = await import("node:fs");
     const storageState = JSON.parse(
       fs.readFileSync("e2e/.auth/user.json", "utf-8"),
     );

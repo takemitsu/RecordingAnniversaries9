@@ -1,7 +1,7 @@
-import { test as setup } from "@playwright/test";
-import { getTestDb } from "./helpers/db-seed";
-import * as schema from "@/lib/db/schema";
 import crypto from "node:crypto";
+import { test as setup } from "@playwright/test";
+import * as schema from "@/lib/db/schema";
+import { getTestDb } from "./helpers/db-seed";
 
 const authFile = "e2e/.auth/user.json";
 

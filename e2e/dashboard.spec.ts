@@ -1,6 +1,9 @@
 import { expect, test } from "@playwright/test";
+import {
+  createTestAnniversary,
+  createTestCollection,
+} from "./fixtures/test-data";
 import { cleanupE2EData } from "./helpers/db-seed";
-import { createTestAnniversary, createTestCollection } from "./fixtures/test-data";
 
 test.describe("Dashboard（一覧ページ）", () => {
   // 各テスト後にデータをクリーンアップ
@@ -106,7 +109,9 @@ test.describe("Dashboard（一覧ページ）", () => {
     await expect(page.getByRole("button", { name: /編集/i })).not.toBeVisible();
     await expect(page.getByRole("button", { name: /削除/i })).not.toBeVisible();
     // ヘッダーの"編集"リンクは除外（カード内の編集リンクのみチェック）
-    const editLinksInCards = page.locator('.border-t a[href*="/edit/collection/"]');
+    const editLinksInCards = page.locator(
+      '.border-t a[href*="/edit/collection/"]',
+    );
     await expect(editLinksInCards).toHaveCount(0);
   });
 });

@@ -1,9 +1,9 @@
+import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { render, screen } from "@/__tests__/helpers/render";
-import userEvent from "@testing-library/user-event";
 import { CollectionCard } from "@/components/CollectionCard";
-import type { Anniversary, Collection } from "@/lib/db/schema";
 import { VISIBILITY } from "@/lib/constants";
+import type { Anniversary, Collection } from "@/lib/db/schema";
 
 // Next.js Link のモック
 vi.mock("next/link", () => ({
@@ -136,7 +136,9 @@ describe("CollectionCard", () => {
         isVisible: VISIBILITY.HIDDEN,
       };
 
-      render(<CollectionCard collection={hiddenCollection} showActions={true} />);
+      render(
+        <CollectionCard collection={hiddenCollection} showActions={true} />,
+      );
 
       expect(screen.getByTitle("一覧に非表示")).toBeInTheDocument();
     });
@@ -179,10 +181,16 @@ describe("CollectionCard", () => {
     });
 
     it("showActions=falseの時、ボタンが表示されない", () => {
-      render(<CollectionCard collection={mockCollection} showActions={false} />);
+      render(
+        <CollectionCard collection={mockCollection} showActions={false} />,
+      );
 
-      expect(screen.queryByRole("button", { name: "削除" })).not.toBeInTheDocument();
-      expect(screen.queryByRole("link", { name: "編集" })).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole("button", { name: "削除" }),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole("link", { name: "編集" }),
+      ).not.toBeInTheDocument();
       expect(
         screen.queryByRole("link", { name: "記念日追加" }),
       ).not.toBeInTheDocument();
