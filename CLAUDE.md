@@ -223,7 +223,7 @@ Users (ユーザー)
 
 ### テスト
 - ✅ **テスト環境構築完了**
-  - Vitest 4.0.6 + React Testing Library 16.3.0
+  - Vitest 4.0.6 + React Testing Library 16.3.0 + Playwright 1.49
   - MySQL テストDB（TEST_DATABASE_URL）
 - ✅ **Unit Tests実装完了（55テスト）**
   - 日付計算、和暦変換、Zodバリデーション
@@ -234,6 +234,11 @@ Users (ユーザー)
 - ✅ **Component Tests実装完了（51テスト）**
   - フォーム、カード、ボタン
   - React Testing Library使用、ベストプラクティス遵守
+- ✅ **E2E Tests実装完了（19テスト）**
+  - Playwright使用、Auth.js Database strategy対応
+  - Collections/Anniversaries CRUD、Dashboard、Profile、Accessibility
+  - Testing Trophy理論準拠（E2E: 12.3%、理想値5-10%に近い）
+- **総計**: 155テスト全通過 ✅
 
 ## 未実装機能・次にやること 🚧
 
@@ -256,7 +261,7 @@ Users (ユーザー)
 
 ### テスト（残タスク）
 - [x] Component Tests（フォーム、カード）- Phase 3 ✅ 完了
-- [ ] E2Eテスト（Playwright）- Phase 4
+- [x] E2Eテスト（Playwright）- Phase 4 ✅ 完了
 
 ### デプロイ
 - [ ] 本番環境設定
@@ -315,13 +320,35 @@ npm run lint
 npm run format
 
 # テスト
-npm test              # 全テスト（133テスト）
+npm test              # Unit/Integration/Component テスト（133テスト）
 npm run test:ui       # Vitest UI（ブラウザで結果確認）
 npm run test:coverage # カバレッジレポート生成
+npm run test:e2e      # E2Eテスト（19テスト、Playwright）
+npm run test:e2e:ui   # E2E UI Mode（ブラウザでデバッグ）
 
 # Drizzle
 npx drizzle-kit studio  # Drizzle Studio（DBビューアー）
 npx drizzle-kit generate # マイグレーションファイル生成
+```
+
+## コミット前チェックリスト
+
+**重要**: 全てのcommit前に必ず以下を実行すること
+
+```bash
+# 1. Lint/Format
+npm run lint
+
+# 2. TypeCheck
+npx tsc --noEmit
+
+# 3. 全テスト実行
+npm test              # Unit/Integration/Component
+npm run test:e2e      # E2E
+
+# 4. 全て通過を確認してからcommit
+git add -A
+git commit -m "..."
 ```
 
 ## Serena MCPサーバーのセットアップ（任意）
@@ -524,27 +551,27 @@ users (ユーザー)
 
 ## テスト戦略
 
-### 実装完了（Phase 1 + Phase 2 + Phase 3）
+### 実装完了（Phase 1-4）
 - ✅ **Unit Tests**: 日付計算、和暦変換、Zodバリデーション（55テスト）
 - ✅ **Integration Tests**: Server Actions + MySQL（27テスト）
 - ✅ **Component Tests**: フォーム、カード、ボタン（51テスト）
+- ✅ **E2E Tests**: Playwright、Auth.js対応（19テスト）
 - ✅ **カバレッジ**: utils 98%+, schemas 100%
-- **総計**: 133テスト全通過
+- **総計**: 155テスト全通過
 
 ### テスト実行コマンド
 ```bash
-# 全テスト実行（133テスト）
-npm test
+# 全テスト実行
+npm test              # Unit/Integration/Component
+npm run test:e2e      # E2E
 
-# Vitest UI（ブラウザで結果確認）
-npm run test:ui
+# UIモード
+npm run test:ui       # Vitest UI
+npm run test:e2e:ui   # Playwright UI
 
-# カバレッジレポート生成
+# カバレッジレポート
 npm run test:coverage
 ```
-
-### 未実装
-- [ ] **E2E Tests**: Playwright（Phase 4）
 
 詳細は `docs/TEST_STRATEGY.md` 参照。
 

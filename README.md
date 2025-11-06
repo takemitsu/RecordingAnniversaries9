@@ -255,7 +255,7 @@ TEST_DATABASE_URL="mysql://user:password@127.0.0.1:3306/ra9_test"
 ### テスト実行コマンド
 
 ```bash
-# 全テスト実行（Unit + Integration）
+# Unit/Integration/Component テスト
 npm test
 
 # Vitest UI（ブラウザで結果確認）
@@ -264,15 +264,19 @@ npm run test:ui
 # カバレッジレポート生成
 npm run test:coverage
 
+# E2Eテスト（Playwright）
+npm run test:e2e
+
+# E2E UI Mode（ブラウザでデバッグ）
+npm run test:e2e:ui
+
 # カバレッジをブラウザで確認
 open coverage/index.html
 ```
 
-### テスト構成（総計: 133テスト）
+### テスト構成
 
-- **Unit Tests（55テスト）**: 日付計算、和暦変換、Zodバリデーション
-- **Integration Tests（27テスト）**: Server Actions + MySQL（Collections, Anniversaries, Profile）
-- **Component Tests（51テスト）**: React Testing Library（フォーム、カード、UI）
+**総計: 155テスト全通過 ✅**
 
 詳細は [docs/TEST_STRATEGY.md](docs/TEST_STRATEGY.md) 参照。
 
