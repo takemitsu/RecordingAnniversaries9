@@ -1439,17 +1439,18 @@ npm run test:e2e  # → 13/22 passed (59%)
 - [ ] `__tests__/components/ui/Button.test.tsx` 実装
 - [ ] Phase 3テスト実行: `npm test`
 
-### Phase 4: E2E Tests ✅ **完了**
+### Phase 4: E2E Tests ✅ **完了 + 最適化済み**
 - [x] Playwrightインストール: `npx playwright install`
 - [x] Setup Projects + Storage State認証実装
 - [x] `e2e/auth.setup.ts` 作成（Database strategy対応）
 - [x] `e2e/helpers/db-seed.ts` 作成（テストDB操作）
 - [x] `e2e/helpers/global-setup.ts` 作成（マイグレーション）
 - [x] `e2e/fixtures/test-data.ts` 作成（テストデータヘルパー）
-- [x] `e2e/collection-crud.spec.ts` 実装（8テスト）
-- [x] `e2e/anniversary-crud.spec.ts` 実装（8テスト）
-- [x] `e2e/dashboard.spec.ts` 実装（5テスト）
+- [x] `e2e/collection-crud.spec.ts` 実装（3テスト）
+- [x] `e2e/anniversary-crud.spec.ts` 実装（5テスト）
+- [x] `e2e/dashboard.spec.ts` 実装（6テスト）
 - [x] `e2e/profile.spec.ts` 実装（3テスト）
+- [x] `e2e/accessibility.spec.ts` 実装（2テスト）
 - [x] `lib/db/index.ts` E2E_TEST環境変数対応（重要）
 - [x] `auth.ts` debug/useSecureCookies設定
 - [x] Anniversary編集/作成ページ nullチェック追加
@@ -1458,7 +1459,33 @@ npm run test:e2e  # → 13/22 passed (59%)
 - [x] 削除確認ダイアログをネイティブconfirm()対応に修正
 - [x] CASCADE削除テストの待機処理追加
 - [x] ProfileテストのbeforeEach追加（データ独立性確保）
-- [x] Phase 4テスト実行: **22/22 passed (100%)** ✅
+- [x] **E2Eテスト最適化**: 重複テスト5件削減、アクセシビリティテスト2件追加
+- [x] Phase 4テスト実行: **19/19 passed (100%)** ✅
+
+#### E2Eテスト最適化の詳細
+**削減したテスト（5件）**:
+1. `collection-crud.spec.ts`: バリデーションエラーテスト（Component/Integrationでカバー済み）
+2. `collection-crud.spec.ts`: CASCADE削除テスト（Integration testsでカバー済み）
+3. `collection-crud.spec.ts`: isVisible=0テスト（dashboard.spec.tsでカバー済み）
+4. `anniversary-crud.spec.ts`: バリデーションエラー（日付が空）テスト
+5. `anniversary-crud.spec.ts`: バリデーションエラー（無効な日付）テスト
+
+**追加したテスト（2件）**:
+1. `accessibility.spec.ts`: キーボードナビゲーション（Tab、Enter）
+2. `accessibility.spec.ts`: ログアウト→再ログイン→データ永続性
+
+**最適化の理由**:
+- Testing Trophy理論に準拠（E2Eは5-10%が理想）
+- 重複テストを削減し、E2E固有の価値（ユーザーフロー、アクセシビリティ）に集中
+- テスト実行時間の短縮（22→19テスト、約14%削減）
+- メンテナンスコストの削減
+
+**最終テスト分布** (155テスト):
+- Unit Tests: 55テスト (35.5%)
+- Integration Tests: 27テスト (17.4%)
+- Component Tests: 51テスト (32.9%)
+- E2E Tests: 19テスト (12.3%) ← Testing Trophy理想値: 5-10%
+- Setup: 1テスト (0.6%)
 
 ### カバレッジ確認
 - [ ] カバレッジレポート生成: `npm run test:coverage`

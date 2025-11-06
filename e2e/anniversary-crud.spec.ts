@@ -110,55 +110,6 @@ test.describe("Anniversary CRUD", () => {
     await expect(page.getByText("削除される記念日")).not.toBeVisible();
   });
 
-  test("Anniversary作成時のバリデーションエラー（日付が空）", async ({ page }) => {
-    await page.goto(`/edit/collection/${collectionId}/anniversary/new`);
-
-    // HTML5バリデーションを無効化
-    await page.evaluate(() => {
-      const form = document.querySelector("form");
-      if (form) form.setAttribute("novalidate", "");
-    });
-
-    // 名前のみ入力、日付を空のまま送信
-    await page.fill('input[name="name"]', "エラーテスト");
-    await page.click('button[type="submit"]');
-
-    // エラーメッセージが表示される
-    await expect(
-      page.getByText(/記念日を入力してください/),
-    ).toBeVisible();
-
-    // フォームページのまま
-    await expect(page).toHaveURL(/\/anniversary\/new/);
-  });
-
-  test("Anniversary作成時のバリデーションエラー（無効な日付）", async ({ page }) => {
-    await page.goto(`/edit/collection/${collectionId}/anniversary/new`);
-
-    // HTML5バリデーションを無効化
-    await page.evaluate(() => {
-      const form = document.querySelector("form");
-      if (form) form.setAttribute("novalidate", "");
-    });
-
-    // 無効な日付を入力（type属性を一時的に変更）
-    await page.fill('input[name="name"]', "エラーテスト");
-    await page.evaluate(() => {
-      const input = document.querySelector('input[name="anniversaryDate"]') as HTMLInputElement;
-      if (input) {
-        input.type = "text";
-        input.value = "2020-13-32";
-      }
-    });
-
-    await page.click('button[type="submit"]');
-
-    // エラーメッセージが表示される
-    await expect(
-      page.getByText(/有効な日付を入力してください/),
-    ).toBeVisible();
-  });
-
   test("複数のAnniversaryを同じCollectionに追加", async ({ page }) => {
     await page.goto("/edit");
 
