@@ -115,7 +115,7 @@ TEST_DATABASE_URL="mysql://USERNAME:PASSWORD@127.0.0.1:3306/ra9_test"
 
 ### 2.5.3 マイグレーション自動実行
 
-テスト実行時に自動的にマイグレーションが実行されます。詳細は [TEST_STRATEGY.md](TEST_STRATEGY.md) 参照。
+テスト実行時に自動的にマイグレーションが実行されます。詳細は [TESTING.md](TESTING.md) 参照。
 
 ### 2.5.4 テスト実行
 

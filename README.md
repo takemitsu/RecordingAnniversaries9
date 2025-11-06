@@ -34,7 +34,7 @@
 - ✅ ダークモード対応
 - ✅ **テスト実装（Phase 1 + Phase 2 + Phase 3完了）**
   - **総計: 133テスト全通過**（Unit 55 + Integration 27 + Component 51）
-  - 詳細は [docs/TEST_STRATEGY.md](docs/TEST_STRATEGY.md) 参照
+  - 詳細は [docs/TESTING.md](docs/TESTING.md) 参照
 
 ### 未実装機能
 
@@ -277,7 +277,7 @@ open coverage/index.html
 
 **総計: 155テスト全通過 ✅**
 
-詳細は [docs/TEST_STRATEGY.md](docs/TEST_STRATEGY.md) 参照。
+詳細は [docs/TESTING.md](docs/TESTING.md) 参照。
 
 ## Next.js 16 対応
 

@@ -44,7 +44,7 @@
 - [x] **Phase 3: Component Tests（51テスト）** ✅ 完了（2025-11-05）
 - [x] **Phase 4: E2E Tests（19テスト）** ✅ 完了（2025-11-06）
 
-**詳細**: `docs/TEST_STRATEGY.md` 参照
+**詳細**: `docs/TESTING.md` 参照
 
 ### デプロイ
 - [ ] 本番環境設定

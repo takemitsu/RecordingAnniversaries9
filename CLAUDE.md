@@ -561,7 +561,7 @@ npm run test:e2e:ui   # Playwright UI
 npm run test:coverage
 ```
 
-詳細は `docs/TEST_STRATEGY.md` 参照。
+詳細は `docs/TESTING.md` 参照。
 
 ## 参考リソース
 

@@ -232,7 +232,7 @@ if (!result.success) {
   - Collections/Anniversaries CRUD、Dashboard、Profile、Accessibility
   - Testing Trophy準拠（E2E: 12.3%、理想値5-10%に近い）
 
-詳細は `docs/TEST_STRATEGY.md` 参照。
+詳細は `docs/TESTING.md` 参照。
 
 ## 未決定事項
 
