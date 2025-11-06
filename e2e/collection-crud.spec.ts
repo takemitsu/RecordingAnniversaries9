@@ -29,8 +29,8 @@ test.describe("Collection CRUD", () => {
     await page.waitForURL("/edit");
 
     // 作成したCollectionが表示される
-    await expect(page.getByText("テストCollection")).toBeVisible();
-    await expect(page.getByText("説明文テスト")).toBeVisible();
+    await expect(page.getByText("テストCollection").first()).toBeVisible();
+    await expect(page.getByText("説明文テスト").first()).toBeVisible();
 
     // === 編集 ===
     // 編集ボタンをクリック
@@ -71,6 +71,12 @@ test.describe("Collection CRUD", () => {
   test("Collection作成時のバリデーションエラー", async ({ page }) => {
     await page.goto("/edit/collection/new");
 
+    // HTML5バリデーションを無効化
+    await page.evaluate(() => {
+      const form = document.querySelector("form");
+      if (form) form.setAttribute("novalidate", "");
+    });
+
     // 名前を空のまま送信
     await page.click('button[type="submit"]');
 
@@ -103,8 +109,8 @@ test.describe("Collection CRUD", () => {
     await page.waitForURL("/edit");
 
     // 変更が反映されている
-    await expect(page.getByText("編集後Collection")).toBeVisible();
-    await expect(page.getByText("変更後の説明")).toBeVisible();
+    await expect(page.getByText("編集後Collection").first()).toBeVisible();
+    await expect(page.getByText("変更後の説明").first()).toBeVisible();
     await expect(page.getByText("編集前Collection")).not.toBeVisible();
   });
 
@@ -120,14 +126,20 @@ test.describe("Collection CRUD", () => {
 
     // 編集ページで確認
     await page.goto("/edit");
-    await expect(page.getByText("削除テスト")).toBeVisible();
-    await expect(page.getByText("削除される記念日")).toBeVisible();
+    await expect(page.getByText("削除テスト").first()).toBeVisible();
+    await expect(page.getByText("削除される記念日").first()).toBeVisible();
 
     // Collection削除
-    await page.click('button:has-text("削除")');
-    await page.click('button:has-text("削除する")');
+    await page.getByRole("button", { name: "削除" }).first().click();
 
-    // Collection + Anniversaryが両方削除される
+    // 確認ダイアログが表示されるまで待機
+    await expect(page.getByRole("button", { name: "削除する" })).toBeVisible();
+
+    // 確認ダイアログの削除ボタンをクリック
+    await page.getByRole("button", { name: "削除する" }).click();
+
+    // Collection + Anniversaryが両方削除される（ページがリロードされるまで待機）
+    await page.waitForLoadState("networkidle");
     await expect(page.getByText("削除テスト")).not.toBeVisible();
     await expect(page.getByText("削除される記念日")).not.toBeVisible();
   });

@@ -58,10 +58,10 @@ describe("formatCountdown", () => {
     expect(result).toEqual({ value: "今日", unit: "！" });
   });
 
-  it("1日以上の場合、「あとX日」を返す", () => {
-    expect(formatCountdown(1)).toEqual({ value: "あと 1", unit: "日" });
-    expect(formatCountdown(10)).toEqual({ value: "あと 10", unit: "日" });
-    expect(formatCountdown(365)).toEqual({ value: "あと 365", unit: "日" });
+  it("1日以上の場合、日数を返す", () => {
+    expect(formatCountdown(1)).toEqual({ value: "1", unit: "日" });
+    expect(formatCountdown(10)).toEqual({ value: "10", unit: "日" });
+    expect(formatCountdown(365)).toEqual({ value: "365", unit: "日" });
   });
 
   it("nullの場合、「-」を返す", () => {

@@ -43,18 +43,31 @@ test.describe("Profile（プロフィール設定）", () => {
   test("ユーザー名変更後、ヘッダーに反映される", async ({ page }) => {
     // プロフィールページで名前を変更
     await page.goto("/profile");
-    await page.fill('input[name="name"]', "新しい名前");
+    await page.fill('input[name="name"]', "ヘッダー表示テスト");
     await page.click('button[type="submit"]');
 
     // トップページに移動
     await page.goto("/");
 
     // ヘッダーに新しい名前が表示される
-    await expect(page.locator("body")).toContainText("新しい名前");
+    await expect(page.locator("body")).toContainText("ヘッダー表示テスト");
   });
 
   test("ユーザー名を空にすると、バリデーションエラー", async ({ page }) => {
+    // 事前にユーザー名をリセット
+    const db = await getTestDb();
+    await db
+      .update(schema.users)
+      .set({ name: "E2E Test User" })
+      .where(eq(schema.users.id, "e2e-user-id"));
+
     await page.goto("/profile");
+
+    // HTML5バリデーションを無効化
+    await page.evaluate(() => {
+      const form = document.querySelector("form");
+      if (form) form.setAttribute("novalidate", "");
+    });
 
     // 名前を空にして送信
     await page.fill('input[name="name"]', "");
@@ -66,7 +79,6 @@ test.describe("Profile（プロフィール設定）", () => {
     ).toBeVisible();
 
     // DBは変更されていない
-    const db = await getTestDb();
     const user = await db.query.users.findFirst({
       where: eq(schema.users.id, "e2e-user-id"),
     });

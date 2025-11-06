@@ -33,7 +33,7 @@ export default defineConfig({
   webServer: {
     command: "E2E_TEST=true npm run dev",
     url: "http://localhost:3000",
-    reuseExistingServer: false, // 常に新規起動してauth.tsの変更を確実に反映
+    reuseExistingServer: false, // 常に新規起動してE2E_TEST環境変数を確実に反映
     env: {
       E2E_TEST: "true",
       AUTH_URL: "http://localhost:3000", // Auth.jsセッション検証に必須

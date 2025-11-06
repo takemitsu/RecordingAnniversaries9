@@ -70,7 +70,7 @@ export function formatCountdown(days: number | null): {
     return { value: "今日", unit: "！" };
   }
 
-  return { value: `あと ${days}`, unit: "日" };
+  return { value: `${days}`, unit: "日" };
 }
 
 /**

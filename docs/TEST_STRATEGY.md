@@ -1259,9 +1259,9 @@ test.describe("Dashboard", () => {
 });
 ```
 
-### 🚧 Phase 4 実装途中（2025-11-05） - 認証完了・テスト45%通過
+### 🚧 Phase 4 実装途中（2025-11-06） - 認証完了・テスト59%通過
 
-**ステータス**: 認証基盤は完全動作、22テスト中10テスト通過（残り12テスト要修正）
+**ステータス**: 認証基盤は完全動作、22テスト中13テスト通過（残り9テスト要修正）
 
 **実装内容**:
 - ✅ Playwright 1.56.1インストール完了
@@ -1278,35 +1278,37 @@ test.describe("Dashboard", () => {
 ```
 Test Files  1 passed (Setup Project)
            + 22 E2E tests
-Tests      10 passed / 12 failed (45%)
-Duration   ~2分
+Tests      13 passed / 9 failed (59%)
+Duration   ~1.4分
 ```
 
-**通過テスト（10件）**:
+**通過テスト（13件）**:
 1. Setup Project - 認証セットアップ ✅
 2. Anniversary CRUD:
+   - Anniversary作成 → 一覧表示確認 ✅
    - Anniversary編集 → 更新確認 ✅
+   - 複数のAnniversaryを同じCollectionに追加 ✅
    - Anniversaryの日付順序確認 ✅
 3. Collection CRUD:
-   - Collection編集のみ ✅
-   - Collection削除のみ ✅
-   - is_visible変更 ✅
+   - Collection編集 ✅
+   - 複数のCollectionを作成 ✅
 4. Dashboard:
    - is_visible=0のCollectionは非表示 ✅
    - 記念日がないCollectionは表示されない ✅
-5. Profile: 基本機能 ✅ (2件)
+   - 複数のCollectionとAnniversaryが表示される ✅
+5. Profile: ユーザー名を空にすると、バリデーションエラー ✅
 
-**失敗テスト（12件）**:
-1. **カウントダウン表示が見つからない** (5テスト)
-   - `text=/あと\d+日|今日|明日/`が見つからない
-   - 和暦は表示されている（`text=/令和2年/`は通過）
-   - 原因: UIレンダリング問題またはテストセレクター問題
-2. **バリデーションエラーが表示されない** (4テスト)
-   - Anniversary/Collection作成時のバリデーションエラーテスト失敗
-   - 原因: フォームバリデーション表示の問題
-3. **タイムアウト** (3テスト)
-   - Anniversary削除テスト (30秒タイムアウト)
-   - ページ遷移の待機条件が不十分
+**失敗テスト（9件）**:
+1. **isVisibleラジオボタンが見つからない** (2テスト)
+   - CollectionFormに`isVisible`フィールドがない
+   - 原因: フォームコンポーネント未実装
+2. **バリデーションエラーが表示されない** (3テスト)
+   - HTML5バリデーション無効化後もサーバーエラーが表示されない
+   - 原因: Server Actionエラーレスポンス構造の問題
+3. **削除・CASCADEテスト** (2テスト)
+   - セレクターまたは待機条件の問題
+4. **Profileテスト** (2テスト)
+   - テスト間のデータ汚染（部分的に残存）
 
 **設計判断**:
 - **Setup Projects**: 認証を1回だけ実行し、Storage Stateで再利用（効率的）
@@ -1327,11 +1329,30 @@ Duration   ~2分
 - `app/(main)/edit/collection/[collectionId]/anniversary/[anniversaryId]/page.tsx`: collection/anniversaryがnullの場合のリダイレクト追加
 - エラーハンドリング強化
 
+**実施した修正（2025-11-06）**:
+1. ✅ **カウントダウン表示修正**
+   - `lib/utils/dateCalculation.ts`: `formatCountdown()`を修正（"あと X"→"X"に変更）
+   - `components/AnniversaryCard.tsx`: `countdown.value`と`countdown.unit`を使用
+   - `__tests__/lib/utils/dateCalculation.test.ts`: Unit Test更新
+2. ✅ **Strict mode violation修正**
+   - 全テストファイルで`.first()`追加（複数要素マッチ対策）
+   - e2e/dashboard.spec.ts, e2e/collection-crud.spec.ts, e2e/anniversary-crud.spec.ts
+3. ✅ **バリデーションエラーテスト修正**
+   - HTML5バリデーション無効化（`form.setAttribute("novalidate", "")`）
+   - 無効な日付入力テスト修正（`input.type = "text"`に変更）
+4. ✅ **削除機能の待機条件改善**
+   - `page.waitForLoadState("networkidle")`追加
+   - `.first()`でセレクター特定
+5. ✅ **Profileテストのデータ汚染対策**
+   - beforeEach相当でユーザー名リセット
+6. ✅ **編集リンクセレクター修正**
+   - ヘッダーの"編集"リンクとカード内編集リンクを区別
+
 **品質チェック**:
 - ✅ Setup Project認証: 完全動作
 - ✅ DB接続: テストDB使用（E2E_TEST環境変数）
-- ⚠️ テスト通過率: 45%（10/22）
-- ⚠️ 残課題: UIレンダリング・バリデーション表示
+- ✅ テスト通過率: 59%（13/22）← 前回45%から改善
+- ⚠️ 残課題: CollectionFormのisVisibleフィールド、バリデーションエラー表示
 
 **注意点**:
 - **重要**: lib/db/index.tsのE2E_TEST対応が必須（ないと認証が動作しない）
@@ -1340,10 +1361,16 @@ Duration   ~2分
 - セッションはafterEachでクリーンアップしない（Setup Projectセッションを保持）
 
 **残課題（次のセッションで対応）**:
-1. カウントダウン表示問題の調査（AnniversaryCardコンポーネント確認）
-2. バリデーションエラー表示問題の調査（フォームバリデーション確認）
-3. タイムアウト問題の解決（ページ遷移待機条件見直し）
-4. テストセレクターの改善（strict mode violation対策）
+1. **CollectionFormにisVisibleフィールドを追加** (2テスト失敗)
+   - `components/forms/CollectionForm.tsx`にラジオボタン追加
+   - デフォルト値: `isVisible=1`（表示）
+2. **バリデーションエラー表示の修正** (3テスト失敗)
+   - Server Actionのエラーレスポンス構造確認
+   - `state?.errors?.fieldName`が正しく表示されるか検証
+3. **削除・CASCADEテストの修正** (2テスト失敗)
+   - セレクターと待機条件の再確認
+4. **Profileテストのデータ汚染完全解決** (2テスト失敗)
+   - テスト順序の影響を完全に排除
 
 **🎯 次のセッションで最初にやること**:
 
@@ -1352,21 +1379,27 @@ Duration   ~2分
 git branch  # → feature/e2e
 
 # テスト状況確認
-npm run test:e2e  # → 10/22 passed (45%)
+npm run test:e2e  # → 13/22 passed (59%)
+
+# 優先対応：CollectionFormにisVisibleフィールド追加
+# components/forms/CollectionForm.tsx を編集
 ```
 
-**修正すべき12テスト**:
-1. **カウントダウン表示** (5テスト) - `AnniversaryCard.tsx`の確認
-2. **バリデーションエラー表示** (4テスト) - フォームコンポーネントの確認
-3. **タイムアウト** (3テスト) - 待機条件の見直し
+**修正すべき9テスト**:
+1. **CollectionForm isVisibleフィールド** (2テスト) - フォームコンポーネント修正
+2. **バリデーションエラー表示** (3テスト) - Server Actionレスポンス確認
+3. **削除・CASCADE** (2テスト) - セレクター・待機条件
+4. **Profile** (2テスト) - データ汚染対策強化
 
 **推奨アプローチ**:
-1. まず単独のテストを実行して問題を特定: `npm run test:e2e -- e2e/anniversary-crud.spec.ts:21`
-2. ブラウザでスクリーンショット確認: `await page.screenshot({ path: "debug.png" })`
-3. 実際のHTMLを確認: `const html = await page.content(); console.log(html);`
-4. 問題修正後、全テスト実行: `npm run test:e2e`
+1. CollectionFormに`isVisible`ラジオボタンを追加（最優先）
+2. 単独テスト実行で問題特定: `npx playwright test e2e/collection-crud.spec.ts:11 --headed`
+3. ブラウザでスクリーンショット確認: `await page.screenshot({ path: "debug.png" })`
+4. 全テスト実行: `npm run test:e2e`
 
-**重要**: 認証基盤は完全動作しているので、認証周りは触らないこと
+**重要**:
+- 認証基盤は完全動作（触らない）
+- カウントダウン表示・Strict mode violationは修正済み
 
 ---
 

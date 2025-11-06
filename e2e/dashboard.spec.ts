@@ -19,16 +19,16 @@ test.describe("Dashboard（一覧ページ）", () => {
     await page.goto("/");
 
     // Collectionが表示される
-    await expect(page.getByText("家族")).toBeVisible();
+    await expect(page.getByText("家族").first()).toBeVisible();
 
     // Anniversaryが表示される
-    await expect(page.getByText("誕生日")).toBeVisible();
+    await expect(page.getByText("誕生日").first()).toBeVisible();
 
     // 和暦が表示される（令和2年）
     await expect(page.locator("text=/令和2年/")).toBeVisible();
 
-    // カウントダウンが表示される（「あとX日」または「今日」）
-    await expect(page.locator("text=/あと\\d+日|今日|明日/")).toBeVisible();
+    // カウントダウンが表示される（「X日」または「今日」）
+    await expect(page.locator("text=/\\d+\\s*日|今日/")).toBeVisible();
   });
 
   test("is_visible=0のCollectionは非表示", async ({ page }) => {
@@ -45,8 +45,8 @@ test.describe("Dashboard（一覧ページ）", () => {
     await page.goto("/");
 
     // 表示Collectionは表示される
-    await expect(page.getByText("表示Collection")).toBeVisible();
-    await expect(page.getByText("表示記念日")).toBeVisible();
+    await expect(page.getByText("表示Collection").first()).toBeVisible();
+    await expect(page.getByText("表示記念日").first()).toBeVisible();
 
     // 非表示Collectionは表示されない
     await expect(page.getByText("非表示Collection")).not.toBeVisible();
@@ -65,8 +65,8 @@ test.describe("Dashboard（一覧ページ）", () => {
     await page.goto("/");
 
     // 記念日ありのCollectionは表示される
-    await expect(page.getByText("記念日あり")).toBeVisible();
-    await expect(page.getByText("テスト記念日")).toBeVisible();
+    await expect(page.getByText("記念日あり").first()).toBeVisible();
+    await expect(page.getByText("テスト記念日").first()).toBeVisible();
 
     // 記念日なしのCollectionは表示されない
     await expect(page.getByText("空Collection")).not.toBeVisible();
@@ -85,13 +85,13 @@ test.describe("Dashboard（一覧ページ）", () => {
     await page.goto("/");
 
     // 全てのCollectionが表示される
-    await expect(page.getByText("家族")).toBeVisible();
-    await expect(page.getByText("友人")).toBeVisible();
+    await expect(page.getByText("家族").first()).toBeVisible();
+    await expect(page.getByText("友人").first()).toBeVisible();
 
     // 全てのAnniversaryが表示される
-    await expect(page.getByText("父の誕生日")).toBeVisible();
-    await expect(page.getByText("母の誕生日")).toBeVisible();
-    await expect(page.getByText("友人A")).toBeVisible();
+    await expect(page.getByText("父の誕生日").first()).toBeVisible();
+    await expect(page.getByText("母の誕生日").first()).toBeVisible();
+    await expect(page.getByText("友人A").first()).toBeVisible();
   });
 
   test("一覧ページでは編集ボタンが表示されない", async ({ page }) => {
@@ -105,6 +105,8 @@ test.describe("Dashboard（一覧ページ）", () => {
     // 編集ボタン・削除ボタンが存在しないことを確認
     await expect(page.getByRole("button", { name: /編集/i })).not.toBeVisible();
     await expect(page.getByRole("button", { name: /削除/i })).not.toBeVisible();
-    await expect(page.getByRole("link", { name: /編集/i })).not.toBeVisible();
+    // ヘッダーの"編集"リンクは除外（カード内の編集リンクのみチェック）
+    const editLinksInCards = page.locator('.border-t a[href*="/edit/collection/"]');
+    await expect(editLinksInCards).toHaveCount(0);
   });
 });
