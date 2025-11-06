@@ -99,14 +99,11 @@ test.describe("Anniversary CRUD", () => {
     // 記念日が表示される
     await expect(page.getByText("削除される記念日").first()).toBeVisible();
 
+    // ネイティブconfirmダイアログを自動的に承認
+    page.on("dialog", (dialog) => dialog.accept());
+
     // 削除ボタンをクリック（最初に見つかった削除ボタン）
     await page.getByRole("button", { name: "削除" }).first().click();
-
-    // 確認ダイアログが表示されるまで待機
-    await expect(page.getByRole("button", { name: "削除する" })).toBeVisible();
-
-    // 確認ダイアログの削除ボタンをクリック
-    await page.getByRole("button", { name: "削除する" }).click();
 
     // 削除された記念日が表示されない（ページがリロードされるまで待機）
     await page.waitForLoadState("networkidle");
@@ -128,7 +125,7 @@ test.describe("Anniversary CRUD", () => {
 
     // エラーメッセージが表示される
     await expect(
-      page.getByText(/日付を入力してください|Invalid date/),
+      page.getByText(/記念日を入力してください/),
     ).toBeVisible();
 
     // フォームページのまま
@@ -158,7 +155,7 @@ test.describe("Anniversary CRUD", () => {
 
     // エラーメッセージが表示される
     await expect(
-      page.getByText(/無効な日付|Invalid date/),
+      page.getByText(/有効な日付を入力してください/),
     ).toBeVisible();
   });
 

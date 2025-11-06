@@ -1439,21 +1439,26 @@ npm run test:e2e  # → 13/22 passed (59%)
 - [ ] `__tests__/components/ui/Button.test.tsx` 実装
 - [ ] Phase 3テスト実行: `npm test`
 
-### Phase 4: E2E Tests
+### Phase 4: E2E Tests ✅ **完了**
 - [x] Playwrightインストール: `npx playwright install`
 - [x] Setup Projects + Storage State認証実装
 - [x] `e2e/auth.setup.ts` 作成（Database strategy対応）
 - [x] `e2e/helpers/db-seed.ts` 作成（テストDB操作）
 - [x] `e2e/helpers/global-setup.ts` 作成（マイグレーション）
 - [x] `e2e/fixtures/test-data.ts` 作成（テストデータヘルパー）
-- [x] `e2e/collection-crud.spec.ts` 実装（6テスト）
-- [x] `e2e/anniversary-crud.spec.ts` 実装（7テスト）
-- [x] `e2e/dashboard.spec.ts` 実装（6テスト）
+- [x] `e2e/collection-crud.spec.ts` 実装（8テスト）
+- [x] `e2e/anniversary-crud.spec.ts` 実装（8テスト）
+- [x] `e2e/dashboard.spec.ts` 実装（5テスト）
 - [x] `e2e/profile.spec.ts` 実装（3テスト）
 - [x] `lib/db/index.ts` E2E_TEST環境変数対応（重要）
 - [x] `auth.ts` debug/useSecureCookies設定
 - [x] Anniversary編集/作成ページ nullチェック追加
-- [x] Phase 4テスト実行: `npm run test:e2e` → 10/22 passed (45%) ⚠️
+- [x] バリデーションエラーメッセージをZod実装に合わせて修正
+- [x] E2EテストをCollectionFormの実装（select）に合わせて修正
+- [x] 削除確認ダイアログをネイティブconfirm()対応に修正
+- [x] CASCADE削除テストの待機処理追加
+- [x] ProfileテストのbeforeEach追加（データ独立性確保）
+- [x] Phase 4テスト実行: **22/22 passed (100%)** ✅
 
 ### カバレッジ確認
 - [ ] カバレッジレポート生成: `npm run test:coverage`
@@ -1583,6 +1588,69 @@ await context.storageState({ path: authFile }); // ブラウザ状態を保存
 fullyParallel: false,
 workers: 1, // シーケンシャル実行
 ```
+
+#### 問題: useActionStateのバリデーションエラーがE2Eテストで表示されない
+**症状**: バリデーションエラーを期待しているが、`element(s) not found`エラーが発生
+
+**根本原因**: テストの期待値とZodスキーマの実際のエラーメッセージが一致していない
+
+**調査で得た知見（2025年ベストプラクティス）**:
+- useActionStateはReact 19の正式機能（実験的機能ではない）
+- Server Actionの結果を`state`オブジェクトとして返す
+- Zodエラーは`result.error.flatten().fieldErrors`で取得し、`{ errors: {...}, fieldValues: {...} }`として返す
+- Client ComponentがstateからエラーをFormFieldに渡す（`state?.errors?.fieldName?.[0]`）
+
+**解決策**:
+1. Zodスキーマの実際のエラーメッセージを確認
+2. テストの期待値を実際のメッセージに合わせる
+
+```typescript
+// ❌ 間違い
+await expect(page.getByText(/日付を入力してください|Invalid date/)).toBeVisible();
+
+// ✅ 正しい（Zodスキーマに合わせる）
+await expect(page.getByText(/記念日を入力してください/)).toBeVisible();
+```
+
+#### 問題: ネイティブconfirm()ダイアログがE2Eテストで見つからない
+**症状**: `getByRole("button", { name: "削除する" })`でタイムアウト
+
+**原因**: `useConfirmDelete`がブラウザネイティブの`window.confirm()`を使用している（カスタムダイアログではない）
+
+**解決**: Playwrightの`page.on('dialog')`イベントを使用
+
+```typescript
+// ❌ 間違い（カスタムダイアログを想定）
+await expect(page.getByRole("button", { name: "削除する" })).toBeVisible();
+await page.getByRole("button", { name: "削除する" }).click();
+
+// ✅ 正しい（ネイティブダイアログ対応）
+page.on("dialog", (dialog) => dialog.accept());
+await page.getByRole("button", { name: "削除" }).first().click();
+```
+
+#### 問題: Server Actionの完了を待たずにテストが続行される
+**症状**: フォーム送信後にDBチェックすると、まだ更新されていない
+
+**原因**: useActionStateはリダイレクトなしで同ページで完了する場合がある（`updateProfile`など）
+
+**解決**: 成功メッセージの表示を待機
+
+```typescript
+// ❌ 間違い
+await page.click('button[type="submit"]');
+// すぐにDBチェック → まだ更新されていない
+
+// ✅ 正しい
+await page.click('button[type="submit"]');
+await expect(page.getByText("保存しました")).toBeVisible(); // Server Action完了を待機
+// DBチェック → 更新済み
+```
+
+**参考リソース（2025年1月調査）**:
+- React 19 useActionState: https://react.dev/reference/react/useActionState
+- Next.js Forms Guide: https://nextjs.org/docs/app/guides/forms
+- Playwright Testing Best Practices: https://playwright.dev/docs/best-practices
 
 ---
 

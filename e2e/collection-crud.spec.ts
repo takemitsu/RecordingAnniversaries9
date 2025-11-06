@@ -19,8 +19,8 @@ test.describe("Collection CRUD", () => {
     await page.fill('input[name="name"]', "テストCollection");
     await page.fill('textarea[name="description"]', "説明文テスト");
 
-    // 表示/非表示ラジオボタン（デフォルトは表示=1）
-    await expect(page.locator('input[name="isVisible"][value="1"]')).toBeChecked();
+    // 表示/非表示セレクト（デフォルトは表示=1）
+    await expect(page.locator('select[name="isVisible"]')).toHaveValue("1");
 
     // 送信
     await page.click('button[type="submit"]');
@@ -58,13 +58,14 @@ test.describe("Collection CRUD", () => {
     await expect(page.getByText("テストCollection")).not.toBeVisible();
 
     // === 削除 ===
+    // ネイティブconfirmダイアログを自動的に承認
+    page.on("dialog", (dialog) => dialog.accept());
+
     // 削除ボタンをクリック
     await page.click('button:has-text("削除")');
 
-    // 確認ダイアログが表示される（確認ボタンをクリック）
-    await page.click('button:has-text("削除する")');
-
-    // 削除されたCollectionが表示されない
+    // 削除されたCollectionが表示されない（ページがリロードされるまで待機）
+    await page.waitForLoadState("networkidle");
     await expect(page.getByText("更新Collection")).not.toBeVisible();
   });
 
@@ -82,7 +83,7 @@ test.describe("Collection CRUD", () => {
 
     // エラーメッセージが表示される
     await expect(
-      page.getByText(/名前を入力してください|String must contain at least 1/),
+      page.getByText(/グループ名を入力してください/),
     ).toBeVisible();
 
     // 編集ページにリダイレクトされない（フォームページのまま）
@@ -124,19 +125,18 @@ test.describe("Collection CRUD", () => {
     await page.fill('input[name="anniversaryDate"]', "2020-01-01");
     await page.click('button[type="submit"]');
 
+    // Server Actionのredirectを待機
+    await page.waitForURL("/edit");
+
     // 編集ページで確認
-    await page.goto("/edit");
     await expect(page.getByText("削除テスト").first()).toBeVisible();
     await expect(page.getByText("削除される記念日").first()).toBeVisible();
 
+    // ネイティブconfirmダイアログを自動的に承認
+    page.on("dialog", (dialog) => dialog.accept());
+
     // Collection削除
     await page.getByRole("button", { name: "削除" }).first().click();
-
-    // 確認ダイアログが表示されるまで待機
-    await expect(page.getByRole("button", { name: "削除する" })).toBeVisible();
-
-    // 確認ダイアログの削除ボタンをクリック
-    await page.getByRole("button", { name: "削除する" }).click();
 
     // Collection + Anniversaryが両方削除される（ページがリロードされるまで待機）
     await page.waitForLoadState("networkidle");
@@ -149,7 +149,7 @@ test.describe("Collection CRUD", () => {
 
     // 非表示Collection作成
     await page.fill('input[name="name"]', "非表示Collection");
-    await page.click('input[name="isVisible"][value="0"]');
+    await page.selectOption('select[name="isVisible"]', "0");
     await page.click('button[type="submit"]');
 
     // 編集ページでは表示される

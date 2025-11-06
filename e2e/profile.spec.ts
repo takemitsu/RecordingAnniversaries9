@@ -4,6 +4,15 @@ import { eq } from "drizzle-orm";
 import * as schema from "@/lib/db/schema";
 
 test.describe("Profile（プロフィール設定）", () => {
+  // 各テスト前にユーザー名をリセット
+  test.beforeEach(async () => {
+    const db = await getTestDb();
+    await db
+      .update(schema.users)
+      .set({ name: "E2E Test User" })
+      .where(eq(schema.users.id, "e2e-user-id"));
+  });
+
   // 各テスト後にデータをクリーンアップ
   test.afterEach(async () => {
     await cleanupE2EData();
@@ -24,8 +33,8 @@ test.describe("Profile（プロフィール設定）", () => {
     // 送信
     await page.click('button[type="submit"]');
 
-    // プロフィールページにリダイレクト（または同ページ）
-    await page.waitForURL("/profile");
+    // Server Actionの完了を待機（成功メッセージが表示される）
+    await expect(page.getByText("保存しました")).toBeVisible();
 
     // 変更が反映されている
     await expect(page.locator('input[name="name"]')).toHaveValue(
@@ -46,6 +55,9 @@ test.describe("Profile（プロフィール設定）", () => {
     await page.fill('input[name="name"]', "ヘッダー表示テスト");
     await page.click('button[type="submit"]');
 
+    // Server Actionの完了を待機（成功メッセージが表示される）
+    await expect(page.getByText("保存しました")).toBeVisible();
+
     // トップページに移動
     await page.goto("/");
 
@@ -54,13 +66,6 @@ test.describe("Profile（プロフィール設定）", () => {
   });
 
   test("ユーザー名を空にすると、バリデーションエラー", async ({ page }) => {
-    // 事前にユーザー名をリセット
-    const db = await getTestDb();
-    await db
-      .update(schema.users)
-      .set({ name: "E2E Test User" })
-      .where(eq(schema.users.id, "e2e-user-id"));
-
     await page.goto("/profile");
 
     // HTML5バリデーションを無効化
@@ -75,10 +80,11 @@ test.describe("Profile（プロフィール設定）", () => {
 
     // エラーメッセージが表示される
     await expect(
-      page.getByText(/名前を入力してください|String must contain at least 1/),
+      page.getByText(/名前を入力してください/),
     ).toBeVisible();
 
     // DBは変更されていない
+    const db = await getTestDb();
     const user = await db.query.users.findFirst({
       where: eq(schema.users.id, "e2e-user-id"),
     });
