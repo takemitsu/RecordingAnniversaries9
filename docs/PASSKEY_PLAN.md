@@ -1,5 +1,12 @@
 # Passkey（WebAuthn）実装プラン
 
+## 関連ドキュメント
+
+このドキュメントは技術実装の詳細を記載しています。
+UI/UXフローについては **[PASSKEY_UX_FLOW.md](./PASSKEY_UX_FLOW.md)** を参照してください。
+
+---
+
 ## 現状分析（2025-11-06）
 
 ### ✅ 完了済み
@@ -79,9 +86,9 @@ export const authenticators = mysqlTable(
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
     providerAccountId: varchar("provider_account_id", { length: 255 }).notNull(),
-    credentialPublicKey: text("credential_public_key").notNull(),
+    credentialPublicKey: varchar("credential_public_key", { length: 255 }).notNull(),
     counter: int("counter").notNull(),
-    credentialDeviceType: varchar("credential_device_type", { length: 32 }).notNull(),
+    credentialDeviceType: varchar("credential_device_type", { length: 255 }).notNull(),
     credentialBackedUp: boolean("credential_backed_up").notNull(),
     transports: varchar("transports", { length: 255 }),
   },
@@ -108,10 +115,14 @@ export type NewAuthenticator = typeof authenticators.$inferInsert;
 **注意点**:
 - `credentialID`はBase64エンコードされた文字列（255文字で十分）
 - `.unique()`は不要（composite PKで一意性確保）
-- `credentialPublicKey`はTEXT型（長い可能性あり）
+- `credentialPublicKey`は`varchar(255)`（Auth.js公式実装と一致）
+- `credentialDeviceType`も`varchar(255)`（32→255に変更）
 - `counter`はリプレイアタック防止用
-- `credentialBackedUp`は`boolean()`型（Auth.js公式仕様）
+- `credentialBackedUp`は`boolean()`型（DrizzleがMySQLで`TINYINT(1)`にマップ）
 - `transports`はJSON文字列（例: `["internal","hybrid"]`）
+
+**Auth.js公式実装準拠**:
+このスキーマはAuth.js公式のDrizzle Adapter実装と完全に一致しています。
 
 ### Step 3: Drizzleマイグレーション
 
@@ -185,6 +196,25 @@ export const { handlers, signIn, signOut, auth } = NextAuth(authConfig);
 ```
 
 ### Step 5: サインインページUI更新
+
+#### 重要: Passkey登録とログインの違い
+
+WebAuthnには2つの異なるフローがあります：
+
+1. **Passkey作成（登録）**: `signIn("passkey", { action: "register" })`
+   - 新しいPasskeyを作成（初回のみ）
+   - デバイスに生体認証情報を保存
+   - 通常はプロフィールページで実行
+
+2. **Passkeyでログイン**: `signIn("passkey")`
+   - 既存のPasskeyで認証
+   - サインインページで実行
+
+**UX設計**:
+- サインインページ: 既存Passkeyでログイン
+- プロフィールページ: Passkey作成ボタン（Google認証後）
+
+---
 
 #### オプション1: Auth.jsビルトインページ使用（推奨・最も簡単）
 
@@ -307,6 +337,97 @@ export default async function SignInPage() {
 - Client Componentにする必要はない
 - `@simplewebauthn/browser`は内部でAuth.jsが使用
 
+#### オプション3: Client Component版（`next-auth/webauthn`使用）
+
+より柔軟な実装が必要な場合、Client Componentで`next-auth/webauthn`を使用できます。
+
+`app/auth/signin/page.tsx`:
+
+```typescript
+"use client";
+
+import { signIn } from "next-auth/webauthn";
+
+export default function SignInPage() {
+  return (
+    <div className="min-h-screen flex items-center justify-center p-8">
+      <div className="max-w-md w-full space-y-8">
+        <div className="text-center">
+          <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
+            ログイン
+          </h2>
+          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+            Recording Anniversaries
+          </p>
+        </div>
+
+        <div className="mt-8 space-y-4">
+          {/* Passkey ボタン */}
+          <button
+            onClick={() => signIn("passkey")}
+            className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-gray-300 dark:border-gray-700 rounded-lg shadow-sm bg-blue-600 text-white hover:bg-blue-700 transition"
+          >
+            🔑 Passkeyでログイン
+          </button>
+
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-300 dark:border-gray-700" />
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-2 bg-white dark:bg-gray-900 text-gray-500">
+                または
+              </span>
+            </div>
+          </div>
+
+          {/* Google OAuth ボタン */}
+          <form
+            action={async () => {
+              "use server";
+              await signIn("google", { redirectTo: "/" });
+            }}
+          >
+            <button
+              type="submit"
+              className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-gray-300 dark:border-gray-700 rounded-lg shadow-sm bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition"
+            >
+              <svg
+                className="w-5 h-5"
+                viewBox="0 0 24 24"
+                role="img"
+                aria-label="Google"
+              >
+                {/* Google SVG paths */}
+              </svg>
+              Googleでログイン
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  );
+}
+```
+
+**メリット**:
+- クライアント側での柔軟な制御
+- エラーハンドリングがしやすい
+
+**デメリット**:
+- Client Componentが必要
+- Reactのハイドレーションが発生
+
+**比較表**:
+
+| 項目 | オプション1（ビルトイン） | オプション2（Server Action） | オプション3（Client Component） |
+|------|-------------------------|----------------------------|--------------------------------|
+| 実装難易度 | ⭐⭐⭐⭐⭐ 最も簡単 | ⭐⭐⭐⭐ 簡単 | ⭐⭐⭐ 中程度 |
+| カスタマイズ | ❌ 制限あり | ✅ 可能 | ✅ 柔軟 |
+| ハイドレーション | ✅ なし | ✅ なし | ❌ あり |
+| エラー制御 | ❌ 制限あり | ⚠️ Server側のみ | ✅ クライアント側で可能 |
+| 推奨度 | 🥇 プロトタイプ | 🥈 本番推奨 | 🥉 高度な制御が必要な場合 |
+
 ### Step 6: Passkey管理機能実装
 
 #### 6.1 Server Actions追加
@@ -371,40 +492,66 @@ export default async function ProfilePage() {
 
       {/* Passkey管理セクション追加 */}
       <section className="mt-8 p-4 border rounded-lg">
-        <h2 className="text-xl font-bold mb-4">登録済みPasskey</h2>
+        <h2 className="text-xl font-bold mb-4">Passkey設定</h2>
 
-        {authenticators.length === 0 ? (
-          <p className="text-gray-500">Passkeyが登録されていません</p>
-        ) : (
-          <ul className="space-y-2">
-            {authenticators.map((auth) => (
-              <li
-                key={auth.credentialID}
-                className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded"
-              >
-                <div>
-                  <span className="font-medium">{auth.credentialDeviceType}</span>
-                  <span className="text-sm text-gray-500 ml-2">
-                    {auth.credentialBackedUp ? "☁️ バックアップ済み" : "📱 このデバイスのみ"}
-                  </span>
-                </div>
-                <form action={deleteAuthenticator.bind(null, auth.credentialID)}>
-                  <button
-                    type="submit"
-                    className="px-3 py-1 bg-pink-500 text-white rounded hover:bg-pink-600"
-                  >
-                    削除
-                  </button>
-                </form>
-              </li>
-            ))}
-          </ul>
-        )}
+        {/* Passkey作成ボタン（重要！） */}
+        <div className="mb-4">
+          <form
+            action={async () => {
+              "use server";
+              await signIn("passkey", { action: "register" });
+            }}
+          >
+            <button
+              type="submit"
+              className="w-full px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+            >
+              🔑 新しいPasskeyを作成
+            </button>
+          </form>
+          <p className="text-sm text-gray-500 mt-2">
+            このデバイスの生体認証（Touch ID、Face IDなど）でログインできるようになります
+          </p>
+        </div>
+
+        {/* 登録済みPasskey一覧 */}
+        <div>
+          <h3 className="font-semibold mb-2">登録済みPasskey</h3>
+          {authenticators.length === 0 ? (
+            <p className="text-gray-500">Passkeyが登録されていません</p>
+          ) : (
+            <ul className="space-y-2">
+              {authenticators.map((auth) => (
+                <li
+                  key={auth.credentialID}
+                  className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded"
+                >
+                  <div>
+                    <span className="font-medium">{auth.credentialDeviceType}</span>
+                    <span className="text-sm text-gray-500 ml-2">
+                      {auth.credentialBackedUp ? "☁️ バックアップ済み" : "📱 このデバイスのみ"}
+                    </span>
+                  </div>
+                  <form action={deleteAuthenticator.bind(null, auth.credentialID)}>
+                    <button
+                      type="submit"
+                      className="px-3 py-1 bg-pink-500 text-white rounded hover:bg-pink-600"
+                    >
+                      削除
+                    </button>
+                  </form>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
       </section>
     </div>
   );
 }
 ```
+
+**重要**: `signIn("passkey", { action: "register" })`を使用してPasskey作成を実行。
 
 ### Step 7: テスト実装
 
@@ -620,14 +767,22 @@ npm list @simplewebauthn/server @simplewebauthn/browser
 ### 公式ドキュメント
 - [Auth.js v5 Passkey](https://authjs.dev/getting-started/providers/passkey)
 - [Auth.js WebAuthn Reference](https://authjs.dev/reference/core/providers/webauthn)
+- [Auth.js Drizzle Adapter (MySQL)](https://authjs.dev/reference/drizzle-adapter/lib/mysql)
 - [SimpleWebAuthn Server](https://simplewebauthn.dev/docs/packages/server)
 - [SimpleWebAuthn Browser](https://simplewebauthn.dev/docs/packages/client)
 - [W3C WebAuthn Spec](https://www.w3.org/TR/webauthn/)
 - [MDN Web Authentication API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Authentication_API)
 
+### 確認済みソースコード
+- [Drizzle Adapter MySQL Schema](https://github.com/nextauthjs/next-auth/blob/main/packages/adapter-drizzle/src/lib/mysql.ts)
+- [WebAuthn Provider Implementation](https://github.com/nextauthjs/next-auth/blob/main/packages/core/src/providers/webauthn.ts)
+
 ### コミュニティ
 - [Auth.js GitHub Discussions](https://github.com/nextauthjs/next-auth/discussions)
 - [SimpleWebAuthn GitHub](https://github.com/MasterKale/SimpleWebAuthn)
+
+### 確認済みIssue
+- [Next.js 16 互換性](https://github.com/nextauthjs/next-auth/issues/13302) - ✅ beta.30で解決済み
 
 ## 実装の優先順位
 
@@ -661,6 +816,37 @@ npm list @simplewebauthn/server @simplewebauthn/browser
 - [ ] TODO.md更新
 - [ ] 本番環境での動作確認チェックリスト
 
+## 技術的確認事項
+
+### Next.js 16 対応状況
+
+✅ **現在のプロジェクトは問題なし**
+- `next-auth@5.0.0-beta.30`を使用中
+- Next.js 16.0.1で動作確認済み
+- [Issue #13302](https://github.com/nextauthjs/next-auth/issues/13302)（互換性問題）はbeta.30で解決済み
+
+**注意点**:
+- このプロジェクトはミドルウェア認証を使わない設計（Server Actions使用）
+- ミドルウェア使用時は`proxy`形式に変更が必要
+
+### SimpleWebAuthn 9.0.3
+
+✅ **API変更なし**
+- 9.0.1から9.0.3へのマイナーアップデート
+- 破壊的変更なし
+- Auth.js公式推奨バージョン
+
+### 環境変数について
+
+✅ **Relying Party設定は環境変数不要**
+
+Auth.jsが自動的にリクエストURLから取得：
+- `id`: `url.hostname`（例: localhost）
+- `name`: `url.host`（例: localhost:3000）
+- `origin`: `url.origin`（例: http://localhost:3000）
+
+カスタマイズが必要な場合のみ、`Passkey`プロバイダーで`relayingParty`オプションを指定。
+
 ## 実装後のNext Steps
 
 1. **本番デプロイ前**
@@ -680,6 +866,7 @@ npm list @simplewebauthn/server @simplewebauthn/browser
 
 ---
 
-**最終更新**: 2025-11-06
+**最終更新**: 2025-11-06（レビュー反映版）
 **作成者**: Claude Code
+**レビュアー**: Claude Code（別セッション）
 **ステータス**: 実装待ち（Phase 1開始可能）
