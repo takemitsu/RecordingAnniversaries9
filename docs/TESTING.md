@@ -4,15 +4,14 @@
 
 ## 📋 テスト構成
 
-**総計: 155テスト全通過 ✅**
+**総計: 161テスト全通過 ✅**
 
 | テストタイプ | テスト数 | 割合 | 目的 |
 |------------|---------|------|------|
-| **Unit Tests** | 55 | 35.5% | ビジネスロジック（日付計算、和暦変換、Zodバリデーション） |
-| **Integration Tests** | 27 | 17.4% | Server Actions + MySQL（CRUD操作、認証、CASCADE） |
-| **Component Tests** | 51 | 32.9% | UIコンポーネント（フォーム、カード、ボタン） |
-| **E2E Tests** | 19 | 12.3% | ユーザーフロー（CRUD、Dashboard、Profile、Accessibility） |
-| **Setup** | 1 | 0.6% | 認証セットアップ |
+| **Unit Tests** | 55 | 34.2% | ビジネスロジック（日付計算、和暦変換、Zodバリデーション） |
+| **Integration Tests** | 33 | 20.5% | Server Actions + MySQL（CRUD操作、認証、Passkey管理、CASCADE） |
+| **Component Tests** | 51 | 31.7% | UIコンポーネント（フォーム、カード、ボタン） |
+| **E2E Tests** | 24 | 14.9% | ユーザーフロー（CRUD、Dashboard、Profile、Passkey UI、Accessibility） |
 
 ### Testing Trophy理論準拠
 
@@ -20,13 +19,13 @@
 
 ```
        /\
-      /  \    E2E (12.3%) ← 理想値: 5-10%、ほぼ理想的
+      /  \    E2E (14.9%) ← 理想値: 5-10%、少し超過
      /____\
-    /      \  Integration (17.4%) ← 最も重要
+    /      \  Integration (20.5%) ← 最も重要
    /________\
-  /          \ Component (32.9%) ← ユーザー視点
+  /          \ Component (31.7%) ← ユーザー視点
  /____________\
-/______________\ Unit (35.5%) ← 基礎
+/______________\ Unit (34.2%) ← 基礎
 ```
 
 **設計思想:**
@@ -40,14 +39,14 @@
 ### 基本コマンド
 
 ```bash
-# Unit/Integration/Component テスト（133テスト）
+# Unit/Integration/Component テスト（139テスト）
 npm test
 
-# E2Eテスト（19テスト）
+# E2Eテスト（24テスト）
 npm run test:e2e
 
-# 全テスト実行（155テスト）
-npm test && npm run test:e2e
+# 全テスト実行（161テスト）
+npm test && E2E_TEST=true npm run test:e2e
 ```
 
 ### UIモード（デバッグ用）
@@ -125,16 +124,18 @@ TEST_DATABASE_URL="mysql://user:password@127.0.0.1:3306/ra9_test"
 - 和暦変換（令和、平成など）
 - Zodバリデーション（Collection、Anniversary）
 
-### Integration Tests（27テスト）
+### Integration Tests（33テスト）
 
 **対象ファイル:**
 - `__tests__/app/actions/collections.integration.test.ts` - 14テスト
 - `__tests__/app/actions/anniversaries.integration.test.ts` - 10テスト
 - `__tests__/app/actions/profile.integration.test.ts` - 3テスト
+- `__tests__/app/actions/authenticators.integration.test.ts` - 6テスト
 
 **カバー範囲:**
 - Server Actions CRUD操作
 - 認証・権限分離
+- Passkey管理（取得/削除）
 - CASCADE削除動作
 - MySQL特有の挙動（DATE型、外部キー制約）
 
@@ -160,19 +161,21 @@ TEST_DATABASE_URL="mysql://user:password@127.0.0.1:3306/ra9_test"
 - ユーザー視点のテスト（実装詳細に依存しない）
 - アクセシビリティ重視（`getByRole`, `getByLabelText`）
 
-### E2E Tests（19テスト）
+### E2E Tests（24テスト）
 
 **対象ファイル:**
 - `e2e/collection-crud.spec.ts` - 3テスト
 - `e2e/anniversary-crud.spec.ts` - 5テスト
 - `e2e/dashboard.spec.ts` - 6テスト
 - `e2e/profile.spec.ts` - 3テスト
+- `e2e/passkey.spec.ts` - 5テスト
 - `e2e/accessibility.spec.ts` - 2テスト
 
 **カバー範囲:**
 - Collections/Anniversaries CRUD フロー
 - Dashboard表示（isVisible制御）
 - Profile更新
+- Passkey UI表示確認（サインインページ、プロフィールページ）
 - アクセシビリティ（キーボードナビゲーション、データ永続性）
 
 **Playwright + Auth.js Database strategy:**

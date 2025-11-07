@@ -13,6 +13,7 @@ export async function cleanupTestDb() {
   // 全テーブルをTRUNCATE（AUTO_INCREMENTもリセット）
   await db.execute(sql`TRUNCATE TABLE anniversaries`);
   await db.execute(sql`TRUNCATE TABLE collections`);
+  await db.execute(sql`TRUNCATE TABLE authenticators`);
   await db.execute(sql`TRUNCATE TABLE users`);
   await db.execute(sql`TRUNCATE TABLE sessions`);
   await db.execute(sql`TRUNCATE TABLE accounts`);

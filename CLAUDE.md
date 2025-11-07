@@ -118,11 +118,13 @@ Users (ユーザー)
 #### Auth.js用
 - **accounts** - OAuth連携情報（Google）
 - **sessions** - Auth.jsセッション
+- **authenticators** - Passkey（WebAuthn）認証情報
 
 ### スキーマ定義
 
 `lib/db/schema.ts`参照。重要ポイント：
 - `anniversaries.anniversary_date` は `date("anniversary_date", { mode: "string" })`
+- `authenticators`: composite PK（userId, credentialID）
 - リレーション定義済み（Drizzle Relations）
 - ソフトデリート（deleted_at）は**未実装**
 - **CASCADE設計**: Collection削除時、紐づくAnniversariesも自動削除（`onDelete: "cascade"`）でデータ整合性を保証
@@ -133,10 +135,10 @@ Users (ユーザー)
 - ✅ Auth.js v5 設定
 - ✅ Google OAuth プロバイダー設定
 - ✅ Google OAuth 認証動作確認（ログイン/セッション/ダッシュボードアクセス）
+- ✅ Passkey（WebAuthn）認証
 - ✅ セッション管理（database strategy）
 - ✅ 認証ヘルパー（getUserId）
-- ✅ Auth.js用DBテーブル（accounts, sessions）
-- ❌ **Passkey（WebAuthn）は未実装**
+- ✅ Auth.js用DBテーブル（accounts, sessions, authenticators）
 
 ### データベース
 - ✅ Drizzle スキーマ定義（users, collections, anniversaries, accounts, sessions）
@@ -151,6 +153,8 @@ Users (ユーザー)
 - ✅ Anniversaries CRUD（作成/更新/削除/取得）
   - `createAnniversary`, `updateAnniversary`, `deleteAnniversary`
   - `getAnniversary`
+- ✅ Authenticators 管理（取得/削除）
+  - `getAuthenticators`, `deleteAuthenticator`
 - ✅ Profile 更新（`updateProfile`）
 - ✅ ユーザーごとのデータ分離
 - ✅ revalidatePath によるキャッシュ無効化
@@ -227,32 +231,23 @@ Users (ユーザー)
 - ✅ **Unit Tests実装完了（55テスト）**
   - 日付計算、和暦変換、Zodバリデーション
   - カバレッジ: utils 98%+, schemas 100%
-- ✅ **Integration Tests実装完了（27テスト）**
-  - Collections CRUD、Anniversaries CRUD、Profile更新
+- ✅ **Integration Tests実装完了（33テスト）**
+  - Collections CRUD、Anniversaries CRUD、Profile更新、Authenticators管理
   - 認証・権限分離、CASCADE削除動作の検証
 - ✅ **Component Tests実装完了（51テスト）**
   - フォーム、カード、ボタン
   - React Testing Library使用、ベストプラクティス遵守
-- ✅ **E2E Tests実装完了（19テスト）**
+- ✅ **E2E Tests実装完了（24テスト）**
   - Playwright使用、Auth.js Database strategy対応
-  - Collections/Anniversaries CRUD、Dashboard、Profile、Accessibility
-  - Testing Trophy理論準拠（E2E: 12.3%、理想値5-10%に近い）
-- **総計**: 155テスト全通過 ✅
+  - Collections/Anniversaries CRUD、Dashboard、Profile、Passkey UI、Accessibility
+  - Testing Trophy理論準拠（E2E: 14.5%、理想値5-10%を少し超過）
+- **総計**: 161テスト全通過 ✅
 
 ## 未実装機能・次にやること 🚧
 
-### 🔴 優先: Passkey（WebAuthn）実装
-
-**現状**:
-- Auth.js v5のWebAuthn対応を調査中
-- `@simplewebauthn/server`, `@simplewebauthn/browser` インストール済み
-
-**実装方針**:
-1. Auth.js v5の公式WebAuthnプロバイダーを使用（推奨）
-2. または`@simplewebauthn`で独自実装
-
 ### 機能拡張
 - [ ] 通知機能（ブラウザプッシュ通知）
+- [ ] レート制限（Server Actions）
 
 ### デプロイ
 - [ ] 本番環境設定
@@ -311,10 +306,10 @@ npm run lint
 npm run format
 
 # テスト
-npm test              # Unit/Integration/Component テスト（133テスト）
+npm test              # Unit/Integration/Component テスト（139テスト）
 npm run test:ui       # Vitest UI（ブラウザで結果確認）
 npm run test:coverage # カバレッジレポート生成
-npm run test:e2e      # E2Eテスト（19テスト、Playwright）
+npm run test:e2e      # E2Eテスト（24テスト、Playwright）
 npm run test:e2e:ui   # E2E UI Mode（ブラウザでデバッグ）
 
 # Drizzle

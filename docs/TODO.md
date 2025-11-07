@@ -18,7 +18,6 @@
   - Phase 3: サインインフロー実装
   - Phase 4: UX改善（エラーハンドリング、ボタン順序、削除確認）
   - Phase 5: 使用履歴の記録と表示（createdAt, lastUsedAt）
-  - コミット: feature/passkey ブランチ（dc14807）
 
 #### 残作業
 - [x] ✅ **E2Eテストの追加**（完了）
@@ -31,7 +30,7 @@
 - [ ] **本番デプロイ前の設定確認**
   - auth.ts の `debug: false` ✅（設定済み）、`useSecureCookies: false` ⚠️（E2Eテスト対応のためfalse、本番環境では検討が必要）
   - WebAuthn の RP ID/Origin 設定（Auth.jsが自動取得、カスタマイズ不要）
-- [ ] **ドキュメント更新**
+- [x] **ドキュメント更新**
   - README.md に Passkey 機能の説明追加
   - SETUP.md に WebAuthn セットアップ手順追加（オプション）
 
