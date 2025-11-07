@@ -21,7 +21,7 @@
 - ✅ レスポンシブデザイン（モバイルファースト）
 - ✅ ダークモード対応
 - ✅ **テスト実装完了**
-  - **総計: 161テスト全通過**（Unit 55 + Integration 33 + Component 51 + E2E 24）
+  - **総計: 200テスト全通過**（Unit 55 + Integration 33 + Component 88 + E2E 24）
   - 詳細は [docs/TESTING.md](docs/TESTING.md) 参照
 
 ### 未実装機能
@@ -162,7 +162,7 @@ open coverage/index.html
 
 ### テスト構成
 
-**総計: 161テスト全通過 ✅**
+**総計: 200テスト全通過 ✅**
 
 詳細は [docs/TESTING.md](docs/TESTING.md) 参照。
 

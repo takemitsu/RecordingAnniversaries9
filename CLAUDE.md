@@ -234,14 +234,14 @@ Users (ユーザー)
 - ✅ **Integration Tests実装完了（33テスト）**
   - Collections CRUD、Anniversaries CRUD、Profile更新、Authenticators管理
   - 認証・権限分離、CASCADE削除動作の検証
-- ✅ **Component Tests実装完了（51テスト）**
-  - フォーム、カード、ボタン
+- ✅ **Component Tests実装完了（88テスト）**
+  - フォーム、カード、ボタン、Passkey（PasskeyManager、SignInForm）
   - React Testing Library使用、ベストプラクティス遵守
 - ✅ **E2E Tests実装完了（24テスト）**
   - Playwright使用、Auth.js Database strategy対応
   - Collections/Anniversaries CRUD、Dashboard、Profile、Passkey UI、Accessibility
-  - Testing Trophy理論準拠（E2E: 14.5%、理想値5-10%を少し超過）
-- **総計**: 161テスト全通過 ✅
+  - Testing Trophy理論準拠（E2E: 12%、理想値5-10%を少し超過）
+- **総計**: 200テスト全通過 ✅
 
 ## 未実装機能・次にやること 🚧
 
@@ -306,7 +306,7 @@ npm run lint
 npm run format
 
 # テスト
-npm test              # Unit/Integration/Component テスト（139テスト）
+npm test              # Unit/Integration/Component テスト（176テスト）
 npm run test:ui       # Vitest UI（ブラウザで結果確認）
 npm run test:coverage # カバレッジレポート生成
 npm run test:e2e      # E2Eテスト（24テスト、Playwright）

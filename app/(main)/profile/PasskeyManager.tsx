@@ -20,18 +20,41 @@ function formatTimestamp(date: Date | null | undefined): string {
 
 export function PasskeyManager({ authenticators }: PasskeyManagerProps) {
   const [isCreating, setIsCreating] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const { confirmDelete, isPending } = useConfirmDelete();
   const router = useRouter();
 
   const handleCreatePasskey = async () => {
     try {
       setIsCreating(true);
+      setError(null);
       await signIn("passkey", { action: "register", redirect: false });
       // 成功したらページをリフレッシュして新しいPasskeyを表示
       router.refresh();
     } catch (error) {
       console.error("Passkey creation error:", error);
-      // エラーハンドリングは後のフェーズで実装
+      if (error instanceof Error) {
+        switch (error.name) {
+          case "NotAllowedError":
+            // ユーザーがキャンセル → 静かに戻る（エラー表示なし）
+            setError(null);
+            break;
+          case "InvalidStateError":
+            // 既に登録済み
+            setError("このデバイスには既にPasskeyが登録されています");
+            break;
+          case "NotSupportedError":
+            // ブラウザ非対応
+            setError("お使いのブラウザはPasskeyに対応していません");
+            break;
+          default:
+            // その他のエラー
+            setError("Passkeyの作成に失敗しました");
+            break;
+        }
+      } else {
+        setError("Passkeyの作成に失敗しました");
+      }
     } finally {
       setIsCreating(false);
     }
@@ -42,6 +65,13 @@ export function PasskeyManager({ authenticators }: PasskeyManagerProps) {
       <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
         Passkey設定
       </h2>
+
+      {/* エラー表示 */}
+      {error && (
+        <div className="mb-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+          <p className="text-sm text-red-800 dark:text-red-200">{error}</p>
+        </div>
+      )}
 
       {/* Passkey作成ボタン */}
       <div className="mb-6">

@@ -4,14 +4,14 @@
 
 ## 📋 テスト構成
 
-**総計: 161テスト全通過 ✅**
+**総計: 200テスト全通過 ✅**
 
 | テストタイプ | テスト数 | 割合 | 目的 |
 |------------|---------|------|------|
-| **Unit Tests** | 55 | 34.2% | ビジネスロジック（日付計算、和暦変換、Zodバリデーション） |
-| **Integration Tests** | 33 | 20.5% | Server Actions + MySQL（CRUD操作、認証、Passkey管理、CASCADE） |
-| **Component Tests** | 51 | 31.7% | UIコンポーネント（フォーム、カード、ボタン） |
-| **E2E Tests** | 24 | 14.9% | ユーザーフロー（CRUD、Dashboard、Profile、Passkey UI、Accessibility） |
+| **Unit Tests** | 55 | 27.5% | ビジネスロジック（日付計算、和暦変換、Zodバリデーション） |
+| **Integration Tests** | 33 | 16.5% | Server Actions + MySQL（CRUD操作、認証、Passkey管理、CASCADE） |
+| **Component Tests** | 88 | 44% | UIコンポーネント（フォーム、カード、ボタン、Passkey） |
+| **E2E Tests** | 24 | 12% | ユーザーフロー（CRUD、Dashboard、Profile、Passkey UI、Accessibility） |
 
 ### Testing Trophy理論準拠
 
@@ -45,7 +45,7 @@ npm test
 # E2Eテスト（24テスト）
 npm run test:e2e
 
-# 全テスト実行（161テスト）
+# 全テスト実行（200テスト）
 npm test && E2E_TEST=true npm run test:e2e
 ```
 
@@ -143,7 +143,7 @@ TEST_DATABASE_URL="mysql://user:password@127.0.0.1:3306/ra9_test"
 - **MySQL testDB使用**: 本番環境と同じDB（外部キー、DATE型の挙動を正確にテスト）
 - **fileParallelism: false**: DB競合回避のため直列実行
 
-### Component Tests（51テスト）
+### Component Tests（88テスト）
 
 **対象ファイル:**
 - `__tests__/components/forms/CollectionForm.test.tsx` - 15テスト
@@ -151,11 +151,14 @@ TEST_DATABASE_URL="mysql://user:password@127.0.0.1:3306/ra9_test"
 - `__tests__/components/CollectionCard.test.tsx` - 6テスト
 - `__tests__/components/AnniversaryCard.test.tsx` - 6テスト
 - `__tests__/components/ui/Button.test.tsx` - 9テスト
+- `__tests__/app/(main)/profile/PasskeyManager.test.tsx` - 19テスト
+- `__tests__/app/auth/signin/SignInForm.test.tsx` - 18テスト
 
 **カバー範囲:**
 - フォームの入力・バリデーション・送信
 - カードの表示（カウントダウン、和暦）
 - ボタンのスタイル・Pending状態
+- Passkey認証UI（作成、エラーハンドリング、ログイン）
 
 **React Testing Library使用:**
 - ユーザー視点のテスト（実装詳細に依存しない）
