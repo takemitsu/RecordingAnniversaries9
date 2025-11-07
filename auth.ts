@@ -15,7 +15,9 @@ export const authConfig = {
     authenticatorsTable: authenticators,
   }),
   debug: false, // 本番: false、デバッグ時のみ true
-  useSecureCookies: false, // E2Eテスト対応: Cookie名を authjs.session-token に固定
+  // NODE_ENVは Next.js により自動設定される（npm run dev → development、npm run build/start → production）
+  // 本番環境（HTTPS）では true（__Secure- プレフィックス付きCookie）、開発環境（HTTP）では false
+  useSecureCookies: process.env.NODE_ENV === "production",
   logger: {
     error(code, ...message) {
       console.error(code, ...message);

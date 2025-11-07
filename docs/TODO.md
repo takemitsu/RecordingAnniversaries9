@@ -27,12 +27,14 @@
   - Passkey未登録時のメッセージ表示確認
   - 総E2Eテスト数: 24テスト（全て通過）
   - **注意**: 実際の認証フローのテストは手動テスト推奨（PlaywrightでのWebAuthn自動テストは複雑）
-- [ ] **本番デプロイ前の設定確認**
-  - auth.ts の `debug: false` ✅（設定済み）、`useSecureCookies: false` ⚠️（E2Eテスト対応のためfalse、本番環境では検討が必要）
+- [x] ✅ **本番デプロイ前の設定確認**（完了）
+  - auth.ts の `debug: false` ✅（設定済み）
+  - auth.ts の `useSecureCookies` を NODE_ENV で自動切り替え ✅（本番: true、開発: false）
   - WebAuthn の RP ID/Origin 設定（Auth.jsが自動取得、カスタマイズ不要）
-- [x] **ドキュメント更新**
+- [x] ✅ **ドキュメント更新**（完了）
   - README.md に Passkey 機能の説明追加
   - SETUP.md に WebAuthn セットアップ手順追加（オプション）
+  - docs/DEPLOYMENT.md 作成（さくらVPS向け包括的デプロイガイド）
 
 ### 機能
 - [ ] ブラウザプッシュ通知（検討）
