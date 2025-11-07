@@ -45,6 +45,7 @@ recording-anniversaries9/
 │   ├── actions/              # Server Actions
 │   │   ├── collections.ts    # Collections CRUD（作成/更新/削除/取得）
 │   │   ├── anniversaries.ts  # Anniversaries CRUD（作成/更新/削除/取得）
+│   │   ├── authenticators.ts # Authenticators 管理（取得/削除）
 │   │   └── profile.ts        # プロフィール更新
 │   ├── api/auth/[...nextauth]/route.ts  # Auth.js API
 │   ├── auth/                 # 認証関連ページ
@@ -54,6 +55,9 @@ recording-anniversaries9/
 ├── components/
 │   ├── CollectionCard.tsx    # Collectionカード
 │   ├── AnniversaryCard.tsx   # Anniversaryカード
+│   ├── auth/
+│   │   ├── PasskeyManager.tsx  # Passkey管理コンポーネント
+│   │   └── SignInForm.tsx      # サインインフォーム
 │   ├── forms/
 │   │   ├── CollectionForm.tsx
 │   │   ├── AnniversaryForm.tsx
@@ -81,9 +85,21 @@ recording-anniversaries9/
 ├── hooks/
 │   └── useConfirmDelete.ts   # 削除確認フック
 ├── docs/                     # プロジェクトドキュメント
-│   ├── TECH_DECISIONS.md     # 技術的決定
-│   ├── TODO.md               # 未実装機能
-│   └── SETUP.md              # セットアップ手順
+│   ├── README.md             # ドキュメント目次
+│   ├── TESTING.md            # テスト関連ドキュメント
+│   ├── setup/
+│   │   └── SETUP.md          # セットアップ手順
+│   ├── deployment/
+│   │   ├── DEPLOYMENT.md     # デプロイ手順
+│   │   ├── DATA_MIGRATION.md # データ移行
+│   │   └── SECURITY_CHECKLIST.md # セキュリティチェック
+│   ├── operations/
+│   │   ├── OPERATIONS.md     # 運用手順
+│   │   └── TROUBLESHOOTING.md # トラブルシューティング
+│   ├── reference/
+│   │   ├── TECH_DECISIONS.md # 技術的決定
+│   │   └── TODO.md           # タスク管理
+│   └── archive/              # アーカイブ
 ├── auth.ts                   # Auth.js v5 設定
 ├── drizzle.config.ts         # Drizzle設定
 ├── .env.local                # 環境変数
@@ -396,7 +412,7 @@ claude mcp add --transport stdio serena --scope local -- uvx --from git+https://
 
 ## 技術的決定事項
 
-詳細は `docs/TECH_DECISIONS.md` 参照。
+詳細は `docs/reference/TECH_DECISIONS.md` 参照。
 
 ### 主要な決定
 - **DATE vs DATETIME**: 記念日は DATE型（時刻不要、タイムゾーン問題回避）
@@ -514,7 +530,7 @@ users (ユーザー)
 ## 開発フロー
 
 ### 新機能追加時
-1. `docs/TODO.md`に追加
+1. `docs/reference/TODO.md`に追加
 2. 必要に応じてスキーマ変更
 3. Server Actions実装（`app/actions/`）
 4. UI実装（`app/`）

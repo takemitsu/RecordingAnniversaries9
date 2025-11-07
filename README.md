@@ -204,19 +204,19 @@ open coverage/index.html
 
 ## ドキュメント
 
-- [TECH_DECISIONS.md](docs/TECH_DECISIONS.md) - 技術的な決定事項
-- [TODO.md](docs/TODO.md) - 未実装機能リスト
-- [SETUP.md](docs/SETUP.md) - セットアップ手順
+- [TECH_DECISIONS.md](docs/reference/TECH_DECISIONS.md) - 技術的な決定事項
+- [TODO.md](docs/reference/TODO.md) - 未実装機能リスト
+- [SETUP.md](docs/setup/SETUP.md) - セットアップ手順
 
 ## 技術的決定事項
 
-主要な設計判断については [docs/TECH_DECISIONS.md](docs/TECH_DECISIONS.md) を参照。
+主要な設計判断については [docs/reference/TECH_DECISIONS.md](docs/reference/TECH_DECISIONS.md) を参照。
 
 ---
 
 詳細なドキュメント：
 - **プロジェクト全体**: [CLAUDE.md](CLAUDE.md)
-- **技術的決定**: [docs/TECH_DECISIONS.md](docs/TECH_DECISIONS.md)
-- **セットアップ**: [docs/SETUP.md](docs/SETUP.md)
+- **技術的決定**: [docs/reference/TECH_DECISIONS.md](docs/reference/TECH_DECISIONS.md)
+- **セットアップ**: [docs/setup/SETUP.md](docs/setup/SETUP.md)
 - **テスト**: [docs/TESTING.md](docs/TESTING.md)
-- **TODO**: [docs/TODO.md](docs/TODO.md)
+- **TODO**: [docs/reference/TODO.md](docs/reference/TODO.md)

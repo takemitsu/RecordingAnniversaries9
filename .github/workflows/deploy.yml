@@ -2,13 +2,13 @@ name: Deploy to Production
 
 on:
   push:
-    branches: [ release ]  # releaseブランチへのpush時のみ自動デプロイ
+    branches: [ main ]  # mainブランチへのpush時に自動デプロイ
   workflow_dispatch:  # 手動デプロイトリガー
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/release' || github.event_name == 'workflow_dispatch'
+    if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
 
     steps:
       - name: Check required secrets
@@ -47,7 +47,7 @@ jobs:
 
             # Gitから最新版を取得
             echo "📦 Pulling latest code..."
-            git pull origin release
+            git pull origin main
 
             # 依存関係を更新
             echo "📦 Installing dependencies..."
