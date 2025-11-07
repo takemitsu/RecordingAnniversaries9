@@ -9,6 +9,7 @@
     "lint": "biome check",
     "format": "biome format --write",
     "db:migrate": "tsx scripts/migrate.ts",
+    "import:data": "tsx scripts/import-data.ts",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
