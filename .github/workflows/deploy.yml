@@ -11,6 +11,26 @@ jobs:
     if: github.ref == 'refs/heads/release' || github.event_name == 'workflow_dispatch'
 
     steps:
+      - name: Check required secrets
+        run: |
+          if [ -z "${{ secrets.VPS_HOST }}" ]; then
+            echo "❌ Error: VPS_HOST secret is not set"
+            exit 1
+          fi
+          if [ -z "${{ secrets.VPS_USER }}" ]; then
+            echo "❌ Error: VPS_USER secret is not set"
+            exit 1
+          fi
+          if [ -z "${{ secrets.VPS_SSH_KEY }}" ]; then
+            echo "❌ Error: VPS_SSH_KEY secret is not set"
+            exit 1
+          fi
+          if [ -z "${{ secrets.PRODUCTION_ENV }}" ]; then
+            echo "❌ Error: PRODUCTION_ENV secret is not set"
+            exit 1
+          fi
+          echo "✅ All required secrets are set"
+
       - name: Deploy to VPS
         uses: appleboy/ssh-action@master
         with:
@@ -27,7 +47,7 @@ jobs:
 
             # Gitから最新版を取得
             echo "📦 Pulling latest code..."
-            git pull origin main
+            git pull origin release
 
             # 依存関係を更新
             echo "📦 Installing dependencies..."
