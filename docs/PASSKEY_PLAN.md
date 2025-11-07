@@ -786,35 +786,39 @@ npm list @simplewebauthn/server @simplewebauthn/browser
 
 ## 実装の優先順位
 
-### Phase 1: 環境準備（必須）
+### ✅ Phase 1: 環境準備（完了）
 - [x] 調査完了
 - [x] 実装プラン作成
-- [ ] パッケージインストール（`@simplewebauthn/*`）
-- [ ] Authenticatorテーブル追加（`lib/db/schema.ts`）
-- [ ] Drizzleマイグレーション実行
-- [ ] `auth.ts`更新（Authenticatorテーブル登録）
+- [x] パッケージインストール（`@simplewebauthn/*`）
+- [x] Authenticatorテーブル追加（`lib/db/schema.ts`）
+- [x] Drizzleマイグレーション実行
+- [x] `auth.ts`更新（Authenticatorテーブル登録）
 
-### Phase 2: 基本機能（必須）
-- [ ] Auth.js設定更新（Passkey Provider追加）
-- [ ] サインインページ更新（オプション1または2を選択）
-- [ ] 手動テスト（Passkey登録・認証）
+### ✅ Phase 2: 基本機能（完了）
+- [x] Auth.js設定更新（Passkey Provider追加）
+- [x] サインインページ更新（SignInForm.tsx実装）
+- [x] 手動テスト（Passkey登録・認証）
 
-### Phase 3: 管理機能（推奨）
-- [ ] Server Actions実装（`app/actions/authenticators.ts`）
-- [ ] プロフィールページにPasskey管理UI追加
-- [ ] スキーマテスト追加
-- [ ] 手動テスト（Passkey削除）
+### ✅ Phase 3: 管理機能（完了）
+- [x] Server Actions実装（`app/actions/authenticators.ts`）
+- [x] プロフィールページにPasskey管理UI追加（PasskeyManager.tsx）
+- [x] スキーマテスト追加
+- [x] 手動テスト（Passkey削除）
 
-### Phase 4: テスト・改善（オプション）
-- [ ] E2E基本テスト追加（UI存在確認のみ）
-- [ ] エラーハンドリング強化
-- [ ] Conditional UI確認
+### ✅ Phase 4: テスト・改善（完了）
+- [x] E2E基本テスト追加（e2e/passkey.spec.ts - 5テスト）
+- [x] エラーハンドリング強化（PASSKEY_UX_FLOW.md Proposal B準拠）
+- [x] ボタン順序最適化（Googleを上、Passkeyを下）
 
-### Phase 5: ドキュメント（必須）
+### ✅ Phase 5: 使用履歴（完了）
+- [x] createdAt, lastUsedAt カラム追加
+- [x] サインイン時に lastUsedAt 更新
+- [x] PasskeyManager.tsx で使用履歴表示
+
+### 🚧 残タスク
 - [ ] CLAUDE.md更新
-- [ ] SETUP.md更新（必要なら）
-- [ ] TODO.md更新
 - [ ] 本番環境での動作確認チェックリスト
+- [ ] 本番デプロイ前の設定確認（auth.ts の debug: false、useSecureCookies 設定）
 
 ## 技術的確認事項
 
@@ -866,7 +870,18 @@ Auth.jsが自動的にリクエストURLから取得：
 
 ---
 
-**最終更新**: 2025-11-06（レビュー反映版）
+**最終更新**: 2025-11-07（Phase 1-5 完了、E2Eテスト追加）
 **作成者**: Claude Code
 **レビュアー**: Claude Code（別セッション）
-**ステータス**: 実装待ち（Phase 1開始可能）
+**ステータス**: ✅ 実装完了（Phase 1-5）、本番デプロイ前確認待ち
+
+**実装完了内容**:
+- Phase 1-5: 全て完了（環境準備、基本機能、管理機能、テスト・改善、使用履歴）
+- E2Eテスト: 5テスト追加（e2e/passkey.spec.ts）
+- 総E2Eテスト数: 24テスト（全て通過）
+
+**コミット履歴**:
+- dc14807: feat: Passkey使用履歴の記録と表示を実装
+- b63c323: feat(auth): Phase 3 - Passkey管理機能実装
+- 91c173f: feat(auth): Phase 2 - サインインページにPasskey認証UI追加
+- 2756dbc: feat(auth): Phase 1 - Passkey基盤実装

@@ -12,9 +12,28 @@
   - 推奨レート: 10-20 req/min（フォーム送信）、60 req/min（読み取り）
 
 ### 認証
-- [ ] Passkey（WebAuthn）実装
-  - Auth.js v5の対応待ちまたはカスタム実装が必要
-  - `@simplewebauthn/server`, `@simplewebauthn/browser` インストール済み
+- [x] ✅ Passkey（WebAuthn）実装完了（Phase 1-4）
+  - Phase 1: Auth.js v5 WebAuthn Provider 統合
+  - Phase 2: Passkey 作成・削除 UI
+  - Phase 3: サインインフロー実装
+  - Phase 4: UX改善（エラーハンドリング、ボタン順序、削除確認）
+  - Phase 5: 使用履歴の記録と表示（createdAt, lastUsedAt）
+  - コミット: feature/passkey ブランチ（dc14807）
+
+#### 残作業
+- [x] ✅ **E2Eテストの追加**（完了）
+  - e2e/passkey.spec.ts 追加（5テスト）
+  - サインインページでPasskey/Googleボタン表示確認
+  - プロフィールページでPasskey管理UI表示確認
+  - Passkey未登録時のメッセージ表示確認
+  - 総E2Eテスト数: 24テスト（全て通過）
+  - **注意**: 実際の認証フローのテストは手動テスト推奨（PlaywrightでのWebAuthn自動テストは複雑）
+- [ ] **本番デプロイ前の設定確認**
+  - auth.ts の `debug: false` ✅（設定済み）、`useSecureCookies: false` ⚠️（E2Eテスト対応のためfalse、本番環境では検討が必要）
+  - WebAuthn の RP ID/Origin 設定（Auth.jsが自動取得、カスタマイズ不要）
+- [ ] **ドキュメント更新**
+  - README.md に Passkey 機能の説明追加
+  - SETUP.md に WebAuthn セットアップ手順追加（オプション）
 
 ### 機能
 - [ ] ブラウザプッシュ通知（検討）
