@@ -1,0 +1,59 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches: [ release ]  # releaseブランチへのpush時のみ自動デプロイ
+  workflow_dispatch:  # 手動デプロイトリガー
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/release' || github.event_name == 'workflow_dispatch'
+
+    steps:
+      - name: Deploy to VPS
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            set -e
+
+            echo "🚀 Starting deployment..."
+
+            # プロジェクトディレクトリに移動
+            cd ~/recording-anniversaries9
+
+            # Gitから最新版を取得
+            echo "📦 Pulling latest code..."
+            git pull origin main
+
+            # 依存関係を更新
+            echo "📦 Installing dependencies..."
+            npm ci --omit=dev
+
+            # 環境変数ファイルを更新（GitHub Secretsから）
+            echo "🔧 Updating environment variables..."
+            cat << 'EOF' > .env.local
+            ${{ secrets.PRODUCTION_ENV }}
+            EOF
+            chmod 600 .env.local
+
+            # ビルド
+            echo "🏗️  Building application..."
+            npm run build
+
+            # データベースマイグレーション
+            echo "🗄️  Running database migrations..."
+            npm run db:migrate
+
+            # PM2でアプリケーションを再起動
+            echo "♻️  Restarting application..."
+            pm2 restart ra9-app || pm2 start npm --name "ra9-app" -- start
+
+            # ログ確認
+            echo "📋 Application logs:"
+            pm2 logs ra9-app --lines 20 --nostream
+
+            echo "✅ Deployment complete!"
