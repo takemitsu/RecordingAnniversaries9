@@ -105,6 +105,14 @@ export function Header({ session, today }: HeaderProps) {
                     <div className="absolute right-0 z-20 mt-2 w-48 rounded-md shadow-lg bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5">
                       <div className="py-1">
                         <Link
+                          href="/years"
+                          className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                          onClick={() => setShowUserDropdown(false)}
+                        >
+                          年度一覧
+                        </Link>
+                        <div className="border-t border-gray-200 dark:border-gray-600 my-1" />
+                        <Link
                           href="/profile"
                           className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
                           onClick={() => setShowUserDropdown(false)}
@@ -178,47 +186,51 @@ export function Header({ session, today }: HeaderProps) {
         className={`${showingNavigationDropdown ? "block" : "hidden"} sm:hidden`}
       >
         {session && (
-          <div className="pt-2 pb-3 space-y-1">
-            <Link
-              href="/"
-              className={`block pl-3 pr-4 py-2 border-l-4 text-base font-medium ${
-                isActive("/")
-                  ? "border-sky-500 text-sky-700 dark:text-sky-300 bg-sky-50 dark:bg-sky-900/50"
-                  : "border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-300"
-              }`}
-              onClick={() => setShowingNavigationDropdown(false)}
-            >
-              一覧
-            </Link>
-            <Link
-              href="/edit"
-              className={`block pl-3 pr-4 py-2 border-l-4 text-base font-medium ${
-                isActive("/edit")
-                  ? "border-sky-500 text-sky-700 dark:text-sky-300 bg-sky-50 dark:bg-sky-900/50"
-                  : "border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-300"
-              }`}
-              onClick={() => setShowingNavigationDropdown(false)}
-            >
-              編集
-            </Link>
-            <Link
-              href="/profile"
-              className={`block pl-3 pr-4 py-2 border-l-4 text-base font-medium ${
-                isActive("/profile")
-                  ? "border-sky-500 text-sky-700 dark:text-sky-300 bg-sky-50 dark:bg-sky-900/50"
-                  : "border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-300"
-              }`}
-              onClick={() => setShowingNavigationDropdown(false)}
-            >
-              設定
-            </Link>
-          </div>
-        )}
+          <div className="pt-2 pb-3">
+            <div className="space-y-1">
+              <Link
+                href="/"
+                className={`block pl-3 pr-4 py-2 border-l-4 text-base font-medium ${
+                  isActive("/")
+                    ? "border-sky-500 text-sky-700 dark:text-sky-300 bg-sky-50 dark:bg-sky-900/50"
+                    : "border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-300"
+                }`}
+                onClick={() => setShowingNavigationDropdown(false)}
+              >
+                一覧
+              </Link>
+              <Link
+                href="/edit"
+                className={`block pl-3 pr-4 py-2 border-l-4 text-base font-medium ${
+                  isActive("/edit")
+                    ? "border-sky-500 text-sky-700 dark:text-sky-300 bg-sky-50 dark:bg-sky-900/50"
+                    : "border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-300"
+                }`}
+                onClick={() => setShowingNavigationDropdown(false)}
+              >
+                編集
+              </Link>
+            </div>
 
-        {/* Mobile User Info */}
-        {session && (
-          <div className="pt-4 pb-1 border-t border-gray-200 dark:border-gray-600">
-            <div className="px-4">
+            <div className="border-t border-gray-200 dark:border-gray-600 my-2" />
+
+            <div className="space-y-1">
+              <Link
+                href="/years"
+                className={`block pl-3 pr-4 py-2 border-l-4 text-base font-medium ${
+                  isActive("/years")
+                    ? "border-sky-500 text-sky-700 dark:text-sky-300 bg-sky-50 dark:bg-sky-900/50"
+                    : "border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-300"
+                }`}
+                onClick={() => setShowingNavigationDropdown(false)}
+              >
+                年度一覧
+              </Link>
+            </div>
+
+            <div className="border-t border-gray-200 dark:border-gray-600 my-2" />
+
+            <div className="px-4 py-2">
               <div className="font-medium text-base text-gray-800 dark:text-gray-200">
                 {session.user?.name}
               </div>
@@ -227,7 +239,18 @@ export function Header({ session, today }: HeaderProps) {
               </div>
             </div>
 
-            <div className="mt-3 space-y-1">
+            <div className="space-y-1">
+              <Link
+                href="/profile"
+                className={`block pl-3 pr-4 py-2 border-l-4 text-base font-medium ${
+                  isActive("/profile")
+                    ? "border-sky-500 text-sky-700 dark:text-sky-300 bg-sky-50 dark:bg-sky-900/50"
+                    : "border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-300"
+                }`}
+                onClick={() => setShowingNavigationDropdown(false)}
+              >
+                設定
+              </Link>
               <button
                 type="button"
                 onClick={() => signOut({ callbackUrl: "/" })}
