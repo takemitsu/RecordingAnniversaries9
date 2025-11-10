@@ -156,63 +156,66 @@ async function importData(data: ExportData) {
   let importedCollections = 0;
   let importedAnniversaries = 0;
 
-  // ユーザーごとにインポート
-  for (const userData of data.users) {
-    try {
-      // 1. ユーザーを挿入
-      await db.insert(users).values({
-        id: userData.new_uuid,
-        email: userData.email,
-        name: userData.name,
-        emailVerified: userData.email_verified
-          ? new Date(userData.email_verified)
-          : null,
-        image: null, // ra8にはないフィールド
-        createdAt: new Date(userData.created_at),
-        updatedAt: new Date(userData.updated_at),
-      });
-      importedUsers++;
+  // トランザクション内で全データをインポート（失敗時は自動ロールバック）
+  await db.transaction(async (tx) => {
+    // ユーザーごとにインポート
+    for (const userData of data.users) {
+      try {
+        // 1. ユーザーを挿入
+        await tx.insert(users).values({
+          id: userData.new_uuid,
+          email: userData.email,
+          name: userData.name,
+          emailVerified: userData.email_verified
+            ? new Date(userData.email_verified)
+            : null,
+          image: null, // ra8にはないフィールド
+          createdAt: new Date(userData.created_at),
+          updatedAt: new Date(userData.updated_at),
+        });
+        importedUsers++;
 
-      // 2. Collectionsを挿入
-      for (const collectionData of userData.collections) {
-        const [insertedCollection] = await db
-          .insert(collections)
-          .values({
-            userId: userData.new_uuid,
-            name: collectionData.name,
-            description: collectionData.description,
-            isVisible: collectionData.is_visible,
-            createdAt: new Date(collectionData.created_at),
-            updatedAt: new Date(collectionData.updated_at),
-          })
-          .$returningId();
-        importedCollections++;
+        // 2. Collectionsを挿入
+        for (const collectionData of userData.collections) {
+          const [insertedCollection] = await tx
+            .insert(collections)
+            .values({
+              userId: userData.new_uuid,
+              name: collectionData.name,
+              description: collectionData.description,
+              isVisible: 1, // ra8では未使用のため、全て表示（1）として扱う
+              createdAt: new Date(collectionData.created_at),
+              updatedAt: new Date(collectionData.updated_at),
+            })
+            .$returningId();
+          importedCollections++;
 
-        // 3. Anniversariesを挿入
-        if (collectionData.anniversaries.length > 0) {
-          for (const anniversaryData of collectionData.anniversaries) {
-            await db.insert(anniversaries).values({
-              collectionId: insertedCollection.id,
-              name: anniversaryData.name,
-              description: anniversaryData.description,
-              anniversaryDate: anniversaryData.anniversary_date,
-              createdAt: new Date(anniversaryData.created_at),
-              updatedAt: new Date(anniversaryData.updated_at),
-            });
-            importedAnniversaries++;
+          // 3. Anniversariesを挿入
+          if (collectionData.anniversaries.length > 0) {
+            for (const anniversaryData of collectionData.anniversaries) {
+              await tx.insert(anniversaries).values({
+                collectionId: insertedCollection.id,
+                name: anniversaryData.name,
+                description: anniversaryData.description,
+                anniversaryDate: anniversaryData.anniversary_date,
+                createdAt: new Date(anniversaryData.created_at),
+                updatedAt: new Date(anniversaryData.updated_at),
+              });
+              importedAnniversaries++;
+            }
           }
         }
-      }
 
-      // 進捗表示
-      console.log(
-        `✓ Imported user: ${userData.email} (${userData.collections.length} collections, ${userData.collections.reduce((sum, c) => sum + c.anniversaries.length, 0)} anniversaries)`,
-      );
-    } catch (error) {
-      console.error(`\n❌ Failed to import user: ${userData.email}`);
-      throw error;
+        // 進捗表示
+        console.log(
+          `✓ Imported user: ${userData.email} (${userData.collections.length} collections, ${userData.collections.reduce((sum, c) => sum + c.anniversaries.length, 0)} anniversaries)`,
+        );
+      } catch (error) {
+        console.error(`\n❌ Failed to import user: ${userData.email}`);
+        throw error;
+      }
     }
-  }
+  });
 
   // 統計情報の検証
   if (
