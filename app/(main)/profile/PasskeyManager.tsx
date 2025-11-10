@@ -61,7 +61,7 @@ export function PasskeyManager({ authenticators }: PasskeyManagerProps) {
   };
 
   return (
-    <section className="mt-8 p-6 bg-white dark:bg-gray-800 rounded-lg shadow">
+    <section className="mt-8 p-6 bg-white dark:bg-zinc-800 rounded-lg shadow">
       <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
         Passkey設定
       </h2>
@@ -109,7 +109,7 @@ export function PasskeyManager({ authenticators }: PasskeyManagerProps) {
             {authenticators.map((auth) => (
               <li
                 key={auth.credentialID}
-                className="flex items-center justify-between gap-3 p-3 bg-gray-50 dark:bg-gray-700 rounded"
+                className="flex items-center justify-between gap-3 p-3 bg-gray-50 dark:bg-zinc-700 rounded"
               >
                 <div className="flex-1">
                   <div className="text-sm text-gray-600 dark:text-gray-400">

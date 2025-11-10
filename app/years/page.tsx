@@ -40,7 +40,7 @@ export default async function YearsPage() {
       <Header session={session} today={today} />
       <main className="max-w-7xl mx-auto px-1 py-2 lg:p-12 mb-8">
         <div className="max-w-2xl mx-auto">
-          <div className="bg-white dark:bg-gray-800 shadow-md rounded-lg px-2 py-4 lg:p-6">
+          <div className="bg-white dark:bg-zinc-800 shadow-md rounded-lg px-2 py-4 lg:p-6">
             <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white mb-3 lg:mb-4">
               年度一覧
             </h1>
@@ -55,7 +55,7 @@ export default async function YearsPage() {
             <div className="overflow-x-auto">
               <table className="w-full border-collapse border border-gray-300 dark:border-gray-600 text-base lg:text-lg">
                 <thead>
-                  <tr className="bg-gray-50 dark:bg-gray-700">
+                  <tr className="bg-gray-100 dark:bg-zinc-700">
                     <th className="border border-gray-300 dark:border-gray-600 px-1 py-1 lg:px-4 lg:py-2 text-gray-700 dark:text-gray-200 text-center">
                       No.
                     </th>
@@ -74,7 +74,7 @@ export default async function YearsPage() {
                   {years.map((year: number, i: number) => (
                     <tr
                       key={`ty${year}`}
-                      className="hover:bg-gray-50 dark:hover:bg-gray-700"
+                      className="bg-white dark:bg-zinc-800 hover:bg-gray-50 dark:hover:bg-gray-700"
                     >
                       <td className="border border-gray-300 dark:border-gray-600 px-1 py-0.5 lg:px-2 lg:py-1 text-gray-600 dark:text-gray-400 text-right">
                         {i}

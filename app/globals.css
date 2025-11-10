@@ -1,8 +1,11 @@
 @import "tailwindcss";
 
+/* Tailwind v4: class-based dark mode用の設定 */
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f9fafb;
+  --foreground: #111827;
 }
 
 @theme inline {
@@ -12,11 +15,18 @@
   --font-mono: var(--font-geist-mono);
 }
 
+/* システム設定に基づくデフォルト（next-themesがクラスを上書き） */
 @media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  :root:not(.light) {
+    --background: #18181b;
+    --foreground: #fafafa;
   }
+}
+
+/* class-based dark mode */
+:root.dark {
+  --background: #18181b;
+  --foreground: #fafafa;
 }
 
 body {

@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import type { Session } from "next-auth";
 import { signOut } from "next-auth/react";
 import { useState } from "react";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 interface HeaderProps {
   session: Session | null;
@@ -20,7 +21,7 @@ export function Header({ session, today }: HeaderProps) {
   const isActive = (path: string) => pathname === path;
 
   return (
-    <header className="bg-white dark:bg-gray-800 shadow">
+    <header className="bg-white dark:bg-zinc-800 shadow">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex">
@@ -65,7 +66,8 @@ export function Header({ session, today }: HeaderProps) {
           </div>
 
           {/* User Info (Desktop) */}
-          <div className="hidden sm:ml-6 sm:flex sm:items-center">
+          <div className="hidden sm:ml-6 sm:flex sm:items-center sm:gap-4">
+            <ThemeToggle />
             {session ? (
               <div className="relative">
                 <button
@@ -102,7 +104,7 @@ export function Header({ session, today }: HeaderProps) {
                       aria-label="メニューを閉じる"
                     />
                     {/* Dropdown Menu */}
-                    <div className="absolute right-0 z-20 mt-2 w-48 rounded-md shadow-lg bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5">
+                    <div className="absolute right-0 z-20 mt-2 w-48 rounded-md shadow-lg bg-white dark:bg-zinc-800 ring-1 ring-black ring-opacity-5">
                       <div className="py-1">
                         <Link
                           href="/years"
@@ -273,6 +275,12 @@ export function Header({ session, today }: HeaderProps) {
             </Link>
           </div>
         )}
+
+        {/* テーマ切り替え（モバイル） */}
+        <div className="border-t border-gray-200 dark:border-gray-600 my-2" />
+        <div className="px-4 py-3 flex justify-center">
+          <ThemeToggle />
+        </div>
       </div>
     </header>
   );

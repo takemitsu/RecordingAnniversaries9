@@ -19,7 +19,7 @@ export default async function ProfilePage() {
         プロフィール設定
       </h1>
 
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+      <div className="bg-white dark:bg-zinc-800 rounded-lg shadow p-6">
         <ProfileForm user={session.user} />
       </div>
 

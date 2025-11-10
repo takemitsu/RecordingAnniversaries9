@@ -20,7 +20,7 @@ export function FormField({
   rows = 4,
 }: FormFieldProps) {
   const inputClasses =
-    "mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white px-3 py-2 shadow-sm focus:border-sky-500 focus:ring-1 focus:ring-sky-500";
+    "mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-zinc-700 text-gray-900 dark:text-white px-3 py-2 shadow-sm focus:border-sky-500 focus:ring-1 focus:ring-sky-500";
   const errorClasses = error
     ? "border-red-500 focus:border-red-500 focus:ring-red-500"
     : "";

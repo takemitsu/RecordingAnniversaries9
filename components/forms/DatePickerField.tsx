@@ -45,7 +45,7 @@ export function DatePickerField({
         defaultValue={defaultValue}
         required={required}
         onChange={(e) => setCurrentDate(e.target.value)}
-        className={`mt-1 block w-full rounded-md shadow-sm px-3 py-2 focus:outline-none focus:ring-sky-500 focus:border-sky-500 dark:bg-gray-700 dark:text-white ${errorClasses}`}
+        className={`mt-1 block w-full rounded-md shadow-sm px-3 py-2 focus:outline-none focus:ring-sky-500 focus:border-sky-500 bg-white dark:bg-zinc-700 dark:text-white ${errorClasses}`}
       />
 
       {/* 和暦表示 */}

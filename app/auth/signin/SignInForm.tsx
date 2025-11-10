@@ -98,7 +98,7 @@ export default function SignInForm() {
         type="button"
         onClick={handleGoogleSignIn}
         disabled={isGoogleLoading}
-        className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-gray-300 dark:border-gray-700 rounded-lg shadow-sm bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
+        className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-gray-300 dark:border-gray-700 rounded-lg shadow-sm bg-white dark:bg-zinc-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
       >
         {isGoogleLoading ? (
           <>
@@ -145,7 +145,7 @@ export default function SignInForm() {
           <div className="w-full border-t border-gray-300 dark:border-gray-700" />
         </div>
         <div className="relative flex justify-center text-sm">
-          <span className="px-2 bg-white dark:bg-gray-900 text-gray-500">
+          <span className="px-2 bg-gray-50 dark:bg-zinc-900 text-gray-500">
             または
           </span>
         </div>
