@@ -1,6 +1,13 @@
 # データ移行ガイド（ra8 → ra9）
 
-**パターンB（ra.takemitsu.netに置き換え）を選択した場合のみ実施**
+**重要**: このドキュメントはSQL直接実行方式の移行手順です。
+
+**推奨方式**: [DATA_MIGRATION_JSON.md](./DATA_MIGRATION_JSON.md) のexport/import方式（JSON形式）を使用してください。
+この方式の方がシンプルで、エラーが少なく、テストも容易です。
+
+このSQL直接実行方式は、特別な理由がある場合のみ使用してください。
+
+---
 
 ## 目次
 
@@ -230,7 +237,7 @@ npm run build
 pm2 start npm --name "ra9-app-test" -- start
 
 # 別ポートで起動して動作確認
-# ブラウザで http://ra9.takemitsu.net にアクセス
+# ブラウザで http://ra.takemitsu.net にアクセス
 # ログイン・データ表示を確認
 ```
 
@@ -266,15 +273,9 @@ sudo systemctl status php8.3-fpm
 ### 7. Nginx設定をra9に切り替え
 
 ```bash
-# ra9用のNginx設定を有効化
-# パターンA（ra9.takemitsu.net）の場合はすでに設定済み
-# パターンB（ra.takemitsu.net）の場合は以下を実行
-
-# ra9用設定を ra.conf としてコピー
-sudo cp /etc/nginx/conf.d/ra9.conf /etc/nginx/conf.d/ra.conf
-
-# ra9.confを削除（ra.confに統一）
-sudo rm /etc/nginx/conf.d/ra9.conf
+# ra.conf が既に ra9 用に設定済み（DEPLOYMENT.mdの手順で作成済み）
+# 設定ファイルの確認
+sudo cat /etc/nginx/conf.d/ra.conf
 
 # Nginx再起動
 sudo systemctl restart nginx

@@ -42,35 +42,27 @@ Recording Anniversaries 9 を既存のさくらVPS環境にデプロイする手
 - [ ] Google OAuth 本番用認証情報
 - [ ] SSH接続用の認証情報
 - [ ] MySQLのrootパスワード
-- [ ] デプロイ先ドメイン（ra9.takemitsu.net または ra.takemitsu.net）
+- [ ] デプロイ先ドメイン（ra.takemitsu.net）
 
 ---
 
-## デプロイパターン選択
+## デプロイ方針
 
-ra9のデプロイには2つのパターンがあります。どちらを選択するか決定してください。
+このガイドでは、**既存ドメイン置き換え（ra.takemitsu.net）方式**を採用します。
 
-### パターンA: 新規ドメイン（ra9.takemitsu.net）
+### デプロイ方針の詳細
 
-**ra8と並行運用する場合**
+- **ドメイン**: `ra.takemitsu.net`（既存ドメインをそのまま使用）
+- **ra8**: 停止・削除
+- **データ移行**: **必須**（export/import方式、詳細は[データ移行](#データ移行ra8ra9)参照）
+- **メリット**: ユーザーはドメイン変更不要、ブックマーク等そのまま利用可能
+- **デメリット**: ダウンタイム発生（移行作業中）、後戻りは困難
 
-- ドメイン: `ra9.takemitsu.net`
-- ra8: `ra.takemitsu.net` のまま継続運用
-- データ移行: 不要（新規環境として構築）
-- メリット: ra8への影響なし、切り戻し容易
-- デメリット: ドメイン変更が必要
+### 注意事項
 
-### パターンB: 既存ドメイン置き換え（ra.takemitsu.net）
-
-**ra8を停止してra9に置き換える場合**
-
-- ドメイン: `ra.takemitsu.net`
-- ra8: 停止・削除
-- データ移行: 必要（ra8→ra9）
-- メリット: ドメイン変更不要
-- デメリット: ダウンタイム発生、後戻り困難
-
-**このガイドではパターンA（新規ドメイン）を前提に記載しますが、パターンBの手順も[データ移行](#データ移行ra8ra9)セクションで説明します。**
+- ra8のデータは**export/import方式（JSON形式）**で移行します
+- データ移行の詳細は [DATA_MIGRATION_JSON.md](./DATA_MIGRATION_JSON.md) を参照してください
+- 移行作業中はサービスが停止します（ダウンタイム: 推定10-30分）
 
 ---
 
@@ -230,18 +222,24 @@ curl http://localhost:3000
 
 ## Nginx設定
 
-### 1. Nginx設定ファイル作成
+### 1. Nginx設定ファイル編集
+
+既存の `/etc/nginx/conf.d/ra.conf` をバックアップして編集します：
 
 ```bash
-sudo nano /etc/nginx/conf.d/ra9.conf
+# バックアップ（ra8設定を保存）
+sudo cp /etc/nginx/conf.d/ra.conf /etc/nginx/conf.d/ra.conf.bak.ra8
+
+# 編集
+sudo nano /etc/nginx/conf.d/ra.conf
 ```
 
-**パターンA: ra9.takemitsu.net の場合**
+**設定内容**（ポート3000へのプロキシ）:
 
 ```nginx
 server {
     listen 80;
-    server_name ra9.takemitsu.net;
+    server_name ra.takemitsu.net;
 
     location / {
         proxy_pass http://localhost:3000;
@@ -257,20 +255,6 @@ server {
 }
 ```
 
-**パターンB: ra.takemitsu.net の場合**
-
-既存の `/etc/nginx/conf.d/ra.conf` をバックアップして編集：
-
-```bash
-# バックアップ
-sudo cp /etc/nginx/conf.d/ra.conf /etc/nginx/conf.d/ra.conf.bak.ra8
-
-# 編集（ra8 → ra9 に変更）
-sudo nano /etc/nginx/conf.d/ra.conf
-```
-
-内容はパターンAと同様（ポート3000へのプロキシ）
-
 ### 2. 設定ファイルのテスト
 
 ```bash
@@ -285,7 +269,7 @@ sudo systemctl restart nginx
 
 ```bash
 # HTTPアクセス確認（まだHTTPS化前）
-curl http://ra9.takemitsu.net
+curl http://ra.takemitsu.net
 
 # 正常にHTMLが返ってくればOK
 ```
@@ -294,36 +278,45 @@ curl http://ra9.takemitsu.net
 
 ## SSL証明書設定
 
-### Let's Encrypt で証明書取得
+### 既存証明書の確認
 
 ```bash
-# Certbotで証明書取得
-sudo certbot --nginx -d ra9.takemitsu.net
-
-# プロンプトに従ってメールアドレスを入力、規約に同意
+# 現在の証明書を確認
+sudo certbot certificates
 ```
 
-**パターンB（ra.takemitsu.net）の場合**:
+ra.takemitsu.netは既存の`takemitsu.net`証明書（マルチドメインまたはワイルドカード）でカバーされています。
+
+### Nginx設定にSSL設定を追加
 
 ```bash
-# 既存証明書を更新（ドメインが同じなので再取得）
-sudo certbot renew
+# ra.takemitsu.netのSSL設定を追加（既存証明書を自動検出）
+sudo certbot --nginx -d ra.takemitsu.net
 ```
+
+**実行時の動作**:
+- 既存のtakemitsu.net証明書を自動検出
+- プロンプトで既存証明書の使用を確認
+- Nginx設定ファイル（ra.conf）に443ポートのSSL設定を自動追加
+
+**注意**: `--force-renewal`は不要です。既存証明書をそのまま使用します。
 
 ### 自動更新設定確認
 
+Certbotインストール時に自動更新が設定されています（手動設定不要）。
+
 ```bash
+# systemdタイマーの確認
+sudo systemctl status certbot.timer
+
 # 自動更新のテスト
 sudo certbot renew --dry-run
-
-# Cronジョブ確認（通常は自動設定済み）
-sudo crontab -l | grep certbot
 ```
 
 ### HTTPS動作確認
 
 ```bash
-curl https://ra9.takemitsu.net
+curl https://ra.takemitsu.net
 
 # HTTPSでアクセスできればOK
 ```
@@ -340,28 +333,25 @@ curl https://ra9.takemitsu.net
 # ========================================
 
 # Database Configuration
-DATABASE_URL="mysql://ra9user:YOUR_STRONG_PASSWORD@127.0.0.1:3306/ra9"
+DATABASE_URL="mysql://ra9user:YOUR_STRONG_PASSWORD@localhost:3306/ra9"
 
 # Auth.js Configuration
 # 生成方法: openssl rand -base64 32
 AUTH_SECRET="YOUR_GENERATED_SECRET_HERE"
-AUTH_URL="https://ra9.takemitsu.net"
-# パターンB: AUTH_URL="https://ra.takemitsu.net"
+AUTH_URL="https://ra.takemitsu.net"
 
 # Google OAuth（本番用認証情報）
 GOOGLE_CLIENT_ID="your-production-google-client-id"
 GOOGLE_CLIENT_SECRET="your-production-google-client-secret"
 
 # WebAuthn (Passkey) Configuration
-NEXT_PUBLIC_WEBAUTHN_RP_ID="ra9.takemitsu.net"
+NEXT_PUBLIC_WEBAUTHN_RP_ID="ra.takemitsu.net"
 NEXT_PUBLIC_WEBAUTHN_RP_NAME="Recording Anniversaries"
-NEXT_PUBLIC_WEBAUTHN_ORIGIN="https://ra9.takemitsu.net"
-# パターンB: RP_ID="ra.takemitsu.net", ORIGIN="https://ra.takemitsu.net"
+NEXT_PUBLIC_WEBAUTHN_ORIGIN="https://ra.takemitsu.net"
 
 # Application
 NEXT_PUBLIC_APP_NAME="Recording Anniversaries 9"
-NEXT_PUBLIC_APP_URL="https://ra9.takemitsu.net"
-# パターンB: NEXT_PUBLIC_APP_URL="https://ra.takemitsu.net"
+NEXT_PUBLIC_APP_URL="https://ra.takemitsu.net"
 
 # Timezone
 TZ="Asia/Tokyo"
@@ -390,15 +380,23 @@ NEXT_TELEMETRY_DISABLED=1
 openssl rand -base64 32
 ```
 
-#### 3. Google OAuth 本番用認証情報
+#### 3. Google OAuth 認証情報
+
+**ra8で使用中の認証情報をそのまま使用します**（新規作成不要）。
+
+ただし、リダイレクトURIが異なるため、Google Cloud Consoleで**追加**が必要です：
+
+- ra8: `https://ra.takemitsu.net/auth/redirect/callback/google`
+- ra9: `https://ra.takemitsu.net/api/auth/callback/google` ← **追加**
+
+**手順**:
 
 1. [Google Cloud Console](https://console.cloud.google.com/) にアクセス
-2. プロジェクト作成（または既存プロジェクト選択）
+2. ra8で使用中のプロジェクトを選択
 3. 「APIとサービス」→「認証情報」
-4. 「OAuth 2.0 クライアントID」を作成
-5. 承認済みのリダイレクトURI:
-   - パターンA: `https://ra9.takemitsu.net/api/auth/callback/google`
-   - パターンB: `https://ra.takemitsu.net/api/auth/callback/google`
+4. 既存の「OAuth 2.0 クライアントID」を編集
+5. 承認済みのリダイレクトURIに追加: `https://ra.takemitsu.net/api/auth/callback/google`
+6. 既存の`GOOGLE_CLIENT_ID`と`GOOGLE_CLIENT_SECRET`をコピー（ra8の`.env`から取得可能）
 
 #### 4. 環境変数のセキュリティ
 
@@ -414,25 +412,15 @@ cat .gitignore | grep .env.local
 
 ## データ移行（ra8→ra9）
 
-**パターンB（ra.takemitsu.netに置き換え）を選択した場合のみ実施**
+**このステップは必須です**
 
-ra8とra9はスキーマが大きく異なるため、**単純なmysqldumpでは移行できません**。
+ra8側でエクスポートした`export.json`をプロジェクトルートにコピーしてから、以下を実行：
 
-詳細な手順は **[DATA_MIGRATION.md](./DATA_MIGRATION.md)** を参照してください。
+```bash
+npm run import:data export.json
+```
 
-### 概要
-
-**移行できるもの**:
-- ✅ users（BIGINT → UUID変換）
-- ✅ entities → collections
-- ✅ days → anniversaries
-
-**移行できないもの**:
-- ❌ Google OAuth連携 → Auth.jsで再連携が必要
-- ❌ sessions → 再ログインが必要
-- ❌ webauthn_credentials → Passkey再登録が必要
-
-詳細は [DATA_MIGRATION.md](./DATA_MIGRATION.md) を参照。
+詳細な手順は **[DATA_MIGRATION_JSON.md](./DATA_MIGRATION_JSON.md)** を参照してください。
 
 ---
 
@@ -460,7 +448,10 @@ GitHubリポジトリの Settings → Secrets and variables → Actions で以�
 | `VPS_HOST` | VPSのホスト名 | `takemitsu.net` |
 | `VPS_USER` | SSHユーザー名 | `ubuntu` |
 | `VPS_SSH_KEY` | SSH秘密鍵 | （秘密鍵の内容全体） |
-| `PRODUCTION_ENV` | 本番環境変数ファイル | [後述のフォーマット参照](#production_env-の中身) |
+| `DATABASE_URL` | 本番DB接続文字列 | `mysql://ra9user:password@localhost:3306/ra9` |
+| `AUTH_SECRET` | Auth.js署名鍵 | `openssl rand -base64 32`で生成 |
+| `GOOGLE_CLIENT_ID` | Google OAuth Client ID | ra8から取得 |
+| `GOOGLE_CLIENT_SECRET` | Google OAuth Client Secret | ra8から取得 |
 
 **SSH秘密鍵の取得方法**:
 
@@ -471,29 +462,17 @@ cat ~/.ssh/id_rsa
 cat ~/.ssh/id_ed25519
 ```
 
-#### PRODUCTION_ENV の中身
+#### GitHub Secretsへの設定方法
 
-`PRODUCTION_ENV` Secretには、本番環境の `.env.local` の内容をそのまま設定します：
+機密情報のみをGitHub Secretsに設定します。非機密情報（URLs、APP_NAME等）は`deploy.yml`に直接記述されているため、変更時はGit経由で更新できます。
 
-```env
-DATABASE_URL="mysql://ra9user:YOUR_STRONG_PASSWORD@127.0.0.1:3306/ra9"
-AUTH_SECRET="YOUR_GENERATED_SECRET_HERE"
-AUTH_URL="https://ra9.takemitsu.net"
-GOOGLE_CLIENT_ID="your-production-google-client-id"
-GOOGLE_CLIENT_SECRET="your-production-google-client-secret"
-NEXT_PUBLIC_WEBAUTHN_RP_ID="ra9.takemitsu.net"
-NEXT_PUBLIC_WEBAUTHN_RP_NAME="Recording Anniversaries"
-NEXT_PUBLIC_WEBAUTHN_ORIGIN="https://ra9.takemitsu.net"
-NEXT_PUBLIC_APP_NAME="Recording Anniversaries 9"
-NEXT_PUBLIC_APP_URL="https://ra9.takemitsu.net"
-TZ="Asia/Tokyo"
-NEXT_TELEMETRY_DISABLED=1
-```
+**設定手順**:
 
-**注意**:
-- 改行を含めてそのまま貼り付ける
-- GitHub Secretsでは値が暗号化され、ログには表示されない
-- deploy.ymlで `cat << 'EOF' > .env.local` により展開される
+1. GitHubリポジトリページで「Settings」→「Secrets and variables」→「Actions」
+2. 「New repository secret」をクリック
+3. 各Secretを個別に追加
+
+**重要**: 機密情報のみSecretsに設定することで、運用性が向上します（非機密情報の変更時にSecretsを触る必要がない）
 
 ### 2. GitHub Actions ワークフローファイル
 
@@ -578,7 +557,7 @@ Slack通知を追加する場合、`.github/workflows/deploy.yml` に追加：
         uses: 8398a7/action-slack@v3
         with:
           status: ${{ job.status }}
-          text: 'Deployment to ra9.takemitsu.net'
+          text: 'Deployment to ra.takemitsu.net'
           webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
 ```
 
@@ -681,13 +660,14 @@ pm2 restart ra9-app
 
 **重要なポイント**:
 
-1. **デプロイパターン選択**: ra9.takemitsu.net（新規）または ra.takemitsu.net（置き換え）
-2. **NODE_ENVは自動設定**: `npm start` を実行すると自動的に `production` になります
-3. **HTTPSは必須**: Passkey認証、セキュアCookieのため
-4. **環境変数の管理**: `.env.local` を適切に設定し、Gitにコミットしない
-5. **CI/CD**: GitHub Actions で自動テスト・自動デプロイを実現
-6. **セキュリティチェックリスト**: デプロイ前に必ず確認
-7. **定期的なバックアップ**: データベースとファイルの両方
+1. **デプロイドメイン**: ra.takemitsu.net（既存ドメイン置き換え方式）
+2. **データ移行は必須**: export/import方式（JSON形式）でra8からデータ移行
+3. **NODE_ENVは自動設定**: `npm start` を実行すると自動的に `production` になります
+4. **HTTPSは必須**: Passkey認証、セキュアCookieのため
+5. **環境変数の管理**: `.env.local` を適切に設定し、Gitにコミットしない
+6. **CI/CD**: GitHub Actions で自動テスト・自動デプロイを実現
+7. **セキュリティチェックリスト**: デプロイ前に必ず確認
+8. **定期的なバックアップ**: データベースとファイルの両方
 
 デプロイ後は、本番環境で動作確認を行い、問題があればログを確認してください。
 

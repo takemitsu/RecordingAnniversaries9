@@ -269,6 +269,15 @@ Users (ユーザー)
 - [ ] 本番環境設定
 - [ ] CI/CD設定
 
+## デプロイ先
+
+### 本番環境
+
+- **ドメイン**: ra.takemitsu.net
+- **方式**: 既存ドメイン置き換え（ra8停止後、ra9に切り替え）
+- **データ移行**: export/import方式（JSON形式）を使用
+- **詳細**: [DEPLOYMENT.md](docs/deployment/DEPLOYMENT.md) 参照
+
 ## 環境変数
 
 ### 必要な環境変数（.env.local）

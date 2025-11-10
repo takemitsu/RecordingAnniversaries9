@@ -206,7 +206,7 @@ cp /path/to/ra8/export.json /path/to/ra9/export.json
 cd /path/to/recordingAnniversaries9
 
 # 環境変数を一時的にテストDBに変更
-export DATABASE_URL="mysql://user:password@127.0.0.1:3306/ra9_test"
+export DATABASE_URL="mysql://user:password@localhost:3306/ra9_test"
 
 # インポート実行
 npm run import:data export.json
@@ -233,7 +233,7 @@ Total imported: 6 users, 12 collections, 48 anniversaries
 
 ```bash
 # MySQL接続
-mysql -h 127.0.0.1 -u user -p ra9_test
+mysql -h localhost -u user -p ra9_test
 
 # ユーザー数確認
 SELECT COUNT(*) FROM users;
@@ -256,7 +256,7 @@ WHERE u.email = 'user@example.com';
 
 ```bash
 # ra9 を起動（テストDB使用）
-DATABASE_URL="mysql://user:password@127.0.0.1:3306/ra9_test" npm run dev
+DATABASE_URL="mysql://user:password@localhost:3306/ra9_test" npm run dev
 ```
 
 1. Google OAuth でログイン（移行したメールアドレスを使用）
@@ -269,10 +269,10 @@ DATABASE_URL="mysql://user:password@127.0.0.1:3306/ra9_test" npm run dev
 
 ```bash
 # 本番DB バックアップ（念のため）
-mysqldump -h 127.0.0.1 -u user -p ra9_production > ra9_production_backup_$(date +%Y%m%d_%H%M%S).sql
+mysqldump -h localhost -u user -p ra9 > ra9_backup_$(date +%Y%m%d_%H%M%S).sql
 
 # 本番DBにインポート
-DATABASE_URL="mysql://user:password@127.0.0.1:3306/ra9_production" npm run import:data export.json
+DATABASE_URL="mysql://user:password@localhost:3306/ra9" npm run import:data export.json
 ```
 
 ### Step 8: 本番環境での動作確認
@@ -340,7 +340,7 @@ WHERE u.id IS NULL;
 
 ```bash
 # テストDBをクリーンアップして再実行
-mysql -h 127.0.0.1 -u user -p ra9_test < /path/to/clean_schema.sql
+mysql -h localhost -u user -p ra9_test < /path/to/clean_schema.sql
 npm run import:data export.json
 ```
 
@@ -348,7 +348,7 @@ npm run import:data export.json
 
 ```bash
 # バックアップから復元
-mysql -h 127.0.0.1 -u user -p ra9_production < ra9_production_backup_YYYYMMDD_HHMMSS.sql
+mysql -h localhost -u user -p ra9 < ra9_backup_YYYYMMDD_HHMMSS.sql
 ```
 
 ---
