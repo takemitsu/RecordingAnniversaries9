@@ -143,6 +143,7 @@ async function main() {
     console.log(
       `Total imported: ${data.stats.total_users} users, ${data.stats.total_collections} collections, ${data.stats.total_anniversaries} anniversaries`,
     );
+    process.exit(0);
   } catch (error) {
     console.error("\n❌ Import failed:");
     console.error(error);
