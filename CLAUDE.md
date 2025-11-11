@@ -95,11 +95,21 @@ recording-anniversaries9/
 │   │   └── SECURITY_CHECKLIST.md # セキュリティチェック
 │   ├── operations/
 │   │   ├── OPERATIONS.md     # 運用手順
+│   │   ├── RUNBOOK.md        # インシデント対応手順書
 │   │   └── TROUBLESHOOTING.md # トラブルシューティング
-│   ├── reference/
-│   │   ├── TECH_DECISIONS.md # 技術的決定
-│   │   └── TODO.md           # タスク管理
-│   └── archive/              # アーカイブ
+│   ├── architecture/
+│   │   └── SYSTEM_ARCHITECTURE.md # システムアーキテクチャ
+│   ├── adr/                  # Architecture Decision Records
+│   │   ├── README.md         # ADR一覧
+│   │   ├── 0001-use-drizzle-orm.md
+│   │   ├── 0002-use-authjs-v5.md
+│   │   ├── 0003-use-tailwind-css-v4.md
+│   │   ├── 0004-use-date-type-for-anniversaries.md
+│   │   ├── 0005-use-dayjs.md
+│   │   └── 0006-use-nextjs-16-app-router.md
+│   └── reference/
+│       ├── TECH_DECISIONS.md # 技術的決定
+│       └── TODO.md           # タスク管理（未実装機能のみ）
 ├── auth.ts                   # Auth.js v5 設定
 ├── drizzle.config.ts         # Drizzle設定
 ├── .env.local                # 環境変数
@@ -239,6 +249,9 @@ Users (ユーザー)
 - ✅ README.md
 - ✅ 詳細ドキュメント（docs/）
 - ✅ セットアップ手順
+- ✅ ADR（Architecture Decision Records）- 技術選定の理由を記録
+- ✅ Runbook - インシデント対応手順書（P0-P3重大度レベル定義）
+- ✅ アーキテクチャ図 - システム構成、データフロー、ER図、認証フロー
 
 ### テスト
 - ✅ **テスト環境構築完了**
@@ -266,13 +279,25 @@ Users (ユーザー)
   - **PM2**: 自動起動設定完了（systemd管理）
   - **データ移行**: ra8→ra9完了（5ユーザー、15 Collections、36 Anniversaries）
   - **全機能動作確認済み**: Google OAuth、Passkey、CRUD操作、カウントダウン、和暦表示
+- ✅ **CI/CD構築完了**（`.github/workflows/deploy.yml`）
+  - Lint/Type Check/Tests（176テスト）自動実行
+  - ビルド成功確認
+  - mainブランチへのpushで自動デプロイ
+- ✅ **セキュリティ自動化**
+  - Dependabot alerts 有効化（脆弱性の自動検知）
+  - Dependabot security updates 有効化（セキュリティ修正PRの自動作成）
 
 ## 未実装機能・次にやること 🚧
 
+詳細は [TODO.md](docs/reference/TODO.md) を参照。
+
 ### 機能拡張
 - [ ] 通知機能（ブラウザプッシュ通知）
-- [ ] レート制限（Server Actions）
-- [ ] CI/CD設定（オプション、詳細は[CI_CD_SETUP.md](docs/deployment/CI_CD_SETUP.md)）
+- [ ] レート制限（Server Actions、優先度: Low）
+
+### 運用・保守
+- [ ] 定期的な `npm audit` 実行（CI/CDに統合、オプション）
+- [ ] 構造化ログ（JSON）を採用（オプション）
 
 ## デプロイ先
 
