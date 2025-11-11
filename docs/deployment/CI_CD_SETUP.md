@@ -26,9 +26,11 @@
 
 以下のワークフローを実装します（Git Flow）：
 
-1. **自動テスト**: develop/main へのPR作成時・push時、Lint/TypeCheck/Test を自動実行（.github/workflows/ci.yml）
-2. **自動デプロイ**: main ブランチへのpush時、本番環境へ自動デプロイ（.github/workflows/deploy.yml）
+1. **自動テスト**: develop/main へのPR作成時・push時、Lint/TypeCheck/Test を自動実行
+2. **自動デプロイ**: main ブランチへのpush時、CI成功後に本番環境へ自動デプロイ
 3. **手動デプロイ**: GitHub UI から手動でデプロイトリガー
+
+すべて`.github/workflows/deploy.yml`（CI/CD統合ワークフロー）で管理されています。
 
 ### ブランチ戦略と環境
 
@@ -217,20 +219,32 @@ GitHubリポジトリの Settings → Secrets and variables → Actions で以�
 
 ワークフローファイルは既にリポジトリに含まれています：
 
-- **`.github/workflows/ci.yml`**: 自動テスト（develop/main へのPR・push時）
-- **`.github/workflows/deploy.yml`**: 自動デプロイ（main へのpush時）
+- **`.github/workflows/deploy.yml`**: CI/CD統合ワークフロー
 
-**ファイルの内容は直接参照してください**：
-- [ci.yml](../../.github/workflows/ci.yml)
-- [deploy.yml](../../.github/workflows/deploy.yml)
+**ファイルの内容は直接参照してください**：[deploy.yml](../../.github/workflows/deploy.yml)
 
 **主要な設定**:
-- ci.yml: `branches: [ develop, main ]`
-- deploy.yml: `branches: [ main ]`、Secrets検証あり
+- 2つのジョブ: `ci`（テスト）と`deploy`（デプロイ）
+- `deploy`ジョブは`needs: ci`で、CIが成功した後に実行
+- トリガー: PR/push（develop, main）、workflow_dispatch（手動）
+- deployジョブ実行条件: mainブランチへのpush時のみ
+
+**ジョブ依存関係**:
+```yaml
+jobs:
+  ci:
+    # Lint, Type Check, Tests, Build
+
+  deploy:
+    needs: ci  # CIが成功した後に実行
+    if: |
+      (github.ref == 'refs/heads/main' && github.event_name == 'push') ||
+      github.event_name == 'workflow_dispatch'
+```
 
 ### E2Eテスト除外（CI環境）
 
-E2EテストはCI環境では実行しない（ブラウザが必要なため）。必要に応じて `.github/workflows/ci.yml` に以下を追加：
+E2EテストはCI環境では実行しない（ブラウザが必要なため）。必要に応じて `.github/workflows/deploy.yml` のciジョブに以下を追加：
 
 ```yaml
       - name: Run E2E Tests (optional)
@@ -245,9 +259,11 @@ E2EテストはCI環境では実行しない（ブラウザが必要なため）
 ### GitHub Actions経由（推奨）
 
 1. GitHubリポジトリページで「Actions」タブをクリック
-2. 左サイドバーから「Deploy to Production」を選択
+2. 左サイドバーから「CI/CD」を選択
 3. 「Run workflow」ボタンをクリック
 4. ブランチ（main）を選択して実行
+
+**注意**: 手動実行時もCIジョブが先に実行され、成功した後にデプロイジョブが実行されます。
 
 ### VPS上で直接実行（緊急時）
 
