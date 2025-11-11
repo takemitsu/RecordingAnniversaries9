@@ -1,14 +1,78 @@
-name: Deploy to Production
+name: CI/CD
 
 on:
+  pull_request:
+    branches: [ develop, main ]
   push:
-    branches: [ main ]  # mainブランチへのpush時に自動デプロイ
+    branches: [ develop, main ]
   workflow_dispatch:  # 手動デプロイトリガー
 
 jobs:
-  deploy:
+  ci:
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: password
+          MYSQL_DATABASE: ra9_test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Type Check
+        run: npx tsc --noEmit
+
+      - name: Create test env file
+        run: |
+          cat << EOF > .env.local
+          DATABASE_URL="mysql://root:password@127.0.0.1:3306/ra9_test"
+          TEST_DATABASE_URL="mysql://root:password@127.0.0.1:3306/ra9_test"
+          AUTH_SECRET="test-secret-key-for-ci-must-be-at-least-32-characters-long"
+          AUTH_URL="http://localhost:3000"
+          GOOGLE_CLIENT_ID="test"
+          GOOGLE_CLIENT_SECRET="test"
+          NEXT_PUBLIC_WEBAUTHN_RP_ID="localhost"
+          NEXT_PUBLIC_WEBAUTHN_RP_NAME="Test"
+          NEXT_PUBLIC_WEBAUTHN_ORIGIN="http://localhost:3000"
+          NEXT_PUBLIC_APP_NAME="Test"
+          NEXT_PUBLIC_APP_URL="http://localhost:3000"
+          TZ="Asia/Tokyo"
+          NEXT_TELEMETRY_DISABLED=1
+          EOF
+
+      - name: Run Tests
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
+  deploy:
+    needs: ci  # CIジョブが成功した後に実行
+    runs-on: ubuntu-latest
+    if: |
+      (github.ref == 'refs/heads/main' && github.event_name == 'push') ||
+      github.event_name == 'workflow_dispatch'
 
     steps:
       - name: Check required secrets
@@ -64,9 +128,9 @@ jobs:
             echo "📦 Pulling latest code..."
             git pull origin main
 
-            # 依存関係を更新
+            # 依存関係を更新（VPSでビルドするためdevDependencies含む）
             echo "📦 Installing dependencies..."
-            npm ci --omit=dev
+            npm ci
 
             # 環境変数ファイルを更新
             echo "🔧 Updating environment variables..."
