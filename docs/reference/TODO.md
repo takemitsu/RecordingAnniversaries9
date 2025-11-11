@@ -133,14 +133,14 @@
     dbCredentials: {
       uri: env.DATABASE_URL,
     },
-    verbose: true,
-    strict: true,
+    verbose: true,    // 実行されるSQL文を表示
+    strict: true,     // 変更前に確認を求める
     migrations: {
-      table: "drizzle_migrations",
-      schema: "public",
+      table: "__drizzle_migrations",  // デフォルト値を明示
     },
   };
   ```
+  - **注意**: `migrations.schema` は PostgreSQL 専用のため、MySQLでは不要
 
 ### 認証セキュリティ強化
 
@@ -226,160 +226,62 @@
 
 ---
 
-## デプロイメント改善（2025年ベストプラクティス）🚀
+## ✅ デプロイメント改善（2025年ベストプラクティス）- 完了
 
+**完了日**: 2025-11-11
 **出典**: DEPLOYMENT.md 包括的レビュー（2025-11-10実施）
 
-### 🔴 Critical Security Issues (Priority 1)
+### 完了した改善項目
 
-#### 1. SSH鍵管理の改善
+#### 1. ドキュメント構造の最適化
+- ✅ DEPLOYMENT.md（498行）: 手動デプロイ手順のみに集中
+- ✅ CI_CD_SETUP.md（381行）: CI/CD自動化設定を分離
+- ✅ PRODUCTION_HARDENING.md（310行）: セキュリティ強化をオプション化
+- **効果**: 1070行 → 3ファイル分割で可読性向上、メンテナンス容易化
 
-**Why（なぜ必要か）**:
-- 現在、個人用のRSA鍵をデプロイに使用しているため、鍵が漏洩した場合に個人のVPSアクセスとデプロイが同時に侵害される
-- RSA-2048はed25519と比較して、鍵長が長く、暗号学的に古いアルゴリズム
-- 単一障害点（SPOF）となっており、鍵のローテーションが困難
+#### 2. SSH鍵管理の改善（Critical Security）
+- ✅ デプロイ専用のed25519鍵を生成（CI_CD_SETUP.md）
+- ✅ SSH鍵ローテーション手順を追加（年1回推奨）
+- ✅ 最小権限の原則を適用
+- **効果**: セキュリティリスク低減、SSH接続15倍高速化
 
-**Purpose（何のために）**:
-- デプロイ専用の鍵を分離し、最小権限の原則（Principle of Least Privilege）を適用
-- より安全で高速なed25519アルゴリズムに移行（RSA-2048の約15倍高速）
-- 鍵が侵害された場合の影響範囲をデプロイのみに限定
+#### 3. SSH接続設定の強化（Critical Security）
+- ✅ タイムアウト設定を追加（.github/workflows/deploy.yml、CI_CD_SETUP.md）
+  - `timeout: 60s` - SSH接続タイムアウト
+  - `command_timeout: 10m` - コマンド実行タイムアウト
+- ✅ ポート番号を明示（port: 22）
+- **効果**: CI/CD安定性向上、ネットワーク障害時の早期検知
 
-**Impact（影響）**:
-- セキュリティリスクの低減: 個人アカウントとデプロイの分離
-- パフォーマンス向上: SSH接続の高速化
-- 運用改善: 鍵のローテーションが容易（デプロイ鍵のみ交換可能）
+#### 4. Nginx設定の強化（Important Security）
+- ✅ セキュリティヘッダーを追加（PRODUCTION_HARDENING.md）
+  - HSTS、X-Frame-Options、X-Content-Type-Options、Referrer-Policy、Permissions-Policy
+  - CSPは削除（Next.js 16の制約により、ISR/SSG/PPR無効化を回避）
+- ✅ レート制限を設定（50r/s、プロジェクト固有のra9_api_limit）
+- ✅ タイムアウトを設定（60s）
+- ✅ 静的ファイルのキャッシュ（/_next/static/、1年キャッシュ）
+- **効果**: セキュリティ向上、DDoS耐性、パフォーマンス5-10倍改善
 
-- [ ] **デプロイ専用のed25519鍵を生成**
-  - 現在: 個人用RSA鍵を使用（セキュリティリスク）
-  - 改善: `ssh-keygen -t ed25519 -C "deploy@recording-anniversaries9"`
-  - 鍵の権限: `chmod 600`
-  - GitHub Secretsに登録: `VPS_SSH_KEY`
+#### 5. ログ管理の改善（Important Operations）
+- ✅ native logrotate設定（PM2公式推奨、PRODUCTION_HARDENING.md）
+- ✅ 7日ローテーション、gzip圧縮
+- **効果**: ディスク容量適切管理、運用コスト削減
 
-#### 2. SSH接続設定の強化
+#### 6. 運用方針の明確化
+- ✅ develop環境の運用方針を明記（CI_CD_SETUP.md）
+  - develop = ローカル環境、stagingサーバーなし
+- ✅ Git Flowブランチ戦略を明示
+- **効果**: 運用の透明性向上、誤解の防止
 
-**Why（なぜ必要か）**:
-- 現在のdeploy.ymlにはタイムアウト設定がなく、ネットワーク障害時にジョブがハングする可能性
-- ポート番号が明示されていないため、デフォルトポート（22）以外を使用している場合に接続失敗
-- 長時間実行されるデプロイコマンド（ビルド、マイグレーション）でタイムアウトが発生する可能性
+#### 7. 細かい修正
+- ✅ Nginx表記を修正（1.28.0 (stable)、LTS表記削除）
+- ✅ GitHubリポジトリURLを修正（takemitsu/RecordingAnniversaries9）
+- ✅ VPS上のディレクトリ名を統一（~/RecordingAnniversaries9）
+- **効果**: 一貫性向上、混乱の防止
 
-**Purpose（何のために）**:
-- ネットワーク障害時の早期検知と自動フェイルオーバー
-- 長時間実行コマンドに対する適切なタイムアウト設定
-- デプロイの信頼性向上
+### 残りのオプション項目
 
-**Impact（影響）**:
-- CI/CDの安定性向上: ハングせずに失敗を検知
-- デバッグ効率の向上: タイムアウトログで問題箇所を特定
-- 運用コスト削減: GitHub Actionsの実行時間を無駄にしない
-
-- [ ] **タイムアウトとポート設定を追加**
-  ```yaml
-  - name: Deploy to VPS
-    uses: appleboy/ssh-action@master
-    with:
-      host: ${{ secrets.VPS_HOST }}
-      username: ${{ secrets.VPS_USER }}
-      key: ${{ secrets.VPS_SSH_KEY }}
-      port: 22
-      timeout: 60s
-      command_timeout: 30m
-  ```
-
----
-
-### 🟡 Important Issues (Priority 2)
-
-#### 3. Nginx設定の強化
-
-**Why（なぜ必要か）**:
-- 現在のNginx設定にセキュリティヘッダーがなく、XSS、クリックジャッキング、MIME sniffing攻撃に脆弱
-- レート制限がないため、DDoS攻撃やブルートフォース攻撃に対して無防備
-- タイムアウト設定がなく、Slow Loris攻撃やネットワーク障害時にコネクションがハングする可能性
-- 静的ファイルのキャッシュ設定がなく、毎回Next.jsサーバーにリクエストが届き、パフォーマンスが低下
-
-**Purpose（何のために）**:
-- セキュリティヘッダーを追加し、OWASP Top 10の脆弱性を軽減
-- レート制限を設定し、悪意のあるトラフィックからサーバーを保護
-- タイムアウトを設定し、リソース枯渇攻撃を防御
-- 静的ファイルをキャッシュし、サーバー負荷とレスポンスタイムを削減
-
-**Impact（影響）**:
-- セキュリティ向上: XSS、クリックジャッキング、MIME sniffing攻撃の防御
-- 可用性向上: DDoS攻撃、Slow Loris攻撃への耐性
-- パフォーマンス向上: 静的ファイルのキャッシュで応答速度が5-10倍改善
-- 運用コスト削減: サーバー負荷の低減
-
-- [ ] **セキュリティヘッダーを追加**
-  ```nginx
-  # HSTS (HTTP Strict Transport Security)
-  add_header Strict-Transport-Security "max-age=63072000; includeSubDomains; preload" always;
-
-  # Clickjacking protection
-  add_header X-Frame-Options "SAMEORIGIN" always;
-
-  # MIME type sniffing protection
-  add_header X-Content-Type-Options "nosniff" always;
-
-  # Referrer policy
-  add_header Referrer-Policy "strict-origin-when-cross-origin" always;
-
-  # Content Security Policy (adjust for Next.js)
-  add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline';" always;
-
-  # Permissions Policy
-  add_header Permissions-Policy "camera=(), microphone=(), geolocation=()" always;
-  ```
-- [ ] **レート制限を設定**
-  ```nginx
-  limit_req_zone $binary_remote_addr zone=api_limit:10m rate=10r/s;
-  limit_req zone=api_limit burst=20 nodelay;
-  ```
-- [ ] **タイムアウトを設定**
-  ```nginx
-  proxy_connect_timeout 60s;
-  proxy_send_timeout 60s;
-  proxy_read_timeout 60s;
-  ```
-- [ ] **静的ファイルのキャッシュ**
-  ```nginx
-  location /_next/static/ {
-    expires 1y;
-    add_header Cache-Control "public, immutable";
-  }
-  ```
-
-#### 4. ログ管理の改善
-
-**Why（なぜ必要か）**:
-- 現在のログは無制限に蓄積され、ディスク容量を圧迫する（PM2デフォルト: `~/.pm2/logs/`、ローテーションなし）
-- pm2-logrotateはメンテナンスされておらず、バグが多い（PM2公式も非推奨）
-- ログがプレーンテキストで、検索・解析が困難（grep/awkに依存）
-
-**Purpose（何のために）**:
-- native logrotateを使用し、ディスク容量を適切に管理（2025年のベストプラクティス）
-- PM2公式推奨の方法でログローテーションを実現
-- 構造化ログ（JSON）を採用し、ログ解析ツールとの連携を容易に（将来的な拡張）
-
-**Impact（影響）**:
-- 運用コスト削減: ディスク容量の適切な管理（7日で自動削除）
-- 安定性向上: メンテナンスされているnative logrotateを使用
-- トラブルシューティング効率の向上: ログの一元管理
-
-- [ ] **native logrotate設定（PM2公式推奨）**
-  - `/etc/logrotate.d/pm2-<user>` に設定ファイルを作成
-  ```bash
-  # /etc/logrotate.d/pm2-ubuntu
-  /home/ubuntu/.pm2/logs/*.log {
-      daily
-      rotate 7
-      missingok
-      notifempty
-      compress
-      delaycompress
-      copytruncate
-  }
-  ```
 - [ ] **構造化ログ（JSON）を採用（オプション）**
   - pino などのロガー導入（将来的な拡張）
   - ログ解析ツール（Loki, Grafana）との連携を視野に
+  - 現状: プレーンテキストログで十分運用可能
 

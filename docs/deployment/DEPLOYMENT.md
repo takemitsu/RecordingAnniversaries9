@@ -31,7 +31,7 @@ Recording Anniversaries 9 を既存のさくらVPS環境にデプロイする手
 - Node.js: v20.19.5
 - npm: 10.8.2
 - MySQL: 8.0.43
-- nginx: 1.28.0
+- nginx: 1.28.0 (stable)
 - 既存サービス: ra8 (ra.takemitsu.net), maji-kichi-meshi など
 ```
 
@@ -156,8 +156,8 @@ EXIT;
 cd ~
 
 # Gitクローン
-git clone https://github.com/YOUR_USERNAME/recording-anniversaries9.git
-cd recording-anniversaries9
+git clone https://github.com/takemitsu/RecordingAnniversaries9.git
+cd RecordingAnniversaries9
 
 # 本番ブランチにチェックアウト
 git checkout main
@@ -273,6 +273,9 @@ curl http://ra.takemitsu.net
 
 # 正常にHTMLが返ってくればOK
 ```
+
+**本番環境のセキュリティ強化**: セキュリティヘッダー、レート制限、タイムアウト設定、キャッシュ設定等については、
+デプロイ完了後に [PRODUCTION_HARDENING.md](./PRODUCTION_HARDENING.md#nginx-security) を参照してください（オプション）。
 
 ---
 
@@ -424,198 +427,14 @@ npm run import:data export.json
 
 ---
 
-## CI/CD設定
+## CI/CD自動デプロイ（オプション）
 
-GitHub Actionsを使用した自動デプロイ設定です。
+GitHub Actionsを使った自動デプロイを設定することで、main ブランチへのpush時に自動的に本番環境へデプロイできます。
 
-### 概要
+**CI/CD設定は必須ではありません**。上記の手動デプロイ手順でも十分に運用可能です。
 
-以下のワークフローを実装します（Git Flow）：
-
-1. **自動テスト**: develop/main へのPR作成時・push時、Lint/TypeCheck/Test を自動実行（.github/workflows/ci.yml）
-2. **自動デプロイ**: main ブランチへのpush時、本番環境へ自動デプロイ（.github/workflows/deploy.yml）
-3. **手動デプロイ**: GitHub UI から手動でデプロイトリガー
-
-**ブランチ戦略**: Git Flow
-- 開発ブランチ → PR → develop（CI） → PR → main（CI + 自動デプロイ）
-
-### 1. GitHub Secrets 設定
-
-GitHubリポジトリの Settings → Secrets and variables → Actions で以下を追加：
-
-| Secret名 | 説明 | 例 |
-|---------|------|-----|
-| `VPS_HOST` | VPSのホスト名 | `takemitsu.net` |
-| `VPS_USER` | SSHユーザー名 | `ubuntu` |
-| `VPS_SSH_KEY` | SSH秘密鍵 | （秘密鍵の内容全体） |
-| `DATABASE_URL` | 本番DB接続文字列 | `mysql://ra9user:password@localhost:3306/ra9` |
-| `AUTH_SECRET` | Auth.js署名鍵 | `openssl rand -base64 32`で生成 |
-| `GOOGLE_CLIENT_ID` | Google OAuth Client ID | ra8から取得 |
-| `GOOGLE_CLIENT_SECRET` | Google OAuth Client Secret | ra8から取得 |
-
-**SSH秘密鍵の取得方法**:
-
-```bash
-# ローカルマシンで秘密鍵の内容をコピー
-cat ~/.ssh/id_rsa
-# または
-cat ~/.ssh/id_ed25519
-```
-
-#### GitHub Secretsへの設定方法
-
-機密情報のみをGitHub Secretsに設定します。非機密情報（URLs、APP_NAME等）は`deploy.yml`に直接記述されているため、変更時はGit経由で更新できます。
-
-**設定手順**:
-
-1. GitHubリポジトリページで「Settings」→「Secrets and variables」→「Actions」
-2. 「New repository secret」をクリック
-3. 各Secretを個別に追加
-
-**重要**: 機密情報のみSecretsに設定することで、運用性が向上します（非機密情報の変更時にSecretsを触る必要がない）
-
-### 2. GitHub Actions ワークフローファイル
-
-ワークフローファイルは既にリポジトリに含まれています：
-
-- **`.github/workflows/ci.yml`**: 自動テスト（develop/main へのPR・push時）
-- **`.github/workflows/deploy.yml`**: 自動デプロイ（main へのpush時）
-
-**ファイルの内容は直接参照してください**：
-- [ci.yml](../../.github/workflows/ci.yml)
-- [deploy.yml](../../.github/workflows/deploy.yml)
-
-**主要な設定**:
-- ci.yml: `branches: [ develop, main ]`
-- deploy.yml: `branches: [ main ]`、Secrets検証あり
-
-### 3. E2Eテスト除外（CI環境）
-
-E2EテストはCI環境では実行しない（ブラウザが必要なため）。必要に応じて `.github/workflows/ci.yml` に以下を追加：
-
-```yaml
-      - name: Run E2E Tests (optional)
-        if: false  # CI環境ではスキップ
-        run: npm run test:e2e
-```
-
-### 4. 手動デプロイの実行方法
-
-#### GitHub Actions経由（推奨）
-
-1. GitHubリポジトリページで「Actions」タブをクリック
-2. 左サイドバーから「Deploy to Production」を選択
-3. 「Run workflow」ボタンをクリック
-4. ブランチ（main）を選択して実行
-
-#### VPS上で直接実行（緊急時）
-
-GitHub Actionsが使えない場合やテスト目的で、VPS上で直接デプロイ可能：
-
-```bash
-# VPSにSSH接続
-ssh ubuntu@takemitsu.net
-
-# プロジェクトディレクトリに移動
-cd ~/recording-anniversaries9
-
-# Gitから最新版を取得
-git pull origin main
-
-# 依存関係を更新
-npm ci --omit=dev
-
-# 環境変数ファイルを設定（手動で編集）
-nano .env.local
-# または既存の .env.local をそのまま使う
-
-# パーミッション設定
-chmod 600 .env.local
-
-# ビルド
-npm run build
-
-# データベースマイグレーション（必要に応じて）
-npm run db:migrate
-
-# PM2でアプリケーションを再起動
-pm2 restart ra9-app || pm2 start npm --name "ra9-app" -- start
-
-# ログ確認
-pm2 logs ra9-app --lines 50
-```
-
-**注意**: 手動デプロイの場合、`.env.local` は事前にVPS上に作成・配置しておく必要があります。
-
-### 5. デプロイ通知（オプション）
-
-Slack通知を追加する場合、`.github/workflows/deploy.yml` に追加：
-
-```yaml
-      - name: Notify Slack
-        if: always()
-        uses: 8398a7/action-slack@v3
-        with:
-          status: ${{ job.status }}
-          text: 'Deployment to ra.takemitsu.net'
-          webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
-```
-
-Slack Webhook URLを GitHub Secrets に追加してください。
-
-### 6. ロールバック手順
-
-デプロイ後に問題が発生した場合のロールバック：
-
-```bash
-# VPSにSSH接続
-cd ~/recording-anniversaries9
-
-# 前のコミットに戻す
-git log --oneline -5  # コミット履歴確認
-git reset --hard <前のコミットハッシュ>
-
-# 再ビルド・再起動
-npm run build
-pm2 restart ra9-app
-```
-
-### CI/CD フロー図（Git Flow）
-
-```
-開発ブランチ → PR（→ develop） → 自動テスト（CI）
-                                    ↓
-                                    ✅ Pass → マージ可能
-                                    ❌ Fail → 修正が必要
-                                    ↓
-                                 マージ → develop
-                                    ↓
-                              （開発環境で動作確認）
-                                    ↓
-                        develop → PR（→ main） → 自動テスト（CI）
-                                                    ↓
-                                                    ✅ Pass
-                                                    ↓
-                                                 マージ → main
-                                                    ↓
-                                                自動デプロイ
-                                                    ↓
-                                            1. git pull origin main
-                                            2. npm ci --omit=dev
-                                            3. 環境変数更新（PRODUCTION_ENV）
-                                            4. npm run build
-                                            5. npm run db:migrate
-                                            6. pm2 restart ra9-app
-                                                    ↓
-                                            ✅ デプロイ完了
-
-手動トリガー → GitHub UI から実行（main branch）
-```
-
-**メリット**:
-- develop でテストしてから本番（main）へ
-- リリース管理が厳格
-- 本番環境への影響を最小化
+**CI/CD設定の詳細手順**: GitHub Actions、GitHub Secrets、SSH鍵設定、ワークフローファイル等については、
+[CI_CD_SETUP.md](./CI_CD_SETUP.md) を参照してください。
 
 ---
 
@@ -624,6 +443,9 @@ pm2 restart ra9-app
 デプロイ後の日常的な運用手順については、以下のドキュメントを参照してください：
 
 - **[OPERATIONS.md](../operations/OPERATIONS.md)** - アプリケーション更新、ログ確認、バックアップ、PM2管理
+
+**ログローテーション設定**: PM2ログの自動ローテーション設定については、
+デプロイ完了後に [PRODUCTION_HARDENING.md](./PRODUCTION_HARDENING.md#log-management) を参照してください（オプション）。
 
 ---
 
@@ -673,4 +495,5 @@ pm2 restart ra9-app
 
 ---
 
-**ドキュメント更新日**: 2025-11-07
+**ドキュメント作成日**: 2025-11-07
+**最終更新日**: 2025-11-11（リファクタリング: オプション設定を別ドキュメントに分離）

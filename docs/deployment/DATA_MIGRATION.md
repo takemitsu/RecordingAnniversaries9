@@ -232,7 +232,7 @@ EXIT;
 
 ```bash
 # ra9アプリケーションを起動（まだra8は稼働中）
-cd ~/recording-anniversaries9
+cd ~/RecordingAnniversaries9
 npm run build
 pm2 start npm --name "ra9-app-test" -- start
 

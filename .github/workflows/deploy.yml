@@ -49,13 +49,16 @@ jobs:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
+          port: 22                    # ポート番号を明示
+          timeout: 60s                # SSH接続タイムアウト（60秒）
+          command_timeout: 10m        # コマンド実行タイムアウト（10分）
           script: |
             set -e
 
             echo "🚀 Starting deployment..."
 
             # プロジェクトディレクトリに移動
-            cd ~/recording-anniversaries9
+            cd ~/RecordingAnniversaries9
 
             # Gitから最新版を取得
             echo "📦 Pulling latest code..."
