@@ -9,6 +9,7 @@
 ### 完了済み機能
 
 - ✅ Google OAuth認証
+- ✅ Passkey（WebAuthn）認証
 - ✅ 記念日の作成・編集・削除
 - ✅ グループ（Collection）による分類
 - ✅ カウントダウン・カウントアップ表示
@@ -19,14 +20,14 @@
 - ✅ プロフィール設定
 - ✅ レスポンシブデザイン（モバイルファースト）
 - ✅ ダークモード対応
-- ✅ **テスト実装完了（Phase 1-4）**
-  - **総計: 155テスト全通過**（Unit 55 + Integration 27 + Component 51 + E2E 19 + Setup 1）
+- ✅ **テスト実装完了**
+  - **総計: 200テスト全通過**（Unit 55 + Integration 33 + Component 88 + E2E 24）
   - 詳細は [docs/TESTING.md](docs/TESTING.md) 参照
 
 ### 未実装機能
 
-- ❌ Passkey（WebAuthn）認証
 - ❌ 通知機能（ブラウザプッシュ）
+- ❌ レート制限（Server Actions）
 
 詳細な技術スタック、プロジェクト構造、データ構造については [CLAUDE.md](CLAUDE.md) を参照してください。
 
@@ -39,6 +40,7 @@
 | **anniversaries** | 個別の記念日 | id, collection_id, name, anniversary_date (DATE型), description |
 | **accounts** | OAuth連携情報 | (Auth.js用) |
 | **sessions** | セッション情報 | (Auth.js用) |
+| **authenticators** | Passkey認証情報 | (Auth.js用、WebAuthn) |
 
 **注**: ソフトデリート（deleted_at）は実装されていません。
 
@@ -83,6 +85,7 @@ npm run dev
 
 ### 認証
 - **Google OAuth** - ワンクリックログイン
+- **Passkey認証**
 - **セッション管理** - database strategy
 - **認証ヘルパー** - getUserId()でユーザーID取得
 
@@ -159,7 +162,7 @@ open coverage/index.html
 
 ### テスト構成
 
-**総計: 155テスト全通過 ✅**
+**総計: 200テスト全通過 ✅**
 
 詳細は [docs/TESTING.md](docs/TESTING.md) 参照。
 
@@ -201,19 +204,19 @@ open coverage/index.html
 
 ## ドキュメント
 
-- [TECH_DECISIONS.md](docs/TECH_DECISIONS.md) - 技術的な決定事項
-- [TODO.md](docs/TODO.md) - 未実装機能リスト
-- [SETUP.md](docs/SETUP.md) - セットアップ手順
+- [TECH_DECISIONS.md](docs/reference/TECH_DECISIONS.md) - 技術的な決定事項
+- [TODO.md](docs/reference/TODO.md) - 未実装機能リスト
+- [SETUP.md](docs/setup/SETUP.md) - セットアップ手順
 
 ## 技術的決定事項
 
-主要な設計判断については [docs/TECH_DECISIONS.md](docs/TECH_DECISIONS.md) を参照。
+主要な設計判断については [docs/reference/TECH_DECISIONS.md](docs/reference/TECH_DECISIONS.md) を参照。
 
 ---
 
 詳細なドキュメント：
 - **プロジェクト全体**: [CLAUDE.md](CLAUDE.md)
-- **技術的決定**: [docs/TECH_DECISIONS.md](docs/TECH_DECISIONS.md)
-- **セットアップ**: [docs/SETUP.md](docs/SETUP.md)
+- **技術的決定**: [docs/reference/TECH_DECISIONS.md](docs/reference/TECH_DECISIONS.md)
+- **セットアップ**: [docs/setup/SETUP.md](docs/setup/SETUP.md)
 - **テスト**: [docs/TESTING.md](docs/TESTING.md)
-- **TODO**: [docs/TODO.md](docs/TODO.md)
+- **TODO**: [docs/reference/TODO.md](docs/reference/TODO.md)

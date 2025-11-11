@@ -1,0 +1,118 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches: [ main ]  # mainブランチへのpush時に自動デプロイ
+  workflow_dispatch:  # 手動デプロイトリガー
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
+
+    steps:
+      - name: Check required secrets
+        run: |
+          if [ -z "${{ secrets.VPS_HOST }}" ]; then
+            echo "❌ Error: VPS_HOST secret is not set"
+            exit 1
+          fi
+          if [ -z "${{ secrets.VPS_USER }}" ]; then
+            echo "❌ Error: VPS_USER secret is not set"
+            exit 1
+          fi
+          if [ -z "${{ secrets.VPS_SSH_KEY }}" ]; then
+            echo "❌ Error: VPS_SSH_KEY secret is not set"
+            exit 1
+          fi
+          if [ -z "${{ secrets.DATABASE_URL }}" ]; then
+            echo "❌ Error: DATABASE_URL secret is not set"
+            exit 1
+          fi
+          if [ -z "${{ secrets.AUTH_SECRET }}" ]; then
+            echo "❌ Error: AUTH_SECRET secret is not set"
+            exit 1
+          fi
+          if [ -z "${{ secrets.GOOGLE_CLIENT_ID }}" ]; then
+            echo "❌ Error: GOOGLE_CLIENT_ID secret is not set"
+            exit 1
+          fi
+          if [ -z "${{ secrets.GOOGLE_CLIENT_SECRET }}" ]; then
+            echo "❌ Error: GOOGLE_CLIENT_SECRET secret is not set"
+            exit 1
+          fi
+          echo "✅ All required secrets are set"
+
+      - name: Deploy to VPS
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: 22                    # ポート番号を明示
+          timeout: 60s                # SSH接続タイムアウト（60秒）
+          command_timeout: 10m        # コマンド実行タイムアウト（10分）
+          script: |
+            set -e
+
+            echo "🚀 Starting deployment..."
+
+            # プロジェクトディレクトリに移動
+            cd ~/RecordingAnniversaries9
+
+            # Gitから最新版を取得
+            echo "📦 Pulling latest code..."
+            git pull origin main
+
+            # 依存関係を更新
+            echo "📦 Installing dependencies..."
+            npm ci --omit=dev
+
+            # 環境変数ファイルを更新
+            echo "🔧 Updating environment variables..."
+            cat << EOF > .env.local
+            # Database Configuration
+            DATABASE_URL="${{ secrets.DATABASE_URL }}"
+
+            # Auth.js Configuration
+            AUTH_SECRET="${{ secrets.AUTH_SECRET }}"
+            AUTH_URL="https://ra.takemitsu.net"
+
+            # Google OAuth
+            GOOGLE_CLIENT_ID="${{ secrets.GOOGLE_CLIENT_ID }}"
+            GOOGLE_CLIENT_SECRET="${{ secrets.GOOGLE_CLIENT_SECRET }}"
+
+            # WebAuthn (Passkey) Configuration
+            NEXT_PUBLIC_WEBAUTHN_RP_ID="ra.takemitsu.net"
+            NEXT_PUBLIC_WEBAUTHN_RP_NAME="Recording Anniversaries"
+            NEXT_PUBLIC_WEBAUTHN_ORIGIN="https://ra.takemitsu.net"
+
+            # Application
+            NEXT_PUBLIC_APP_NAME="Recording Anniversaries 9"
+            NEXT_PUBLIC_APP_URL="https://ra.takemitsu.net"
+
+            # Timezone
+            TZ="Asia/Tokyo"
+
+            # Next.js Telemetry
+            NEXT_TELEMETRY_DISABLED=1
+            EOF
+            chmod 600 .env.local
+
+            # ビルド
+            echo "🏗️  Building application..."
+            npm run build
+
+            # データベースマイグレーション
+            echo "🗄️  Running database migrations..."
+            npm run db:migrate
+
+            # PM2でアプリケーションを再起動
+            echo "♻️  Restarting application..."
+            pm2 restart ra9-app || pm2 start npm --name "ra9-app" -- start
+
+            # ログ確認
+            echo "📋 Application logs:"
+            pm2 logs ra9-app --lines 20 --nostream
+
+            echo "✅ Deployment complete!"

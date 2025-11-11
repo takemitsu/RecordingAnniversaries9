@@ -224,29 +224,24 @@ if (!result.success) {
 
 ### 実装完了（全Phase）
 
-- ✅ **Phase 1: Unit Tests**（55テスト）- 2025-11-04完了
-- ✅ **Phase 2: Integration Tests**（27テスト）- 2025-11-05完了
-- ✅ **Phase 3: Component Tests**（51テスト）- 2025-11-05完了
-- ✅ **Phase 4: E2E Tests**（19テスト）- 2025-11-06完了
+- ✅ **Phase 1: Unit Tests**（55テスト）
+- ✅ **Phase 2: Integration Tests**（33テスト）
+- ✅ **Phase 3: Component Tests**（51テスト）
+- ✅ **Phase 4: E2E Tests**（24テスト）
   - Playwright使用、Auth.js Database strategy対応
-  - Collections/Anniversaries CRUD、Dashboard、Profile、Accessibility
-  - Testing Trophy準拠（E2E: 12.3%、理想値5-10%に近い）
+  - Collections/Anniversaries CRUD、Dashboard、Profile、Passkey UI、Accessibility
+  - Testing Trophy準拠（E2E: 14.9%、理想値5-10%を少し超過）
 
 詳細は `docs/TESTING.md` 参照。
 
 ## 未決定事項
 
-### 1. Passkey の保存先
-- Auth.js のデフォルトテーブルを使用するか
-- カスタムテーブル（webauthn_credentials）を使用するか
-- → Auth.js のドキュメントを確認後に決定
-
-### 2. 本番環境のDBマイグレーション戦略
+### 1. 本番環境のDBマイグレーション戦略
 - Drizzle Kit の push を使用するか
 - マイグレーションファイルを生成して管理するか
 - → 開発が進んでから決定
 
-### 3. エラーハンドリング戦略
+### 2. エラーハンドリング戦略
 - error.tsx の配置方法
 - グローバルエラーハンドリング
 - → UI実装時に決定
