@@ -2,6 +2,8 @@
 
 大切な記念日を記録・管理するNext.js 16アプリケーション
 
+**本番環境**: [https://ra.takemitsu.net](https://ra.takemitsu.net)
+
 ## プロジェクト概要
 
 大切な記念日を記録・管理するWebアプリケーション。Next.js 16とReact 19を使用し、モダンな技術スタックで構築されています。
@@ -23,11 +25,15 @@
 - ✅ **テスト実装完了**
   - **総計: 200テスト全通過**（Unit 55 + Integration 33 + Component 88 + E2E 24）
   - 詳細は [docs/TESTING.md](docs/TESTING.md) 参照
+- ✅ **本番環境デプロイ完了**（2025-11-11）
+  - さくらVPS（Ubuntu 24.04.3 LTS）
+  - https://ra.takemitsu.net
 
 ### 未実装機能
 
 - ❌ 通知機能（ブラウザプッシュ）
 - ❌ レート制限（Server Actions）
+- ❌ CI/CD自動デプロイ（オプション）
 
 詳細な技術スタック、プロジェクト構造、データ構造については [CLAUDE.md](CLAUDE.md) を参照してください。
 

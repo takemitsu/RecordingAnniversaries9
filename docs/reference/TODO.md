@@ -1,29 +1,17 @@
 # TODO
 
-## データ移行（ra8 → ra9）📦
+## ✅ データ移行（ra8 → ra9）- 完了
 
-### 1. ra8側のエクスポートスクリプト作成
-- [ ] ra8プロジェクトのClaudeに `docs/deployment/RA8_EXPORT_SPEC.md` を渡す
-- [ ] エクスポートスクリプト作成を依頼
-- [ ] ra8でエクスポート実行: `php artisan export:data` または `npm run export`
-- [ ] `export.json` の出力確認
+**完了日**: 2025-11-11
 
-### 2. ローカル環境でテスト
-- [ ] `export.json` を ra9 プロジェクトルートにコピー
-- [ ] テストDB準備（ra9_test）
-- [ ] テストDBにインポート: `DATABASE_URL="mysql://..." npm run import:data export.json`
-- [ ] データ検証:
-  - [ ] ユーザー数が正しいか（6人）
-  - [ ] Collections数が正しいか
-  - [ ] Anniversaries数が正しいか
-  - [ ] 各ユーザーのデータが表示されるか（ブラウザ確認）
-  - [ ] CRUD操作が正常に動作するか
+### 完了した作業
 
-### 3. 本番環境への移行
-- [ ] 本番DB バックアップ取得
-- [ ] 本番DBにインポート: `DATABASE_URL="mysql://..." npm run import:data export.json`
-- [ ] 本番環境での動作確認
-- [ ] 各ユーザーがGoogle OAuthでログイン可能か確認
+- ✅ ra8側でエクスポート実行
+- ✅ `export.json`の出力確認（5ユーザー、15 Collections、36 Anniversaries）
+- ✅ 本番環境への移行
+  - データ移行成功: `DATABASE_URL="mysql://..." npm run import:data export.json`
+  - 全ユーザーでGoogle OAuthログイン確認済み
+  - CRUD操作動作確認済み
 
 **参考ドキュメント**:
 - [DATA_MIGRATION_JSON.md](../deployment/DATA_MIGRATION_JSON.md) - 全体の移行手順

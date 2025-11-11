@@ -20,7 +20,8 @@ cd ~/recording-anniversaries9
 git pull origin main
 
 # 依存関係を更新（必要に応じて）
-npm ci --omit=dev
+# VPS上でビルドする場合は devDependencies も必要
+npm ci
 
 # ビルド
 npm run build

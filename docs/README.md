@@ -17,6 +17,13 @@ Claude Code 使用時は、ルートの [CLAUDE.md](../CLAUDE.md) を参照し�
 
 ---
 
+## テスト
+
+### [TESTING.md](./TESTING.md)
+テスト実行・メンテナンス方法（Unit/Integration/Component/E2E、200テスト）
+
+---
+
 ## デプロイ
 
 ### [deployment/DEPLOYMENT.md](./deployment/DEPLOYMENT.md)
@@ -55,6 +62,7 @@ ra8 → ra9 データ移行手順（スキーマ差分、SQL移行スクリプ�
 ```
 docs/
 ├── README.md                      # このファイル
+├── TESTING.md                     # テスト実行・メンテナンス
 ├── setup/
 │   └── SETUP.md                   # セットアップ手順
 ├── deployment/

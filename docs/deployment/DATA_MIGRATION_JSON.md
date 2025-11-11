@@ -205,12 +205,11 @@ cp /path/to/ra8/export.json /path/to/ra9/export.json
 ```bash
 cd /path/to/recordingAnniversaries9
 
-# 環境変数を一時的にテストDBに変更
-export DATABASE_URL="mysql://user:password@localhost:3306/ra9_test"
-
-# インポート実行
-npm run import:data export.json
+# 環境変数を明示的に指定してインポート実行
+DATABASE_URL="mysql://user:password@localhost:3306/ra9_test" npm run import:data export.json
 ```
+
+**注意**: `import-data.ts`スクリプトは`.env.local`を自動読み込みしないため、`DATABASE_URL`を明示的に指定する必要があります。
 
 **出力例**:
 ```

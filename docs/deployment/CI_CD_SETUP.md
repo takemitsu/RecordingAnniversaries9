@@ -62,7 +62,7 @@
                                                 自動デプロイ
                                                     ↓
                                             1. git pull origin main
-                                            2. npm ci --omit=dev
+                                            2. npm ci（VPSでビルドするためdevDependencies含む）
                                             3. 環境変数更新（PRODUCTION_ENV）
                                             4. npm run build
                                             5. npm run db:migrate
@@ -263,8 +263,8 @@ cd ~/RecordingAnniversaries9
 # Gitから最新版を取得
 git pull origin main
 
-# 依存関係を更新
-npm ci --omit=dev
+# 依存関係を更新（VPS上でビルドするためdevDependencies含む）
+npm ci
 
 # 環境変数ファイルを設定（手動で編集）
 nano .env.local

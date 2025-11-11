@@ -259,15 +259,20 @@ Users (ユーザー)
   - Testing Trophy理論準拠（E2E: 12%、理想値5-10%を少し超過）
 - **総計**: 200テスト全通過 ✅
 
+### デプロイメント
+- ✅ **本番環境デプロイ完了**（2025-11-11）
+  - **URL**: https://ra.takemitsu.net
+  - **環境**: さくらVPS（Ubuntu 24.04.3 LTS）
+  - **PM2**: 自動起動設定完了（systemd管理）
+  - **データ移行**: ra8→ra9完了（5ユーザー、15 Collections、36 Anniversaries）
+  - **全機能動作確認済み**: Google OAuth、Passkey、CRUD操作、カウントダウン、和暦表示
+
 ## 未実装機能・次にやること 🚧
 
 ### 機能拡張
 - [ ] 通知機能（ブラウザプッシュ通知）
 - [ ] レート制限（Server Actions）
-
-### デプロイ
-- [ ] 本番環境設定
-- [ ] CI/CD設定
+- [ ] CI/CD設定（オプション、詳細は[CI_CD_SETUP.md](docs/deployment/CI_CD_SETUP.md)）
 
 ## デプロイ先
 

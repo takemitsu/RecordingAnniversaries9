@@ -53,3 +53,6 @@ next-env.d.ts
 
 # Data migration
 export.json
+
+# Deployment memos (contains sensitive information)
+deployment_memo.md

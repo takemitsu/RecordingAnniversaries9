@@ -281,24 +281,6 @@ sudo cat /etc/nginx/conf.d/ra.conf
 sudo systemctl restart nginx
 ```
 
-### 8. ra8のクリーンアップ（オプション）
-
-データ移行が完全に成功し、ra9が安定稼働したら：
-
-```bash
-# ra8プロジェクトディレクトリをバックアップ
-sudo tar -czf ~/ra8_backup_$(date +%Y%m%d).tar.gz /var/www/ra8/
-
-# ra8データベースをバックアップ
-mysqldump -u ra8user -p ra8_database > ~/ra8_database_backup_$(date +%Y%m%d).sql
-
-# ra8プロジェクトディレクトリを削除（慎重に！）
-# sudo rm -rf /var/www/ra8/
-
-# ra8データベースを削除（慎重に！バックアップ確認後）
-# mysql -u root -p -e "DROP DATABASE ra8_database;"
-```
-
 ---
 
 ## トラブルシューティング

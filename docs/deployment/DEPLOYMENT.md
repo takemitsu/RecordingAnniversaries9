@@ -53,10 +53,10 @@ Recording Anniversaries 9 を既存のさくらVPS環境にデプロイする手
 ### デプロイ方針の詳細
 
 - **ドメイン**: `ra.takemitsu.net`（既存ドメインをそのまま使用）
-- **ra8**: 停止・削除
+- **ra8**: Nginx設定をra9に切り替え（ra8プロジェクトは残置）
 - **データ移行**: **必須**（export/import方式、詳細は[データ移行](#データ移行ra8ra9)参照）
 - **メリット**: ユーザーはドメイン変更不要、ブックマーク等そのまま利用可能
-- **デメリット**: ダウンタイム発生（移行作業中）、後戻りは困難
+- **デメリット**: ダウンタイム発生（移行作業中）
 
 ### 注意事項
 
@@ -166,8 +166,11 @@ git checkout main
 ### 2. 依存関係インストール
 
 ```bash
-npm ci --omit=dev
+# VPS上でビルドする場合は devDependencies も必要
+npm ci
 ```
+
+**注意**: `npm ci --omit=dev`を使用すると、TypeScript等のdevDependenciesがインストールされず、ビルドに失敗します。VPS上でビルドする場合は、`npm ci`でdevDependenciesを含めて全てインストールしてください。
 
 ### 3. 環境変数設定
 
@@ -420,8 +423,11 @@ cat .gitignore | grep .env.local
 ra8側でエクスポートした`export.json`をプロジェクトルートにコピーしてから、以下を実行：
 
 ```bash
-npm run import:data export.json
+# 環境変数を明示的に指定してインポート
+DATABASE_URL="mysql://ra9user:YOUR_PASSWORD@localhost:3306/ra9" npm run import:data export.json
 ```
+
+**注意**: `import-data.ts`スクリプトは`.env.local`を自動読み込みしないため、`DATABASE_URL`を明示的に指定する必要があります。
 
 詳細な手順は **[DATA_MIGRATION_JSON.md](./DATA_MIGRATION_JSON.md)** を参照してください。
 
@@ -454,6 +460,59 @@ GitHub Actionsを使った自動デプロイを設定することで、main ブ�
 本番環境デプロイ前のセキュリティチェック項目については、以下のドキュメントを参照してください：
 
 - **[SECURITY_CHECKLIST.md](./SECURITY_CHECKLIST.md)** - HTTPS設定、環境変数、データベース、ファイアウォール、Auth.js設定など
+
+---
+
+## PM2自動起動の詳細設定
+
+PM2の自動起動設定で`protocol`エラーが発生する場合は、systemdサービスファイルの`Type`を変更します。
+
+### 問題と解決方法
+
+**問題**: `pm2 startup`実行後、`systemctl start pm2-ubuntu`で`protocol`エラーが発生
+
+**原因**: デフォルトの`Type=forking`がPM2の動作と合わない
+
+**解決**: `/etc/systemd/system/pm2-ubuntu.service`を編集
+
+```bash
+sudo vim /etc/systemd/system/pm2-ubuntu.service
+```
+
+以下の2行を修正：
+
+```ini
+# 変更前
+Type=forking
+PIDFile=/home/ubuntu/.pm2/pm2.pid
+
+# 変更後
+Type=oneshot
+RemainAfterExit=yes
+# PIDFile行を削除またはコメントアウト
+```
+
+変更後、systemdを再読み込み：
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl restart pm2-ubuntu
+systemctl status pm2-ubuntu  # Active: active (exited) を確認
+```
+
+### MySQLの後にPM2を起動する設定（推奨）
+
+```bash
+sudo vim /etc/systemd/system/pm2-ubuntu.service
+```
+
+`After`行を修正：
+
+```ini
+After=network.target mysql.service
+```
+
+これにより、データベース起動後にアプリケーションが起動し、DB接続エラーを防ぎます。
 
 ---
 
@@ -495,5 +554,19 @@ GitHub Actionsを使った自動デプロイを設定することで、main ブ�
 
 ---
 
+## デプロイ実績
+
+**初回デプロイ完了**: 2025-11-11
+
+- ✅ さくらVPS（Ubuntu 24.04.3 LTS）
+- ✅ ドメイン: https://ra.takemitsu.net
+- ✅ データ移行成功: 5ユーザー、15 Collections、36 Anniversaries
+- ✅ PM2自動起動設定完了（systemd管理）
+- ✅ 全機能動作確認済み
+
+**所要時間**: 約2時間（環境確認からデプロイ完了まで）
+
+---
+
 **ドキュメント作成日**: 2025-11-07
-**最終更新日**: 2025-11-11（リファクタリング: オプション設定を別ドキュメントに分離）
+**最終更新日**: 2025-11-11（実際のデプロイ知見を反映）
