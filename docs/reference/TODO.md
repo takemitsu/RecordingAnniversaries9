@@ -185,7 +185,9 @@
 - [ ] **E2E TestsをCIに統合**
   - Playwright をヘッドレスモードで実行
 
-#### ドキュメントの充実
+#### ✅ ドキュメントの充実 - 完了
+
+**完了日**: 2025-11-11
 
 **Why（なぜ必要か）**:
 - 技術選定の理由が記録されておらず、なぜその技術を選んだのかが不明
@@ -202,15 +204,25 @@
 - インシデント対応の迅速化: Runbookで標準化された手順で対応
 - オンボーディング時間の短縮: アーキテクチャ図で全体像を即座に理解（数日 → 数時間）
 
-- [ ] **ADR（Architecture Decision Records）作成**
-  - 技術選定の理由を記録
-  - `docs/adr/` ディレクトリ
-- [ ] **Runbook作成**
-  - 障害対応手順
-  - `docs/operations/RUNBOOK.md`
-- [ ] **アーキテクチャ図の作成**
-  - システム構成図
-  - データフロー図
+**完了した項目**:
+- ✅ **ADR（Architecture Decision Records）作成** - `docs/adr/`
+  - 0001: Drizzle ORMの採用
+  - 0002: Auth.js v5の採用
+  - 0003: Tailwind CSS v4の採用
+  - 0004: 記念日にDATE型を使用
+  - 0005: dayjsの採用
+  - 0006: Next.js 16 App Routerの採用
+- ✅ **Runbook作成** - `docs/operations/RUNBOOK.md`
+  - 重大度レベル定義（P0-P3）
+  - オンコール対応フロー
+  - インシデント対応手順（診断 → 緩和 → 修正 → 検証 → 事後対応）
+  - 主要インシデントシナリオ
+- ✅ **アーキテクチャ図の作成** - `docs/architecture/SYSTEM_ARCHITECTURE.md`
+  - システム構成図（Mermaid）
+  - データフロー図（Mermaid）
+  - アプリケーション構造図（Mermaid）
+  - データベーススキーマ（ER図）
+  - 認証フロー（シーケンス図）
 
 ---
 

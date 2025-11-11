@@ -42,6 +42,9 @@ ra8 → ra9 データ移行手順（スキーマ差分、SQL移行スクリプ�
 ### [operations/OPERATIONS.md](./operations/OPERATIONS.md)
 日常的な運用・メンテナンス手順（アプリ更新、ログ確認、バックアップ、PM2管理）
 
+### [operations/RUNBOOK.md](./operations/RUNBOOK.md)
+インシデント対応手順書（重大度レベル、オンコール対応フロー、障害対応シナリオ）
+
 ### [operations/TROUBLESHOOTING.md](./operations/TROUBLESHOOTING.md)
 トラブルシューティングガイド（起動失敗、DB接続エラー、認証問題、SSL証明書など）
 
@@ -54,6 +57,16 @@ ra8 → ra9 データ移行手順（スキーマ差分、SQL移行スクリプ�
 
 ### [reference/TODO.md](./reference/TODO.md)
 未実装機能・今後の拡張予定
+
+---
+
+## アーキテクチャ
+
+### [architecture/SYSTEM_ARCHITECTURE.md](./architecture/SYSTEM_ARCHITECTURE.md)
+システムアーキテクチャの全体像（システム構成図、データフロー図、認証フロー、データベーススキーマ）
+
+### [adr/](./adr/)
+Architecture Decision Records - 技術選定の理由と背景を記録
 
 ---
 
@@ -71,7 +84,18 @@ docs/
 │   └── SECURITY_CHECKLIST.md      # セキュリティチェック
 ├── operations/
 │   ├── OPERATIONS.md              # 運用手順
+│   ├── RUNBOOK.md                 # インシデント対応手順書
 │   └── TROUBLESHOOTING.md         # トラブルシューティング
+├── architecture/
+│   └── SYSTEM_ARCHITECTURE.md     # システムアーキテクチャ
+├── adr/
+│   ├── README.md                  # ADR一覧
+│   ├── 0001-use-drizzle-orm.md
+│   ├── 0002-use-authjs-v5.md
+│   ├── 0003-use-tailwind-css-v4.md
+│   ├── 0004-use-date-type-for-anniversaries.md
+│   ├── 0005-use-dayjs.md
+│   └── 0006-use-nextjs-16-app-router.md
 └── reference/
     ├── TECH_DECISIONS.md          # 技術的決定
     └── TODO.md                    # タスク管理
