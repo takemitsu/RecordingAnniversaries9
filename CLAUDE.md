@@ -279,10 +279,14 @@ Users (ユーザー)
   - **PM2**: 自動起動設定完了（systemd管理）
   - **データ移行**: ra8→ra9完了（5ユーザー、15 Collections、36 Anniversaries）
   - **全機能動作確認済み**: Google OAuth、Passkey、CRUD操作、カウントダウン、和暦表示
-- ✅ **CI/CD構築完了**（`.github/workflows/deploy.yml`）
+- ✅ **CI/CD構築完了**（2025-11-12）
+  - GitHub Actions自動デプロイ（`.github/workflows/deploy.yml`）
   - Lint/Type Check/Tests（176テスト）自動実行
   - ビルド成功確認
   - mainブランチへのpushで自動デプロイ
+  - **初回デプロイ成功**：所要時間2m 42s（CI: 1m30s, Deploy: 1m7s）
+  - デプロイ専用SSH鍵（ed25519）使用
+  - GitHub Secrets管理（7つ）
 - ✅ **セキュリティ自動化**
   - Dependabot alerts 有効化（脆弱性の自動検知）
   - Dependabot security updates 有効化（セキュリティ修正PRの自動作成）
