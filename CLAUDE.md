@@ -396,10 +396,17 @@ npm run lint
 npx tsc --noEmit
 
 # 3. 全テスト実行
-npm test              # Unit/Integration/Component
-npm run test:e2e      # E2E
+npm test              # Unit/Integration/Component (176テスト)
+npm run test:e2e      # E2E (20テスト、スクリーンショット除外)
 
-# 4. 全て通過を確認してからcommit
+# 4. ビルド確認
+npm run build
+
+# 5. 【画面変更時のみ】スクリーンショットテスト
+npm run test:e2e:screenshot  # E2E スクリーンショット (24テスト)
+# ⚠️ UI変更時のみ実行 - 毎回git addするのは避ける
+
+# 6. 全て通過を確認してからcommit
 git add -A
 git commit -m "..."
 ```

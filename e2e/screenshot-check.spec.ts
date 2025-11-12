@@ -1,6 +1,6 @@
 import { test } from "@playwright/test";
 
-test.describe("スクリーンショット確認", () => {
+test.describe("スクリーンショット確認", { tag: "@screenshot" }, () => {
   // デスクトップ版
   test.describe("デスクトップ", () => {
     // ライトモード
@@ -8,9 +8,7 @@ test.describe("スクリーンショット確認", () => {
       test.use({ colorScheme: "light" });
 
       test.describe("未認証", () => {
-        test.use({
-          storageState: [async ({}, use) => use(undefined), { scope: "test" }],
-        });
+        test.use({ storageState: { cookies: [], origins: [] } });
 
         test("サインインページ", async ({ page }) => {
           await page.goto("/auth/signin");
@@ -83,9 +81,7 @@ test.describe("スクリーンショット確認", () => {
       test.use({ colorScheme: "dark" });
 
       test.describe("未認証", () => {
-        test.use({
-          storageState: [async ({}, use) => use(undefined), { scope: "test" }],
-        });
+        test.use({ storageState: { cookies: [], origins: [] } });
 
         test("サインインページ", async ({ page }) => {
           await page.goto("/auth/signin");
@@ -163,9 +159,7 @@ test.describe("スクリーンショット確認", () => {
       test.use({ colorScheme: "light" });
 
       test.describe("未認証", () => {
-        test.use({
-          storageState: [async ({}, use) => use(undefined), { scope: "test" }],
-        });
+        test.use({ storageState: { cookies: [], origins: [] } });
 
         test("サインインページ", async ({ page }) => {
           await page.goto("/auth/signin");
@@ -238,9 +232,7 @@ test.describe("スクリーンショット確認", () => {
       test.use({ colorScheme: "dark" });
 
       test.describe("未認証", () => {
-        test.use({
-          storageState: [async ({}, use) => use(undefined), { scope: "test" }],
-        });
+        test.use({ storageState: { cookies: [], origins: [] } });
 
         test("サインインページ", async ({ page }) => {
           await page.goto("/auth/signin");
