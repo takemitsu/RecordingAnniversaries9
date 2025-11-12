@@ -38,14 +38,14 @@ export default async function YearsPage() {
   return (
     <>
       <Header session={session} today={today} />
-      <main className="max-w-7xl mx-auto px-1 py-2 lg:p-12 mb-8">
+      <main className="max-w-4xl mx-auto px-1 py-2 md:p-12 mb-8">
         <div className="max-w-2xl mx-auto">
-          <div className="bg-white dark:bg-zinc-800 shadow-md rounded-lg px-2 py-4 lg:p-6">
-            <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white mb-3 lg:mb-4">
+          <div className="bg-white dark:bg-zinc-800 shadow-md rounded-lg px-2 py-4 md:p-6">
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-3 md:mb-4">
               年度一覧
             </h1>
 
-            <p className="text-sm lg:text-base text-gray-600 dark:text-gray-400 mb-4 lg:mb-6">
+            <p className="text-sm md:text-base text-gray-600 dark:text-gray-400 mb-4 md:mb-6">
               今日は{japanDate(dayjs().format("YYYY-MM-DD"), true)}、
               {dayjs().format("YYYY年MM月DD日（ddd）")}です。
               <br />
@@ -53,19 +53,19 @@ export default async function YearsPage() {
             </p>
 
             <div className="overflow-x-auto">
-              <table className="w-full border-collapse border border-gray-300 dark:border-gray-600 text-base lg:text-lg">
+              <table className="w-full border-collapse border border-gray-300 dark:border-gray-600 text-base md:text-lg">
                 <thead>
                   <tr className="bg-gray-100 dark:bg-zinc-700">
-                    <th className="border border-gray-300 dark:border-gray-600 px-1 py-1 lg:px-4 lg:py-2 text-gray-700 dark:text-gray-200 text-center">
+                    <th className="border border-gray-300 dark:border-gray-600 px-1 py-1 md:px-4 md:py-2 text-gray-700 dark:text-gray-200 text-center">
                       No.
                     </th>
-                    <th className="border border-gray-300 dark:border-gray-600 px-1 py-1 lg:px-4 lg:py-2 text-gray-700 dark:text-gray-200 text-center">
+                    <th className="border border-gray-300 dark:border-gray-600 px-1 py-1 md:px-4 md:py-2 text-gray-700 dark:text-gray-200 text-center">
                       年度
                     </th>
-                    <th className="border border-gray-300 dark:border-gray-600 px-1 py-1 lg:px-4 lg:py-2 text-gray-700 dark:text-gray-200 text-center">
+                    <th className="border border-gray-300 dark:border-gray-600 px-1 py-1 md:px-4 md:py-2 text-gray-700 dark:text-gray-200 text-center">
                       開始
                     </th>
-                    <th className="border border-gray-300 dark:border-gray-600 px-1 py-1 lg:px-4 lg:py-2 text-gray-700 dark:text-gray-200 text-center">
+                    <th className="border border-gray-300 dark:border-gray-600 px-1 py-1 md:px-4 md:py-2 text-gray-700 dark:text-gray-200 text-center">
                       終了
                     </th>
                   </tr>
@@ -76,16 +76,16 @@ export default async function YearsPage() {
                       key={`ty${year}`}
                       className="bg-white dark:bg-zinc-800 hover:bg-gray-50 dark:hover:bg-gray-700"
                     >
-                      <td className="border border-gray-300 dark:border-gray-600 px-1 py-0.5 lg:px-2 lg:py-1 text-gray-600 dark:text-gray-400 text-right">
+                      <td className="border border-gray-300 dark:border-gray-600 px-1 py-0.5 md:px-2 md:py-1 text-gray-600 dark:text-gray-400 text-right">
                         {i}
                       </td>
-                      <td className="border border-gray-300 dark:border-gray-600 px-1 py-0.5 lg:px-2 lg:py-1 text-gray-600 dark:text-gray-400 text-center">
+                      <td className="border border-gray-300 dark:border-gray-600 px-1 py-0.5 md:px-2 md:py-1 text-gray-600 dark:text-gray-400 text-center">
                         {japanDate(endOfYear(year), true)}度
                       </td>
-                      <td className="border border-gray-300 dark:border-gray-600 px-1 py-0.5 lg:px-2 lg:py-1 text-gray-600 dark:text-gray-400 text-center">
+                      <td className="border border-gray-300 dark:border-gray-600 px-1 py-0.5 md:px-2 md:py-1 text-gray-600 dark:text-gray-400 text-center">
                         {startDayOfNendo(year, "YYYY年M月")}
                       </td>
-                      <td className="border border-gray-300 dark:border-gray-600 px-1 py-0.5 lg:px-2 lg:py-1 text-gray-600 dark:text-gray-400 text-center">
+                      <td className="border border-gray-300 dark:border-gray-600 px-1 py-0.5 md:px-2 md:py-1 text-gray-600 dark:text-gray-400 text-center">
                         {endDayOfNendo(year, "YYYY年M月")}
                       </td>
                     </tr>

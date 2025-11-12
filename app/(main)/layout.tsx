@@ -14,7 +14,7 @@ export default async function MainLayout({
   return (
     <>
       <Header session={session} today={today} />
-      <main className="max-w-7xl mx-auto p-2 lg:p-12 mb-8">{children}</main>
+      <main className="max-w-4xl mx-auto p-2 md:p-12 mb-8">{children}</main>
       <Footer />
     </>
   );
