@@ -139,24 +139,12 @@ export default function SignInForm() {
         <p>Googleアカウントでログインまたは新規登録</p>
       </div>
 
-      {/* 区切り線 */}
-      <div className="relative">
-        <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-gray-300 dark:border-gray-700" />
-        </div>
-        <div className="relative flex justify-center text-sm">
-          <span className="px-2 bg-gray-50 dark:bg-zinc-900 text-gray-500">
-            または
-          </span>
-        </div>
-      </div>
-
       {/* Passkey ボタン */}
       <button
         type="button"
         onClick={handlePasskeySignIn}
         disabled={isPasskeyLoading}
-        className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-gray-300 dark:border-gray-700 rounded-lg shadow-sm bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
+        className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-gray-300 dark:border-gray-700 rounded-lg shadow-sm bg-white dark:bg-zinc-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
       >
         {isPasskeyLoading ? (
           <>
@@ -167,6 +155,11 @@ export default function SignInForm() {
           <>🔑 Passkeyでログイン</>
         )}
       </button>
+
+      {/* Passkey説明テキスト */}
+      <div className="text-center text-sm text-gray-500 dark:text-gray-400">
+        <p>※既にPasskeyを登録済みの方はこちら</p>
+      </div>
     </div>
   );
 }

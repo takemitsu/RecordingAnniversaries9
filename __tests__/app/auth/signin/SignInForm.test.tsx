@@ -58,10 +58,12 @@ describe("SignInForm", () => {
       ).toBeInTheDocument();
     });
 
-    it("区切り線と「または」テキストが表示される", () => {
+    it("Passkey説明テキストが表示される", () => {
       render(<SignInForm />);
 
-      expect(screen.getByText("または")).toBeInTheDocument();
+      expect(
+        screen.getByText("※既にPasskeyを登録済みの方はこちら"),
+      ).toBeInTheDocument();
     });
 
     it("説明文が表示される", () => {

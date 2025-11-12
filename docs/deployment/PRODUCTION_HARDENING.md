@@ -8,6 +8,38 @@
 
 ---
 
+## 実績データ
+
+**実施完了日**: 2025-11-12
+
+| 項目 | ステータス | 内容 |
+|------|----------|------|
+| **ログローテーション** | ✅ 完了 | logrotate設定（7日分保持、自動圧縮） |
+| **セキュリティヘッダー** | ✅ 完了 | HSTS, X-Frame-Options, X-Content-Type-Options |
+| **レート制限** | ⏸️ 未実施 | 個人プロジェクト（5ユーザー）のため不要と判断 |
+| **静的ファイルキャッシュ** | ⏸️ 未実施 | トラフィック少ないため効果薄いと判断 |
+
+**実施理由**:
+- ログローテーション: ディスク容量枯渇の予防（必須）
+- セキュリティヘッダー: 2025年Webセキュリティ最低ライン
+
+**動作確認**:
+```bash
+# ログローテーション設定確認
+$ sudo logrotate -d /etc/logrotate.d/pm2-ubuntu
+rotating pattern: /home/ubuntu/.pm2/logs/*.log  after 1 days (7 rotations)
+✅ 設定成功
+
+# セキュリティヘッダー確認
+$ curl -I https://ra.takemitsu.net
+strict-transport-security: max-age=63072000
+x-frame-options: SAMEORIGIN
+x-content-type-options: nosniff
+✅ 正常動作
+```
+
+---
+
 ## 目次
 
 1. [Nginxセキュリティ強化](#nginxセキュリティ強化)
@@ -17,86 +49,30 @@
 
 ## Nginxセキュリティ強化
 
-**Why（なぜ必要か）**:
-- 現在のNginx設定にセキュリティヘッダーがなく、XSS、クリックジャッキング、MIME sniffing攻撃に脆弱
-- レート制限がないため、DDoS攻撃やブルートフォース攻撃に対して無防備
-- タイムアウト設定がなく、Slow Loris攻撃やネットワーク障害時にコネクションがハングする可能性
-- 静的ファイルのキャッシュ設定がなく、毎回Next.jsサーバーにリクエストが届き、パフォーマンスが低下
+### 実施済み：最小限のセキュリティヘッダー（2025-11-12）
 
-**Purpose（何のために）**:
-- セキュリティヘッダーを追加し、OWASP Top 10の脆弱性を軽減
-- レート制限を設定し、悪意のあるトラフィックからサーバーを保護
-- タイムアウトを設定し、リソース枯渇攻撃を防御
-- 静的ファイルをキャッシュし、サーバー負荷とレスポンスタイムを削減
+**実施内容**：
+- 2025年Webセキュリティ最低ライン（HSTS, X-Frame-Options, X-Content-Type-Options）
+- 既存設定に3行追加のみ
 
-**Impact（影響）**:
-- セキュリティ向上: XSS、クリックジャッキング、MIME sniffing攻撃の防御
-- 可用性向上: DDoS攻撃、Slow Loris攻撃への耐性
-- パフォーマンス向上: 静的ファイルのキャッシュで応答速度が5-10倍改善
-- 運用コスト削減: サーバー負荷の低減
+**実施理由**：
+- 個人プロジェクト（5ユーザー）には最小限で十分
+- レート制限・キャッシュは効果薄い（トラフィック少ない）
 
-### セキュリティ強化版のNginx設定
+#### 設定手順
 
-`/etc/nginx/conf.d/ra.conf` を以下のように編集します。
-
-#### 1. レート制限ゾーンの定義
-
-**注意**: `limit_req_zone` ディレクティブは `http` コンテキストで定義する必要があります。
-`/etc/nginx/nginx.conf` の `http` ブロック内、または `/etc/nginx/conf.d/ra9-rate-limit.conf` に配置してください。
-
-```bash
-# Recording Anniversaries 9 専用のレート制限設定ファイル
-sudo nano /etc/nginx/conf.d/ra9-rate-limit.conf
-```
-
-```nginx
-# Recording Anniversaries 9 専用のレート制限ゾーン
-# 推奨: 最初は50r/sから開始し、実際の使用状況で調整
-limit_req_zone $binary_remote_addr zone=ra9_api_limit:10m rate=50r/s;
-```
-
-#### 2. HTTP設定（ポート80）
+**1. Nginx設定ファイルを編集**：
 
 ```bash
 sudo nano /etc/nginx/conf.d/ra.conf
 ```
 
+**2. `location /` ブロック内に3行追加**：
+
 ```nginx
 server {
-    listen 80;
     server_name ra.takemitsu.net;
 
-    # タイムアウト設定
-    proxy_connect_timeout 60s;
-    proxy_send_timeout 60s;
-    proxy_read_timeout 60s;
-
-    # レート制限（API・認証エンドポイント）
-    location /api/ {
-        limit_req zone=ra9_api_limit burst=20 nodelay;
-
-        proxy_pass http://localhost:3000;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_cache_bypass $http_upgrade;
-    }
-
-    # 静的ファイルのキャッシュ（Next.js _next/static）
-    location /_next/static/ {
-        proxy_pass http://localhost:3000;
-        expires 1y;
-        add_header Cache-Control "public, immutable";
-
-        # セキュリティヘッダー
-        add_header X-Content-Type-Options "nosniff" always;
-    }
-
-    # メインロケーション
     location / {
         proxy_pass http://localhost:3000;
         proxy_http_version 1.1;
@@ -108,144 +84,135 @@ server {
         proxy_set_header X-Forwarded-Proto $scheme;
         proxy_cache_bypass $http_upgrade;
 
-        # セキュリティヘッダー
+        # ↓ 以下3行を追加
+        add_header Strict-Transport-Security "max-age=63072000" always;
         add_header X-Frame-Options "SAMEORIGIN" always;
         add_header X-Content-Type-Options "nosniff" always;
-        add_header Referrer-Policy "strict-origin-when-cross-origin" always;
-        add_header Permissions-Policy "camera=(), microphone=(), geolocation=()" always;
     }
+
+    # ... 以下certbotが自動追加したSSL設定 ...
 }
 ```
 
-#### 3. HTTPS設定（ポート443）
-
-certbot実行後、自動追加される443ブロックに以下を追加：
-
-```nginx
-server {
-    listen 443 ssl http2;
-    server_name ra.takemitsu.net;
-
-    # SSL証明書（certbotが自動設定）
-    ssl_certificate /etc/letsencrypt/live/takemitsu.net/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/takemitsu.net/privkey.pem;
-
-    # HSTS (HTTP Strict Transport Security)
-    add_header Strict-Transport-Security "max-age=63072000; includeSubDomains; preload" always;
-
-    # タイムアウト設定
-    proxy_connect_timeout 60s;
-    proxy_send_timeout 60s;
-    proxy_read_timeout 60s;
-
-    # レート制限（API・認証エンドポイント）
-    location /api/ {
-        limit_req zone=ra9_api_limit burst=20 nodelay;
-
-        proxy_pass http://localhost:3000;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_cache_bypass $http_upgrade;
-    }
-
-    # 静的ファイルのキャッシュ
-    location /_next/static/ {
-        proxy_pass http://localhost:3000;
-        expires 1y;
-        add_header Cache-Control "public, immutable";
-        add_header X-Content-Type-Options "nosniff" always;
-    }
-
-    # メインロケーション
-    location / {
-        proxy_pass http://localhost:3000;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_cache_bypass $http_upgrade;
-
-        # セキュリティヘッダー
-        add_header X-Frame-Options "SAMEORIGIN" always;
-        add_header X-Content-Type-Options "nosniff" always;
-        add_header Referrer-Policy "strict-origin-when-cross-origin" always;
-        add_header Permissions-Policy "camera=(), microphone=(), geolocation=()" always;
-    }
-}
-```
-
-### 設定のポイント
-
-**1. レート制限**:
-- `zone=ra9_api_limit:10m` - 10MBのメモリゾーン（約16万IPアドレス分）
-- `rate=50r/s` - 1秒あたり50リクエスト（推奨: 最初は保守的に、実運用で調整）
-- `burst=20 nodelay` - バースト20リクエストまで許可
-
-**運用方針**:
-- Nginxログで `limit_req` エラーを監視: `grep "limiting requests" /var/log/nginx/error.log`
-- 実際の使用状況に応じて段階的に調整（厳しくする: 30r/s、緩くする: 100r/s）
-
-**2. タイムアウト**:
-- `proxy_connect_timeout: 60s` - バックエンド接続タイムアウト
-- `proxy_send_timeout: 60s` - リクエスト送信タイムアウト
-- `proxy_read_timeout: 60s` - レスポンス読み取りタイムアウト
-
-**3. キャッシュ**:
-- `/_next/static/` - Next.jsの静的ファイル（1年キャッシュ）
-- `expires 1y` - ブラウザキャッシュ期間
-- `Cache-Control "public, immutable"` - CDNとブラウザでキャッシュ
-
-**4. セキュリティヘッダー**:
-- `Strict-Transport-Security` - HTTPS強制（HSTS）
-- `X-Frame-Options` - クリックジャッキング対策
-- `X-Content-Type-Options` - MIME sniffing対策
-- `Referrer-Policy` - リファラー情報の制御
-- `Permissions-Policy` - 機能ポリシー（カメラ・マイク無効化）
-
-**Content-Security-Policy（CSP）について**:
-- Next.js 16では、厳格なnonceベースCSPを実装すると、全ページが動的レンダリングになり、Static Optimization、ISR、PPRが使えなくなります
-- 小規模プロジェクトでは、他のセキュリティ層（Auth.js、Zod、React等）で十分保護されているため、CSPは設定していません
-- 詳細: https://nextjs.org/docs/app/guides/content-security-policy
-
-### 設定の適用
+**3. 設定を適用**：
 
 ```bash
-# 構文チェック
 sudo nginx -t
-
-# Nginx再起動
-sudo systemctl restart nginx
-
-# セキュリティヘッダーの確認
-curl -I https://ra.takemitsu.net
+sudo systemctl reload nginx
 ```
+
+**4. 動作確認**：
+
+```bash
+curl -I https://ra.takemitsu.net
+# 以下のヘッダーが表示されればOK：
+# strict-transport-security: max-age=63072000
+# x-frame-options: SAMEORIGIN
+# x-content-type-options: nosniff
+```
+
+#### セキュリティヘッダーの説明
+
+| ヘッダー | 効果 | 遭遇確率 |
+|---------|------|---------|
+| **Strict-Transport-Security** | HTTPS強制（2年間） | - |
+| **X-Frame-Options: SAMEORIGIN** | クリックジャッキング対策（iframe埋め込み防止） | 低い（個人PJ） |
+| **X-Content-Type-Options: nosniff** | MIME sniffing対策（偽装ファイルのXSS防止） | 低い（個人PJ） |
+
+**個人プロジェクトでの位置づけ**：
+- 実際に攻撃される確率は極めて低い
+- でも「2025年の最低ライン」として設定
+- 1行ずつ、コストゼロ、将来的な保険
+
+---
+
+### オプション（未実施）：追加のセキュリティ強化
+
+以下は**個人プロジェクト（5ユーザー、低トラフィック）では効果薄い**と判断し、未実施です。
+**必要に応じて実施**してください。
+
+#### 1. レート制限
+
+**目的**: DDoS攻撃、ブルートフォース攻撃の防止
+
+**個人PJでの判断**: 不要（攻撃対象になりにくい）
+
+**設定例**（必要な場合）:
+
+```bash
+# レート制限ゾーン定義
+sudo nano /etc/nginx/conf.d/ra9-rate-limit.conf
+```
+
+```nginx
+limit_req_zone $binary_remote_addr zone=ra9_api_limit:10m rate=50r/s;
+```
+
+```nginx
+# ra.conf の location /api/ に追加
+location /api/ {
+    limit_req zone=ra9_api_limit burst=20 nodelay;
+    proxy_pass http://localhost:3000;
+    # ... 他のproxy設定 ...
+}
+```
+
+#### 2. 静的ファイルキャッシュ
+
+**目的**: パフォーマンス向上（応答速度5-10倍）
+
+**個人PJでの判断**: 不要（トラフィック少ない）
+
+**設定例**（必要な場合）:
+
+```nginx
+location /_next/static/ {
+    proxy_pass http://localhost:3000;
+    expires 1y;
+    add_header Cache-Control "public, immutable";
+}
+```
+
+#### 3. タイムアウト設定
+
+**目的**: Slow Loris攻撃、リソース枯渇攻撃の防止
+
+**個人PJでの判断**: 不要（現状で問題なし）
+
+**設定例**（必要な場合）:
+
+```nginx
+proxy_connect_timeout 60s;
+proxy_send_timeout 60s;
+proxy_read_timeout 60s;
+```
+
+---
+
+### Content-Security-Policy（CSP）について
+
+**未実施理由**:
+- Next.js 16で厳格なnonceベースCSPを実装すると、Static Optimization、ISR、PPRが使えなくなる
+- 小規模プロジェクトでは、他のセキュリティ層（Auth.js、Zod、React）で十分保護されている
+- 詳細: https://nextjs.org/docs/app/guides/content-security-policy
 
 ---
 
 ## ログ管理の最適化
 
-**Why（なぜ必要か）**:
-- 現在のログは無制限に蓄積され、ディスク容量を圧迫する（PM2デフォルト: `~/.pm2/logs/`、ローテーションなし）
-- pm2-logrotateはメンテナンスされておらず、バグが多い（PM2公式も非推奨）
+### 実施済み：native logrotate設定（2025-11-12）
 
-**Purpose（何のために）**:
-- native logrotateを使用し、ディスク容量を適切に管理（2025年のベストプラクティス）
-- PM2公式推奨の方法でログローテーションを実現
+**実施理由**:
+- PM2はデフォルトでログを無制限に蓄積（ディスク容量枯渇の原因）
+- pm2-logrotateは非推奨（メンテナンスされていない）
+- native logrotateが2025年のベストプラクティス（PM2公式推奨）
 
-**Impact（影響）**:
-- 運用コスト削減: ディスク容量の適切な管理（7日で自動削除）
-- 安定性向上: メンテナンスされているnative logrotateを使用
-- トラブルシューティング効率の向上: ログの一元管理
+**実施内容**:
+- 7日分保持、自動圧縮
+- 毎日自動実行（cronで管理）
+- PM2再起動不要
 
-### native logrotate設定（PM2公式推奨）
+### 設定手順（実施済み）
 
 **VPS上で実行**:
 
@@ -259,41 +226,53 @@ sudo nano /etc/logrotate.d/pm2-ubuntu
 
 **設定内容**（`/etc/logrotate.d/pm2-ubuntu`）:
 
+**注意**: logrotateは行末コメントを許可しません。以下のようにコメントなしで記述してください。
+
 ```bash
-# PM2ログのローテーション設定
 /home/ubuntu/.pm2/logs/*.log {
-    daily                # 毎日ローテーション
-    rotate 7             # 7日分保持（7世代）
-    missingok            # ログファイルが存在しなくてもエラーにしない
-    notifempty           # 空のログファイルはローテーションしない
-    compress             # 古いログをgzip圧縮
-    delaycompress        # 最新の古いログは圧縮しない（次回ローテーション時に圧縮）
-    copytruncate         # ファイルをコピーしてから元のファイルを切り詰める（PM2再起動不要）
-    su ubuntu ubuntu     # ubuntuユーザー権限で実行
+    daily
+    rotate 7
+    missingok
+    notifempty
+    compress
+    delaycompress
+    copytruncate
+    su ubuntu ubuntu
 }
 ```
 
-### 設定のポイント
+### 設定の説明
 
-- `daily rotate 7` - 7日分のログを保持（ディスク容量を適切に管理）
-- `compress` - 古いログをgzip圧縮（ディスク使用量を削減）
-- `copytruncate` - PM2を再起動せずにローテーション実行
-- `su ubuntu ubuntu` - PM2がubuntuユーザーで実行されているため、同じ権限で実行
+| オプション | 説明 |
+|----------|------|
+| `daily` | 毎日ローテーション |
+| `rotate 7` | 7日分保持（8日目以降は自動削除） |
+| `missingok` | ログファイルが存在しなくてもエラーにしない |
+| `notifempty` | 空のログファイルはローテーションしない |
+| `compress` | 古いログをgzip圧縮（ディスク使用量削減） |
+| `delaycompress` | 最新の古いログは圧縮しない（次回圧縮） |
+| `copytruncate` | PM2を再起動せずにローテーション実行 |
+| `su ubuntu ubuntu` | ubuntuユーザー権限で実行 |
 
-### 設定のテスト
+### 設定のテスト（実施済み）
 
 ```bash
 # logrotate設定のテスト（dry-run）
-sudo logrotate -d /etc/logrotate.d/pm2-ubuntu
-
-# 実際に実行（強制ローテーション）
-sudo logrotate -f /etc/logrotate.d/pm2-ubuntu
+$ sudo logrotate -d /etc/logrotate.d/pm2-ubuntu
+rotating pattern: /home/ubuntu/.pm2/logs/*.log  after 1 days (7 rotations)
+✅ 設定成功
 
 # ログファイルの確認
-ls -lh ~/.pm2/logs/
+$ ls -lh ~/.pm2/logs/
+total 8.0K
+-rw-rw-r-- 1 ubuntu ubuntu 783 Nov 11 18:38 ra9-app-error.log
+-rw-rw-r-- 1 ubuntu ubuntu 800 Nov 12 12:39 ra9-app-out.log
 ```
 
-**注意**: logrotateは通常、`/etc/cron.daily/logrotate` により毎日自動実行されます。手動での設定は不要です。
+**自動実行**:
+- logrotateは `/etc/cron.daily/logrotate` により毎日自動実行されます
+- 手動での設定は不要
+- 8日目以降のログは自動削除されます
 
 ---
 
@@ -307,3 +286,4 @@ ls -lh ~/.pm2/logs/
 ---
 
 **ドキュメント作成日**: 2025-11-11
+**最終更新日**: 2025-11-12（ログローテーション・セキュリティヘッダー実施完了）

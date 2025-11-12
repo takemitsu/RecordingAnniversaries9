@@ -24,7 +24,7 @@ export function CollectionCard({
   const showBorder = showActions || !isFirst;
   return (
     <div
-      className={`${showBorder ? "border-t border-gray-300 dark:border-gray-600" : ""} p-2 lg:p-6`}
+      className={`${showBorder ? "border-t border-gray-300 dark:border-gray-600" : ""} p-2 md:p-6`}
     >
       {/* Collection Header */}
       <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1 flex items-center gap-2">
