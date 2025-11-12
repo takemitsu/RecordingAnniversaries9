@@ -7,13 +7,19 @@ test.describe("スクリーンショット確認", () => {
     test.describe("ライトモード", () => {
       test.use({ colorScheme: "light" });
 
-      test("サインインページ", async ({ page }) => {
-        await page.goto("/auth/signin");
-        await page.waitForLoadState("networkidle");
+      test.describe("未認証", () => {
+        test.use({
+          storageState: [async ({}, use) => use(undefined), { scope: "test" }],
+        });
 
-        await page.screenshot({
-          path: "e2e/screenshots/light/signin.png",
-          fullPage: true,
+        test("サインインページ", async ({ page }) => {
+          await page.goto("/auth/signin");
+          await page.waitForLoadState("networkidle");
+
+          await page.screenshot({
+            path: "e2e/screenshots/light/signin.png",
+            fullPage: true,
+          });
         });
       });
 
@@ -76,13 +82,19 @@ test.describe("スクリーンショット確認", () => {
     test.describe("ダークモード", () => {
       test.use({ colorScheme: "dark" });
 
-      test("サインインページ", async ({ page }) => {
-        await page.goto("/auth/signin");
-        await page.waitForLoadState("networkidle");
+      test.describe("未認証", () => {
+        test.use({
+          storageState: [async ({}, use) => use(undefined), { scope: "test" }],
+        });
 
-        await page.screenshot({
-          path: "e2e/screenshots/dark/signin.png",
-          fullPage: true,
+        test("サインインページ", async ({ page }) => {
+          await page.goto("/auth/signin");
+          await page.waitForLoadState("networkidle");
+
+          await page.screenshot({
+            path: "e2e/screenshots/dark/signin.png",
+            fullPage: true,
+          });
         });
       });
 
@@ -150,13 +162,19 @@ test.describe("スクリーンショット確認", () => {
     test.describe("ライトモード", () => {
       test.use({ colorScheme: "light" });
 
-      test("サインインページ", async ({ page }) => {
-        await page.goto("/auth/signin");
-        await page.waitForLoadState("networkidle");
+      test.describe("未認証", () => {
+        test.use({
+          storageState: [async ({}, use) => use(undefined), { scope: "test" }],
+        });
 
-        await page.screenshot({
-          path: "e2e/screenshots/light/mobile/signin.png",
-          fullPage: true,
+        test("サインインページ", async ({ page }) => {
+          await page.goto("/auth/signin");
+          await page.waitForLoadState("networkidle");
+
+          await page.screenshot({
+            path: "e2e/screenshots/light/mobile/signin.png",
+            fullPage: true,
+          });
         });
       });
 
@@ -219,13 +237,19 @@ test.describe("スクリーンショット確認", () => {
     test.describe("ダークモード", () => {
       test.use({ colorScheme: "dark" });
 
-      test("サインインページ", async ({ page }) => {
-        await page.goto("/auth/signin");
-        await page.waitForLoadState("networkidle");
+      test.describe("未認証", () => {
+        test.use({
+          storageState: [async ({}, use) => use(undefined), { scope: "test" }],
+        });
 
-        await page.screenshot({
-          path: "e2e/screenshots/dark/mobile/signin.png",
-          fullPage: true,
+        test("サインインページ", async ({ page }) => {
+          await page.goto("/auth/signin");
+          await page.waitForLoadState("networkidle");
+
+          await page.screenshot({
+            path: "e2e/screenshots/dark/mobile/signin.png",
+            fullPage: true,
+          });
         });
       });
 
