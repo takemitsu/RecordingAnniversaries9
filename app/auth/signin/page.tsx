@@ -7,7 +7,7 @@ import {
   calculateDiffDays,
   formatCountdown,
 } from "@/lib/utils/dateCalculation";
-import { getTodayForHeader, japanDate } from "@/lib/utils/japanDate";
+import { japanDate } from "@/lib/utils/japanDate";
 import SignInForm from "./SignInForm";
 
 export default async function SignInPage() {
@@ -18,9 +18,6 @@ export default async function SignInPage() {
     redirect("/");
   }
 
-  // Header用の今日の日付
-  const today = getTodayForHeader();
-
   // 実例データ（動的計算）
   const exampleDate = "2025-11-11";
   const diffDays = calculateDiffDays(exampleDate);
@@ -29,7 +26,7 @@ export default async function SignInPage() {
 
   return (
     <>
-      <Header session={session} today={today} />
+      <Header session={session} />
       <main className="min-h-screen flex items-center justify-center p-8">
         <div className="max-w-md w-full space-y-8">
           <div className="text-center">

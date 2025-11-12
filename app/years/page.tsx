@@ -3,13 +3,12 @@ import ja from "dayjs/locale/ja";
 import { auth } from "@/auth";
 import { Footer } from "@/components/layout/Footer";
 import { Header } from "@/components/layout/Header";
-import { getTodayForHeader, japanDate } from "@/lib/utils/japanDate";
+import { japanDate } from "@/lib/utils/japanDate";
 
 dayjs.locale(ja);
 
 export default async function YearsPage() {
   const session = await auth();
-  const today = getTodayForHeader();
 
   // 1900年から現在年までの配列を生成（降順）
   const range = (start: number, end: number) =>
@@ -37,7 +36,7 @@ export default async function YearsPage() {
 
   return (
     <>
-      <Header session={session} today={today} />
+      <Header session={session} />
       <main className="max-w-4xl mx-auto px-1 py-2 md:p-12 mb-8">
         <div className="max-w-2xl mx-auto">
           <div className="bg-white dark:bg-zinc-800 shadow-md rounded-lg px-2 py-4 md:p-6">

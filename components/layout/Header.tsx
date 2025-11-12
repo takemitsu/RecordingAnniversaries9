@@ -4,19 +4,25 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { Session } from "next-auth";
 import { signOut } from "next-auth/react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { getTodayForHeader } from "@/lib/utils/japanDate";
 
 interface HeaderProps {
   session: Session | null;
-  today: string;
 }
 
-export function Header({ session, today }: HeaderProps) {
+export function Header({ session }: HeaderProps) {
   const [showingNavigationDropdown, setShowingNavigationDropdown] =
     useState(false);
   const [showUserDropdown, setShowUserDropdown] = useState(false);
   const pathname = usePathname();
+
+  // pathname が変わるたびに日時を再計算
+  const today = useMemo(() => {
+    void pathname; // pathname変更をトリガーにする
+    return getTodayForHeader();
+  }, [pathname]);
 
   const isActive = (path: string) => pathname === path;
 
