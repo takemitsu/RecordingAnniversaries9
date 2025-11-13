@@ -414,6 +414,11 @@ npm run build
 # 6. 【画面変更時のみ】スクリーンショットテスト
 npm run test:e2e:screenshot  # E2E スクリーンショット (24テスト)
 # ⚠️ UI変更時のみ実行 - 毎回git addするのは避ける
+#
+# 特定のページのみスクリーンショット更新（部分的な変更時）：
+npm run test:e2e:screenshot -- --grep "プライバシー|利用規約"
+npm run test:e2e:screenshot -- --grep "トップ|編集"
+# grepで正規表現マッチするテスト名のみ実行
 
 # 7. 全て通過を確認してからcommit
 git add -A

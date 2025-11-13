@@ -1,10 +1,4 @@
 export default async function PrivacyPage() {
-  const lastUpdated = new Date().toLocaleDateString("ja-JP", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
-
   return (
     <div className="bg-white dark:bg-zinc-900 rounded-lg shadow-sm">
       <div className="px-4 py-6 md:px-8 md:py-8">
@@ -14,7 +8,9 @@ export default async function PrivacyPage() {
 
         <div className="prose prose-lg max-w-none">
           <p className="text-gray-600 dark:text-gray-400 mb-6">
-            最終更新日: {lastUpdated}
+            制定日: 2025年11月11日
+            <br />
+            最終更新日: 2025年11月13日
           </p>
 
           <section className="mb-8">
