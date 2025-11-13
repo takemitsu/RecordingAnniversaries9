@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { Session } from "next-auth";
 import { signOut } from "next-auth/react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { getTodayForHeader } from "@/lib/utils/japanDate";
 
@@ -22,6 +22,13 @@ export function Header({ session }: HeaderProps) {
   const today = useMemo(() => {
     void pathname; // pathname変更をトリガーにする
     return getTodayForHeader();
+  }, [pathname]);
+
+  // ページ遷移時にメニューを閉じる
+  useEffect(() => {
+    void pathname; // pathname変更をトリガーにする
+    setShowingNavigationDropdown(false);
+    setShowUserDropdown(false);
   }, [pathname]);
 
   const isActive = (path: string) => pathname === path;
