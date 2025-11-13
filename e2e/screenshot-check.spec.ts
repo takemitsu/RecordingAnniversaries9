@@ -19,6 +19,26 @@ test.describe("スクリーンショット確認", { tag: "@screenshot" }, () =>
             fullPage: true,
           });
         });
+
+        test("プライバシーポリシーページ", async ({ page }) => {
+          await page.goto("/privacy");
+          await page.waitForLoadState("networkidle");
+
+          await page.screenshot({
+            path: "e2e/screenshots/light/privacy-page.png",
+            fullPage: true,
+          });
+        });
+
+        test("利用規約ページ", async ({ page }) => {
+          await page.goto("/terms");
+          await page.waitForLoadState("networkidle");
+
+          await page.screenshot({
+            path: "e2e/screenshots/light/terms-page.png",
+            fullPage: true,
+          });
+        });
       });
 
       test.describe("認証後", () => {
@@ -89,6 +109,26 @@ test.describe("スクリーンショット確認", { tag: "@screenshot" }, () =>
 
           await page.screenshot({
             path: "e2e/screenshots/dark/signin.png",
+            fullPage: true,
+          });
+        });
+
+        test("プライバシーポリシーページ", async ({ page }) => {
+          await page.goto("/privacy");
+          await page.waitForLoadState("networkidle");
+
+          await page.screenshot({
+            path: "e2e/screenshots/dark/privacy-page.png",
+            fullPage: true,
+          });
+        });
+
+        test("利用規約ページ", async ({ page }) => {
+          await page.goto("/terms");
+          await page.waitForLoadState("networkidle");
+
+          await page.screenshot({
+            path: "e2e/screenshots/dark/terms-page.png",
             fullPage: true,
           });
         });
@@ -170,6 +210,26 @@ test.describe("スクリーンショット確認", { tag: "@screenshot" }, () =>
             fullPage: true,
           });
         });
+
+        test("プライバシーポリシーページ", async ({ page }) => {
+          await page.goto("/privacy");
+          await page.waitForLoadState("networkidle");
+
+          await page.screenshot({
+            path: "e2e/screenshots/light/mobile/privacy-page.png",
+            fullPage: true,
+          });
+        });
+
+        test("利用規約ページ", async ({ page }) => {
+          await page.goto("/terms");
+          await page.waitForLoadState("networkidle");
+
+          await page.screenshot({
+            path: "e2e/screenshots/light/mobile/terms-page.png",
+            fullPage: true,
+          });
+        });
       });
 
       test.describe("認証後", () => {
@@ -240,6 +300,26 @@ test.describe("スクリーンショット確認", { tag: "@screenshot" }, () =>
 
           await page.screenshot({
             path: "e2e/screenshots/dark/mobile/signin.png",
+            fullPage: true,
+          });
+        });
+
+        test("プライバシーポリシーページ", async ({ page }) => {
+          await page.goto("/privacy");
+          await page.waitForLoadState("networkidle");
+
+          await page.screenshot({
+            path: "e2e/screenshots/dark/mobile/privacy-page.png",
+            fullPage: true,
+          });
+        });
+
+        test("利用規約ページ", async ({ page }) => {
+          await page.goto("/terms");
+          await page.waitForLoadState("networkidle");
+
+          await page.screenshot({
+            path: "e2e/screenshots/dark/mobile/terms-page.png",
             fullPage: true,
           });
         });
