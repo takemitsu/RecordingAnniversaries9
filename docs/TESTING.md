@@ -120,7 +120,7 @@ TEST_DATABASE_URL="mysql://user:password@127.0.0.1:3306/ra9_test"
 - `__tests__/lib/schemas/anniversary.test.ts` - 15テスト
 
 **カバー範囲:**
-- カウントダウン計算（年次繰り返し対応）
+- 記念日まであと何日の計算（年次繰り返し対応）
 - 和暦変換（令和、平成など）
 - Zodバリデーション（Collection、Anniversary）
 
@@ -156,7 +156,7 @@ TEST_DATABASE_URL="mysql://user:password@127.0.0.1:3306/ra9_test"
 
 **カバー範囲:**
 - フォームの入力・バリデーション・送信
-- カードの表示（カウントダウン、和暦）
+- カードの表示（記念日まであと何日、和暦）
 - ボタンのスタイル・Pending状態
 - Passkey認証UI（作成、エラーハンドリング、ログイン）
 

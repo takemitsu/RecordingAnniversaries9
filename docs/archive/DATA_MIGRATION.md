@@ -246,7 +246,7 @@ pm2 start npm --name "ra9-app-test" -- start
   - **重要**: 初回は必ずGoogle OAuth再連携が必要（accountsテーブルが空のため）
 - ✅ Collectionsが正しく表示されるか
 - ✅ Anniversariesが正しく表示されるか
-- ✅ カウントダウン・和暦表示が正常か
+- ✅ 記念日まであと何日・和暦表示が正常か
 
 **注意事項**:
 - Passkeyは移行できません。ユーザーは再登録が必要です

@@ -46,7 +46,7 @@ test.describe("Anniversary CRUD", () => {
     await page.goto("/");
     await expect(page.getByText("誕生日").first()).toBeVisible();
     await expect(page.locator("text=/令和2年/")).toBeVisible(); // 和暦
-    await expect(page.locator("text=/\\d+\\s*日|今日/")).toBeVisible(); // カウントダウン
+    await expect(page.locator("text=/\\d+\\s*日|今日/")).toBeVisible(); // 記念日まであと何日
   });
 
   test("Anniversary編集 → 更新確認", async ({ page }) => {
@@ -136,7 +136,9 @@ test.describe("Anniversary CRUD", () => {
     await expect(page.getByText("記念日2").first()).toBeVisible();
   });
 
-  test("Anniversaryの日付順序確認（カウントダウン順）", async ({ page }) => {
+  test("Anniversaryの日付順序確認（記念日まであと何日順）", async ({
+    page,
+  }) => {
     // 複数の記念日を作成（日付が異なる）
     await createTestAnniversary(collectionId, "遠い未来", "2020-12-31");
     await createTestAnniversary(collectionId, "近い未来", "2020-01-15");

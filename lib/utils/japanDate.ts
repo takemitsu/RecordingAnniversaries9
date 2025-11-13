@@ -51,7 +51,7 @@ function japanDate(value: string, isOnlyWa = false): string {
 }
 
 /**
- * 記念日からの経過年数を計算（カウントアップ）
+ * 記念日からの経過年数（満）と年目を計算
  * @param value YYYY-MM-DD 形式の日付文字列
  * @returns 経過年数の文字列（例: 5年（6年目））、未来日の場合は空文字
  */
