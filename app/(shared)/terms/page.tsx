@@ -52,7 +52,7 @@ export default async function TermsPage() {
               <ul className="list-disc list-inside text-gray-700 dark:text-gray-300 space-y-1">
                 <li>記念日（Anniversary）の登録・管理</li>
                 <li>記念日グループ（Collection）の作成・管理による分類機能</li>
-                <li>記念日までのカウントダウン表示</li>
+                <li>記念日まであと何日の表示</li>
                 <li>記念日からの経過年数（満）と年目を表示</li>
                 <li>和暦変換表示（令和、平成など）</li>
                 <li>Google OAuth・Passkey（WebAuthn）による認証</li>

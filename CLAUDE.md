@@ -7,7 +7,7 @@
 ### 目的
 - 記念日の記録・管理機能の提供
 - グループ（Collection）による記念日の分類
-- カウントダウン・カウントアップ・和暦表示機能
+- 記念日まであと何日・経過年数（満）と年目表示・和暦表示機能
 - モダンな技術スタック（App Router, Server Actions, Auth.js v5, React 19）
 
 ### 技術スタック
@@ -78,7 +78,7 @@ recording-anniversaries9/
 │   │   └── anniversary.ts    # Anniversary Zodスキーマ
 │   ├── utils/
 │   │   ├── japanDate.ts      # 和暦変換（令和、平成など）
-│   │   └── dateCalculation.ts  # 日付計算（カウントダウン/カウントアップ）
+│   │   └── dateCalculation.ts  # 日付計算（記念日まであと何日/経過年数）
 │   ├── env.ts                # 環境変数バリデーション（Zod）
 │   ├── constants.ts          # 定数定義（VISIBILITY等）
 │   └── auth-helpers.ts       # 認証ヘルパー（getUserId）
@@ -228,10 +228,10 @@ Users (ユーザー)
 - ✅ `components/ui/Button.tsx` - 統一Buttonコンポーネント
 
 ### 日付計算
-- ✅ カウントダウン計算（年次繰り返し対応）
+- ✅ 記念日まであと何日の計算（年次繰り返し対応）
   - `lib/utils/dateCalculation.ts: calculateDiffDays()`
   - 過去日の場合、次回の記念日までの日数を計算
-- ✅ カウントアップ計算（経過年数）
+- ✅ 経過年数（満）と年目の計算
   - `getAges()` - 例: 5年（6年目）
 - ✅ 和暦変換（令和、平成など）
   - `lib/utils/japanDate.ts`
@@ -278,7 +278,7 @@ Users (ユーザー)
   - **環境**: さくらVPS（Ubuntu 24.04.3 LTS）
   - **PM2**: 自動起動設定完了（systemd管理）
   - **データ移行**: ra8→ra9完了（5ユーザー、15 Collections、36 Anniversaries）
-  - **全機能動作確認済み**: Google OAuth、Passkey、CRUD操作、カウントダウン、和暦表示
+  - **全機能動作確認済み**: Google OAuth、Passkey、CRUD操作、記念日まであと何日、和暦表示
 - ✅ **CI/CD構築完了**（2025-11-12）
   - GitHub Actions自動デプロイ（`.github/workflows/deploy.yml`）
   - Lint/Type Check/Tests（176テスト）自動実行
@@ -552,7 +552,7 @@ users (ユーザー)
 - Warning（編集）: イエロー (`bg-yellow-500`)
 - Primary（追加）: スカイブルー (`bg-sky-500`)
 
-**カウントダウン**:
+**記念日まであと何日**:
 - 日数: 青 (`text-blue-600`)
 - 単位: グレー (`text-gray-600`)
 - カラフルで視覚的に楽しいデザイン
@@ -571,7 +571,7 @@ users (ユーザー)
 2. **2ページ構成** - 一覧（閲覧）と編集を明確に分離
 3. **CollectionからAnniversaryを追加** - グループが決まってから記念日を追加
 4. **モバイルファースト** - ハンバーガーメニュー、レスポンシブパディング
-5. **カラフルなカウントダウン** - 視覚的に楽しいUI
+5. **カラフルな記念日まであと何日表示** - 視覚的に楽しいUI
 
 ### 設計判断の背景
 

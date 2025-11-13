@@ -805,7 +805,7 @@ describe("AnniversaryCard", () => {
     vi.useRealTimers();
   });
 
-  it("カウントダウンを正しく表示", () => {
+  it("記念日まであと何日を正しく表示", () => {
     const anniversary = {
       id: 1,
       name: "誕生日",
@@ -1217,7 +1217,7 @@ test.describe("Anniversary CRUD", () => {
     await page.goto("/");
     await expect(page.getByText("誕生日")).toBeVisible();
     await expect(page.getByText(/令和2年/)).toBeVisible(); // 和暦
-    await expect(page.getByText(/あと\d+日/)).toBeVisible(); // カウントダウン
+    await expect(page.getByText(/あと\d+日/)).toBeVisible(); // 記念日まであと何日
   });
 });
 ```
@@ -1240,7 +1240,7 @@ test.describe("Dashboard", () => {
     // Anniversaryカード表示
     await expect(page.getByText("誕生日")).toBeVisible();
 
-    // カウントダウン表示
+    // 記念日まであと何日表示
     await expect(page.getByText(/あと\d+日/)).toBeVisible();
 
     // 和暦表示

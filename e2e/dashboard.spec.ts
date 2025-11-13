@@ -30,7 +30,7 @@ test.describe("Dashboard（一覧ページ）", () => {
     // 和暦が表示される（令和2年）
     await expect(page.locator("text=/令和2年/")).toBeVisible();
 
-    // カウントダウンが表示される（「X日」または「今日」）
+    // 記念日まであと何日が表示される（「X日」または「今日」）
     await expect(page.locator("text=/\\d+\\s*日|今日/")).toBeVisible();
   });
 

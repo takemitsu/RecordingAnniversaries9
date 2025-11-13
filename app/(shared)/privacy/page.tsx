@@ -66,7 +66,7 @@ export default async function PrivacyPage() {
                     登録したCollection（記念日グループ）の名前・説明・表示設定
                   </li>
                   <li>
-                    登録したAnniversary（記念日）の名前・日付・説明・カウントダウン設定
+                    登録したAnniversary（記念日）の名前・日付・説明・表示設定
                   </li>
                   <li>アクセスログ、利用状況データ</li>
                 </ul>
