@@ -7,7 +7,7 @@ import {
   calculateDiffDays,
   formatCountdown,
 } from "@/lib/utils/dateCalculation";
-import { japanDate } from "@/lib/utils/japanDate";
+import { getAges, japanDate } from "@/lib/utils/japanDate";
 import SignInForm from "./SignInForm";
 
 export default async function SignInPage() {
@@ -23,6 +23,7 @@ export default async function SignInPage() {
   const diffDays = calculateDiffDays(exampleDate);
   const countdown = formatCountdown(diffDays);
   const japanDateStr = japanDate(exampleDate, true);
+  const ages = getAges(exampleDate);
 
   return (
     <>
@@ -52,14 +53,14 @@ export default async function SignInPage() {
             {/* アプリ説明 - 一覧UIの実例 */}
             <div className="border-t border-gray-300 dark:border-gray-600 pt-2 px-2 md:pt-6 md:px-6">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">
-                リリースノート
+                プロジェクト
               </h3>
 
               {/* Anniversary実例 */}
               <div className="py-2 pl-2 border-t border-gray-200 dark:border-gray-700">
                 <div className="text-base mb-1">
                   <span className="text-blue-600 dark:text-blue-400 font-bold">
-                    リリース日
+                    サービスリリース
                   </span>
                   <span className="text-sm mx-2 text-gray-600 dark:text-gray-400">
                     まで
@@ -77,6 +78,7 @@ export default async function SignInPage() {
                   <span>
                     {exampleDate}（{japanDateStr}）
                   </span>
+                  {ages && <span className="ml-1">{ages}</span>}
                 </div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">
                   このように誕生日や記念日までの和暦や日数を管理できます
