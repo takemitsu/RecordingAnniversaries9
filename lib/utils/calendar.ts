@@ -21,7 +21,7 @@ export function generateCalendarGrid(
   // 月初の曜日（0=日曜、6=土曜）
   const startDayOfWeek = firstDay.day();
 
-  // カレンダーグリッドの開始日（前月の日付を含む）
+  // カレンダーグリッドの開始日（月初が日曜日でない場合、前月の日付を含む）
   const startDate = firstDay.subtract(startDayOfWeek, "day");
 
   // カレンダーグリッドの終了日（翌月の日付を含む、6週分=42日）

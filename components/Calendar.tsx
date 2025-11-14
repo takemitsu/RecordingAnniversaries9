@@ -103,7 +103,6 @@ export function Calendar({ holidays, anniversaries = [] }: CalendarProps) {
           {yearCalendar.map((monthGrid, index) => (
             <CalendarMonth
               key={`${year}-${index + 1}`}
-              year={year}
               month={index + 1}
               grid={monthGrid}
             />
@@ -144,7 +143,7 @@ export function Calendar({ holidays, anniversaries = [] }: CalendarProps) {
 
         {/* 今月 */}
         <div className="mb-8">
-          <CalendarMonth year={year} month={month} grid={currentMonthGrid} />
+          <CalendarMonth month={month} grid={currentMonthGrid} />
         </div>
 
         {/* 来月 */}
@@ -152,11 +151,7 @@ export function Calendar({ holidays, anniversaries = [] }: CalendarProps) {
           <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
             {nextMonthYear}年{nextMonth}月
           </h2>
-          <CalendarMonth
-            year={nextMonthYear}
-            month={nextMonth}
-            grid={nextMonthGrid}
-          />
+          <CalendarMonth month={nextMonth} grid={nextMonthGrid} />
         </div>
       </div>
     </div>

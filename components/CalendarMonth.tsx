@@ -2,7 +2,6 @@ import type { CalendarDay } from "@/lib/types/calendar";
 import { CalendarDay as CalendarDayComponent } from "./CalendarDay";
 
 type CalendarMonthProps = {
-  year: number;
   month: number;
   grid: CalendarDay[];
 };
