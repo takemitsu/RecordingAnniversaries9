@@ -102,23 +102,30 @@ type CalendarProps = {
 
 ### 3. ページ構成
 
-#### `/holidays` - 祝日カレンダー
+#### `/calendar` - 祝日カレンダー
 - **認証**: 未ログインOK（誰でも見られる）
 - **表示内容**: 祝日のみ
 - **実装**: `<Calendar holidays={holidays} />`
 
-#### `/calendar` - カレンダー
+#### `/my-calendar` - 表（カレンダー）
 - **認証**: ログイン必要
 - **表示内容**: 記念日＋祝日
 - **実装**: `<Calendar holidays={holidays} anniversaries={userAnniversaries} />`
 
 #### ナビゲーション
-ハンバーガーメニューに追加：
-- 一覧
-- **カレンダー** ← NEW
-- **祝日** ← NEW
-- 編集
-- プロフィール
+
+**PC版（ログイン時）**:
+- トップバー: 一覧 | 表 | 編集
+- ドロップダウンメニュー: カレンダー | 年度一覧 | テーマ切り替え | 設定 | ログアウト
+
+**PC版（未ログイン時）**:
+- ドロップダウンメニュー: カレンダー | 年度一覧 | テーマ切り替え | ログイン
+
+**モバイル版（ログイン時）**:
+- ハンバーガーメニュー: 一覧 | 表 | カレンダー | 年度一覧 | 編集 | プロフィール | ログアウト
+
+**モバイル版（未ログイン時）**:
+- ハンバーガーメニュー: カレンダー | 年度一覧 | ログイン
 
 ---
 
@@ -229,8 +236,7 @@ type CalendarProps = {
 components/
   ├─ Calendar.tsx           # メインコンポーネント
   ├─ CalendarMonth.tsx      # 月カレンダー
-  ├─ CalendarDay.tsx        # 日付セル
-  └─ CalendarTooltip.tsx    # ツールチップ
+  └─ CalendarDay.tsx        # 日付セル（ツールチップ内蔵）
 ```
 
 **実装の流れ**:
@@ -252,16 +258,16 @@ components/
 ```
 app/
   ├─ (shared)/
-  │   └─ holidays/
+  │   └─ calendar/
   │       └─ page.tsx        # 祝日カレンダー（未ログインOK）
   └─ (main)/
-      └─ calendar/
+      └─ my-calendar/
           └─ page.tsx        # カレンダー（ログイン必要）
 ```
 
 **実装**:
 ```typescript
-// app/(shared)/holidays/page.tsx
+// app/(shared)/calendar/page.tsx
 import { Calendar } from "@/components/Calendar";
 import holidays from "@/public/holidays.json";
 
@@ -271,12 +277,12 @@ export default function HolidaysPage() {
 ```
 
 ```typescript
-// app/(main)/calendar/page.tsx
+// app/(main)/my-calendar/page.tsx
 import { Calendar } from "@/components/Calendar";
 import holidays from "@/public/holidays.json";
 import { getAnniversaries } from "@/app/actions/anniversaries";
 
-export default async function CalendarPage() {
+export default async function MyCalendarPage() {
   const anniversaries = await getAnniversaries();
   return <Calendar holidays={holidays} anniversaries={anniversaries} />;
 }
