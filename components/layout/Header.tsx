@@ -5,6 +5,8 @@ import { usePathname } from "next/navigation";
 import type { Session } from "next-auth";
 import { signOut } from "next-auth/react";
 import { useEffect, useMemo, useState } from "react";
+import { ChevronDownIcon } from "@/components/icons/ChevronDownIcon";
+import { DropdownBackdrop } from "@/components/layout/DropdownBackdrop";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { getTodayForHeader } from "@/lib/utils/japanDate";
 
@@ -92,32 +94,13 @@ export function Header({ session }: HeaderProps) {
                   className="flex items-center text-sm text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white focus:outline-none"
                 >
                   {session.user?.name}
-                  <svg
-                    className="ml-1 h-4 w-4"
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                  >
-                    <title>メニューを開く</title>
-                    <path
-                      fillRule="evenodd"
-                      d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
+                  <ChevronDownIcon />
                 </button>
 
                 {showUserDropdown && (
                   <>
-                    {/* Backdrop */}
-                    <button
-                      type="button"
-                      className="fixed inset-0 z-10 cursor-default"
-                      onClick={() => setShowUserDropdown(false)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Escape") setShowUserDropdown(false);
-                      }}
-                      aria-label="メニューを閉じる"
+                    <DropdownBackdrop
+                      onClose={() => setShowUserDropdown(false)}
                     />
                     {/* Dropdown Menu */}
                     <div className="absolute right-0 z-20 mt-2 w-48 rounded-md shadow-lg bg-white dark:bg-zinc-800 ring-1 ring-black ring-opacity-5">
@@ -176,32 +159,13 @@ export function Header({ session }: HeaderProps) {
                   className="flex items-center text-sm text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white focus:outline-none"
                 >
                   メニュー
-                  <svg
-                    className="ml-1 h-4 w-4"
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                  >
-                    <title>メニューを開く</title>
-                    <path
-                      fillRule="evenodd"
-                      d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
+                  <ChevronDownIcon />
                 </button>
 
                 {showMenuDropdown && (
                   <>
-                    {/* Backdrop */}
-                    <button
-                      type="button"
-                      className="fixed inset-0 z-10 cursor-default"
-                      onClick={() => setShowMenuDropdown(false)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Escape") setShowMenuDropdown(false);
-                      }}
-                      aria-label="メニューを閉じる"
+                    <DropdownBackdrop
+                      onClose={() => setShowMenuDropdown(false)}
                     />
                     {/* Dropdown Menu */}
                     <div className="absolute right-0 z-20 mt-2 w-48 rounded-md shadow-lg bg-white dark:bg-zinc-800 ring-1 ring-black ring-opacity-5">
