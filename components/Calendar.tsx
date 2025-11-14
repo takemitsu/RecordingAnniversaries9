@@ -143,7 +143,11 @@ export function Calendar({ holidays, anniversaries = [] }: CalendarProps) {
 
         {/* 今月 */}
         <div className="mb-8">
-          <CalendarMonth month={month} grid={currentMonthGrid} />
+          <CalendarMonth
+            month={month}
+            grid={currentMonthGrid}
+            showMonthHeader={false}
+          />
         </div>
 
         {/* 来月 */}
@@ -151,7 +155,11 @@ export function Calendar({ holidays, anniversaries = [] }: CalendarProps) {
           <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
             {nextMonthYear}年{nextMonth}月
           </h2>
-          <CalendarMonth month={nextMonth} grid={nextMonthGrid} />
+          <CalendarMonth
+            month={nextMonth}
+            grid={nextMonthGrid}
+            showMonthHeader={false}
+          />
         </div>
       </div>
     </div>

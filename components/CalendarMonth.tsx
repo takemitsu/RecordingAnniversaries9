@@ -4,17 +4,24 @@ import { CalendarDay as CalendarDayComponent } from "./CalendarDay";
 type CalendarMonthProps = {
   month: number;
   grid: CalendarDay[];
+  showMonthHeader?: boolean;
 };
 
 const WEEKDAYS = ["日", "月", "火", "水", "木", "金", "土"];
 
-export function CalendarMonth({ month, grid }: CalendarMonthProps) {
+export function CalendarMonth({
+  month,
+  grid,
+  showMonthHeader = true,
+}: CalendarMonthProps) {
   return (
     <div className="bg-white dark:bg-zinc-800 rounded-lg shadow-md p-4">
       {/* 月ヘッダー */}
-      <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-3">
-        {month}月
-      </h3>
+      {showMonthHeader && (
+        <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-3">
+          {month}月
+        </h3>
+      )}
 
       {/* 曜日ヘッダー */}
       <div className="grid grid-cols-7 gap-1 mb-2">
