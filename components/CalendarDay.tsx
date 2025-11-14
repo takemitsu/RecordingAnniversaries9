@@ -59,13 +59,17 @@ export function CalendarDay({ day }: CalendarDayProps) {
           {day.holidays.map((holiday) => (
             <div key={holiday.name} className="flex items-center gap-1 mb-1">
               <span>🎌</span>
-              <span className="text-gray-900 dark:text-gray-100">{holiday.name}</span>
+              <span className="text-gray-900 dark:text-gray-100">
+                {holiday.name}
+              </span>
             </div>
           ))}
           {day.anniversaries.map((anniversary) => (
             <div key={anniversary.id} className="flex items-center gap-1">
               <span>🎂</span>
-              <span className="text-gray-900 dark:text-gray-100">{anniversary.name}</span>
+              <span className="text-gray-900 dark:text-gray-100">
+                {anniversary.name}
+              </span>
             </div>
           ))}
         </div>

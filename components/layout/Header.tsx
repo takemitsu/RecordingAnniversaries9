@@ -52,30 +52,52 @@ export function Header({ session }: HeaderProps) {
             </div>
 
             {/* Desktop Navigation */}
-            {session && (
-              <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
-                <Link
-                  href="/"
-                  className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${
-                    isActive("/")
-                      ? "border-sky-500 text-gray-900 dark:text-white"
-                      : "border-transparent text-gray-500 dark:text-gray-400 hover:border-gray-300 hover:text-gray-700 dark:hover:text-gray-300"
-                  }`}
-                >
-                  一覧
-                </Link>
-                <Link
-                  href="/edit"
-                  className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${
-                    isActive("/edit")
-                      ? "border-sky-500 text-gray-900 dark:text-white"
-                      : "border-transparent text-gray-500 dark:text-gray-400 hover:border-gray-300 hover:text-gray-700 dark:hover:text-gray-300"
-                  }`}
-                >
-                  編集
-                </Link>
-              </div>
-            )}
+            <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
+              <Link
+                href="/holidays"
+                className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${
+                  isActive("/holidays")
+                    ? "border-sky-500 text-gray-900 dark:text-white"
+                    : "border-transparent text-gray-500 dark:text-gray-400 hover:border-gray-300 hover:text-gray-700 dark:hover:text-gray-300"
+                }`}
+              >
+                祝日
+              </Link>
+              {session && (
+                <>
+                  <Link
+                    href="/"
+                    className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${
+                      isActive("/")
+                        ? "border-sky-500 text-gray-900 dark:text-white"
+                        : "border-transparent text-gray-500 dark:text-gray-400 hover:border-gray-300 hover:text-gray-700 dark:hover:text-gray-300"
+                    }`}
+                  >
+                    一覧
+                  </Link>
+                  <Link
+                    href="/edit"
+                    className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${
+                      isActive("/edit")
+                        ? "border-sky-500 text-gray-900 dark:text-white"
+                        : "border-transparent text-gray-500 dark:text-gray-400 hover:border-gray-300 hover:text-gray-700 dark:hover:text-gray-300"
+                    }`}
+                  >
+                    編集
+                  </Link>
+                  <Link
+                    href="/calendar"
+                    className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${
+                      isActive("/calendar")
+                        ? "border-sky-500 text-gray-900 dark:text-white"
+                        : "border-transparent text-gray-500 dark:text-gray-400 hover:border-gray-300 hover:text-gray-700 dark:hover:text-gray-300"
+                    }`}
+                  >
+                    カレンダー
+                  </Link>
+                </>
+              )}
+            </div>
           </div>
 
           {/* User Info (Desktop) */}
@@ -200,82 +222,110 @@ export function Header({ session }: HeaderProps) {
       <div
         className={`${showingNavigationDropdown ? "block" : "hidden"} sm:hidden`}
       >
-        {session && (
-          <div className="pt-2 pb-3">
-            <div className="space-y-1">
-              <Link
-                href="/"
-                className={`block pl-3 pr-4 py-2 border-l-4 text-base font-medium ${
-                  isActive("/")
-                    ? "border-sky-500 text-sky-700 dark:text-sky-300 bg-sky-50 dark:bg-sky-900/50"
-                    : "border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-300"
-                }`}
-                onClick={() => setShowingNavigationDropdown(false)}
-              >
-                一覧
-              </Link>
-              <Link
-                href="/edit"
-                className={`block pl-3 pr-4 py-2 border-l-4 text-base font-medium ${
-                  isActive("/edit")
-                    ? "border-sky-500 text-sky-700 dark:text-sky-300 bg-sky-50 dark:bg-sky-900/50"
-                    : "border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-300"
-                }`}
-                onClick={() => setShowingNavigationDropdown(false)}
-              >
-                編集
-              </Link>
-            </div>
-
-            <div className="border-t border-gray-200 dark:border-gray-600 my-2" />
-
-            <div className="space-y-1">
-              <Link
-                href="/years"
-                className={`block pl-3 pr-4 py-2 border-l-4 text-base font-medium ${
-                  isActive("/years")
-                    ? "border-sky-500 text-sky-700 dark:text-sky-300 bg-sky-50 dark:bg-sky-900/50"
-                    : "border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-300"
-                }`}
-                onClick={() => setShowingNavigationDropdown(false)}
-              >
-                年度一覧
-              </Link>
-            </div>
-
-            <div className="border-t border-gray-200 dark:border-gray-600 my-2" />
-
-            <div className="px-4 py-2">
-              <div className="font-medium text-base text-gray-800 dark:text-gray-200">
-                {session.user?.name}
-              </div>
-              <div className="font-medium text-sm text-gray-500 dark:text-gray-400">
-                {session.user?.email}
-              </div>
-            </div>
-
-            <div className="space-y-1">
-              <Link
-                href="/profile"
-                className={`block pl-3 pr-4 py-2 border-l-4 text-base font-medium ${
-                  isActive("/profile")
-                    ? "border-sky-500 text-sky-700 dark:text-sky-300 bg-sky-50 dark:bg-sky-900/50"
-                    : "border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-300"
-                }`}
-                onClick={() => setShowingNavigationDropdown(false)}
-              >
-                設定
-              </Link>
-              <button
-                type="button"
-                onClick={() => signOut({ callbackUrl: "/" })}
-                className="block w-full text-left pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-300"
-              >
-                ログアウト
-              </button>
-            </div>
+        <div className="pt-2 pb-3">
+          <div className="space-y-1">
+            <Link
+              href="/holidays"
+              className={`block pl-3 pr-4 py-2 border-l-4 text-base font-medium ${
+                isActive("/holidays")
+                  ? "border-sky-500 text-sky-700 dark:text-sky-300 bg-sky-50 dark:bg-sky-900/50"
+                  : "border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-300"
+              }`}
+              onClick={() => setShowingNavigationDropdown(false)}
+            >
+              祝日
+            </Link>
+            {session && (
+              <>
+                <Link
+                  href="/"
+                  className={`block pl-3 pr-4 py-2 border-l-4 text-base font-medium ${
+                    isActive("/")
+                      ? "border-sky-500 text-sky-700 dark:text-sky-300 bg-sky-50 dark:bg-sky-900/50"
+                      : "border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-300"
+                  }`}
+                  onClick={() => setShowingNavigationDropdown(false)}
+                >
+                  一覧
+                </Link>
+                <Link
+                  href="/edit"
+                  className={`block pl-3 pr-4 py-2 border-l-4 text-base font-medium ${
+                    isActive("/edit")
+                      ? "border-sky-500 text-sky-700 dark:text-sky-300 bg-sky-50 dark:bg-sky-900/50"
+                      : "border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-300"
+                  }`}
+                  onClick={() => setShowingNavigationDropdown(false)}
+                >
+                  編集
+                </Link>
+                <Link
+                  href="/calendar"
+                  className={`block pl-3 pr-4 py-2 border-l-4 text-base font-medium ${
+                    isActive("/calendar")
+                      ? "border-sky-500 text-sky-700 dark:text-sky-300 bg-sky-50 dark:bg-sky-900/50"
+                      : "border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-300"
+                  }`}
+                  onClick={() => setShowingNavigationDropdown(false)}
+                >
+                  カレンダー
+                </Link>
+              </>
+            )}
           </div>
-        )}
+
+          {session && (
+            <>
+              <div className="border-t border-gray-200 dark:border-gray-600 my-2" />
+
+              <div className="space-y-1">
+                <Link
+                  href="/years"
+                  className={`block pl-3 pr-4 py-2 border-l-4 text-base font-medium ${
+                    isActive("/years")
+                      ? "border-sky-500 text-sky-700 dark:text-sky-300 bg-sky-50 dark:bg-sky-900/50"
+                      : "border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-300"
+                  }`}
+                  onClick={() => setShowingNavigationDropdown(false)}
+                >
+                  年度一覧
+                </Link>
+              </div>
+
+              <div className="border-t border-gray-200 dark:border-gray-600 my-2" />
+
+              <div className="px-4 py-2">
+                <div className="font-medium text-base text-gray-800 dark:text-gray-200">
+                  {session.user?.name}
+                </div>
+                <div className="font-medium text-sm text-gray-500 dark:text-gray-400">
+                  {session.user?.email}
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <Link
+                  href="/profile"
+                  className={`block pl-3 pr-4 py-2 border-l-4 text-base font-medium ${
+                    isActive("/profile")
+                      ? "border-sky-500 text-sky-700 dark:text-sky-300 bg-sky-50 dark:bg-sky-900/50"
+                      : "border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-300"
+                  }`}
+                  onClick={() => setShowingNavigationDropdown(false)}
+                >
+                  設定
+                </Link>
+                <button
+                  type="button"
+                  onClick={() => signOut({ callbackUrl: "/" })}
+                  className="block w-full text-left pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-300"
+                >
+                  ログアウト
+                </button>
+              </div>
+            </>
+          )}
+        </div>
 
         {!session && (
           <div className="pt-2 pb-3 space-y-1">

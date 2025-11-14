@@ -1,7 +1,7 @@
 import { writeFileSync } from "node:fs";
 import { join } from "node:path";
-import iconv from "iconv-lite";
 import { parse } from "csv-parse/sync";
+import iconv from "iconv-lite";
 
 const CSV_URL = "https://www8.cao.go.jp/chosei/shukujitsu/syukujitsu.csv";
 const OUTPUT_PATH = join(process.cwd(), "public", "holidays.json");
@@ -32,7 +32,10 @@ async function updateHolidays() {
       columns: true,
       skip_empty_lines: true,
       trim: true,
-    }) as Array<{ "国民の祝日・休日月日": string; "国民の祝日・休日名称": string }>;
+    }) as Array<{
+      "国民の祝日・休日月日": string;
+      "国民の祝日・休日名称": string;
+    }>;
 
     // 4. データ整形
     const holidays: Holiday[] = records.map((record) => {
@@ -52,7 +55,9 @@ async function updateHolidays() {
 
     console.log(`✅ 祝日データを更新しました: ${OUTPUT_PATH}`);
     console.log(`   取得件数: ${holidays.length}件`);
-    console.log(`   範囲: ${holidays[0]?.date} 〜 ${holidays[holidays.length - 1]?.date}`);
+    console.log(
+      `   範囲: ${holidays[0]?.date} 〜 ${holidays[holidays.length - 1]?.date}`,
+    );
   } catch (error) {
     console.error("❌ 祝日データの更新に失敗しました:", error);
     process.exit(1);

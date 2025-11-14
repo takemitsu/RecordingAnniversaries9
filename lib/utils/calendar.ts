@@ -16,7 +16,6 @@ export function generateCalendarGrid(
   anniversaries: Anniversary[] = [],
 ): CalendarDay[] {
   const firstDay = dayjs(`${year}-${month.toString().padStart(2, "0")}-01`);
-  const lastDay = firstDay.endOf("month");
   const today = dayjs().format("YYYY-MM-DD");
 
   // 月初の曜日（0=日曜、6=土曜）

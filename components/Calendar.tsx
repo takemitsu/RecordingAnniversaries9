@@ -1,10 +1,13 @@
 "use client";
 
-import { useState } from "react";
 import dayjs from "dayjs";
+import { useState } from "react";
+import type { Anniversary, Holiday } from "@/lib/types/calendar";
+import {
+  generateCalendarGrid,
+  generateYearCalendar,
+} from "@/lib/utils/calendar";
 import { CalendarMonth } from "./CalendarMonth";
-import { generateYearCalendar, generateCalendarGrid } from "@/lib/utils/calendar";
-import type { Holiday, Anniversary } from "@/lib/types/calendar";
 
 type CalendarProps = {
   holidays: Holiday[];
@@ -17,16 +20,25 @@ export function Calendar({ holidays, anniversaries = [] }: CalendarProps) {
 
   const [year, setYear] = useState(currentYear);
   const [month, setMonth] = useState(currentMonth);
-  const [viewMode, setViewMode] = useState<"year" | "month">("year");
 
   // PC版: 年次カレンダー（2×6グリッド）
   const yearCalendar = generateYearCalendar(year, holidays, anniversaries);
 
   // モバイル版: 月次カレンダー（今月・来月）
-  const currentMonthGrid = generateCalendarGrid(year, month, holidays, anniversaries);
+  const currentMonthGrid = generateCalendarGrid(
+    year,
+    month,
+    holidays,
+    anniversaries,
+  );
   const nextMonth = month === 12 ? 1 : month + 1;
   const nextMonthYear = month === 12 ? year + 1 : year;
-  const nextMonthGrid = generateCalendarGrid(nextMonthYear, nextMonth, holidays, anniversaries);
+  const nextMonthGrid = generateCalendarGrid(
+    nextMonthYear,
+    nextMonth,
+    holidays,
+    anniversaries,
+  );
 
   const handlePrevYear = () => setYear((prev) => prev - 1);
   const handleNextYear = () => setYear((prev) => prev + 1);
@@ -140,7 +152,11 @@ export function Calendar({ holidays, anniversaries = [] }: CalendarProps) {
           <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
             {nextMonthYear}年{nextMonth}月
           </h2>
-          <CalendarMonth year={nextMonthYear} month={nextMonth} grid={nextMonthGrid} />
+          <CalendarMonth
+            year={nextMonthYear}
+            month={nextMonth}
+            grid={nextMonthGrid}
+          />
         </div>
       </div>
     </div>

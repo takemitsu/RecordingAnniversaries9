@@ -1,5 +1,5 @@
-import { CalendarDay as CalendarDayComponent } from "./CalendarDay";
 import type { CalendarDay } from "@/lib/types/calendar";
+import { CalendarDay as CalendarDayComponent } from "./CalendarDay";
 
 type CalendarMonthProps = {
   year: number;
@@ -9,7 +9,7 @@ type CalendarMonthProps = {
 
 const WEEKDAYS = ["日", "月", "火", "水", "木", "金", "土"];
 
-export function CalendarMonth({ year, month, grid }: CalendarMonthProps) {
+export function CalendarMonth({ month, grid }: CalendarMonthProps) {
   return (
     <div className="bg-white dark:bg-zinc-800 rounded-lg shadow-md p-4">
       {/* 月ヘッダー */}
