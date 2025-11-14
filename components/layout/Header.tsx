@@ -16,6 +16,7 @@ export function Header({ session }: HeaderProps) {
   const [showingNavigationDropdown, setShowingNavigationDropdown] =
     useState(false);
   const [showUserDropdown, setShowUserDropdown] = useState(false);
+  const [showMenuDropdown, setShowMenuDropdown] = useState(false);
   const pathname = usePathname();
 
   // pathname が変わるたびに日時を再計算
@@ -29,6 +30,7 @@ export function Header({ session }: HeaderProps) {
     void pathname; // pathname変更をトリガーにする
     setShowingNavigationDropdown(false);
     setShowUserDropdown(false);
+    setShowMenuDropdown(false);
   }, [pathname]);
 
   const isActive = (path: string) => pathname === path;
@@ -81,8 +83,7 @@ export function Header({ session }: HeaderProps) {
           </div>
 
           {/* User Info (Desktop) */}
-          <div className="hidden md:ml-6 md:flex md:items-center md:gap-4">
-            <ThemeToggle />
+          <div className="hidden md:ml-6 md:flex md:items-center">
             {session ? (
               <div className="relative">
                 <button
@@ -122,11 +123,11 @@ export function Header({ session }: HeaderProps) {
                     <div className="absolute right-0 z-20 mt-2 w-48 rounded-md shadow-lg bg-white dark:bg-zinc-800 ring-1 ring-black ring-opacity-5">
                       <div className="py-1">
                         <Link
-                          href="/years"
+                          href="/calendar"
                           className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
                           onClick={() => setShowUserDropdown(false)}
                         >
-                          年度一覧
+                          カレンダー
                         </Link>
                         <Link
                           href="/holidays"
@@ -136,12 +137,17 @@ export function Header({ session }: HeaderProps) {
                           祝日
                         </Link>
                         <Link
-                          href="/calendar"
+                          href="/years"
                           className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
                           onClick={() => setShowUserDropdown(false)}
                         >
-                          カレンダー
+                          年度一覧
                         </Link>
+                        <div className="border-t border-gray-200 dark:border-gray-600 my-1" />
+                        <ThemeToggle
+                          variant="dropdown"
+                          onThemeChange={() => setShowUserDropdown(false)}
+                        />
                         <div className="border-t border-gray-200 dark:border-gray-600 my-1" />
                         <Link
                           href="/profile"
@@ -163,12 +169,75 @@ export function Header({ session }: HeaderProps) {
                 )}
               </div>
             ) : (
-              <Link
-                href="/auth/signin"
-                className="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
-              >
-                ログイン
-              </Link>
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setShowMenuDropdown(!showMenuDropdown)}
+                  className="flex items-center text-sm text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white focus:outline-none"
+                >
+                  メニュー
+                  <svg
+                    className="ml-1 h-4 w-4"
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <title>メニューを開く</title>
+                    <path
+                      fillRule="evenodd"
+                      d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </button>
+
+                {showMenuDropdown && (
+                  <>
+                    {/* Backdrop */}
+                    <button
+                      type="button"
+                      className="fixed inset-0 z-10 cursor-default"
+                      onClick={() => setShowMenuDropdown(false)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Escape") setShowMenuDropdown(false);
+                      }}
+                      aria-label="メニューを閉じる"
+                    />
+                    {/* Dropdown Menu */}
+                    <div className="absolute right-0 z-20 mt-2 w-48 rounded-md shadow-lg bg-white dark:bg-zinc-800 ring-1 ring-black ring-opacity-5">
+                      <div className="py-1">
+                        <Link
+                          href="/holidays"
+                          className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                          onClick={() => setShowMenuDropdown(false)}
+                        >
+                          祝日
+                        </Link>
+                        <Link
+                          href="/years"
+                          className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                          onClick={() => setShowMenuDropdown(false)}
+                        >
+                          年度一覧
+                        </Link>
+                        <div className="border-t border-gray-200 dark:border-gray-600 my-1" />
+                        <ThemeToggle
+                          variant="dropdown"
+                          onThemeChange={() => setShowMenuDropdown(false)}
+                        />
+                        <div className="border-t border-gray-200 dark:border-gray-600 my-1" />
+                        <Link
+                          href="/auth/signin"
+                          className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                          onClick={() => setShowMenuDropdown(false)}
+                        >
+                          ログイン
+                        </Link>
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
             )}
           </div>
 
@@ -255,6 +324,32 @@ export function Header({ session }: HeaderProps) {
                 </Link>
               </>
             )}
+            {!session && (
+              <>
+                <Link
+                  href="/holidays"
+                  className={`block pl-3 pr-4 py-2 border-l-4 text-base font-medium ${
+                    isActive("/holidays")
+                      ? "border-sky-500 text-sky-700 dark:text-sky-300 bg-sky-50 dark:bg-sky-900/50"
+                      : "border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-300"
+                  }`}
+                  onClick={() => setShowingNavigationDropdown(false)}
+                >
+                  祝日
+                </Link>
+                <Link
+                  href="/years"
+                  className={`block pl-3 pr-4 py-2 border-l-4 text-base font-medium ${
+                    isActive("/years")
+                      ? "border-sky-500 text-sky-700 dark:text-sky-300 bg-sky-50 dark:bg-sky-900/50"
+                      : "border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-300"
+                  }`}
+                  onClick={() => setShowingNavigationDropdown(false)}
+                >
+                  年度一覧
+                </Link>
+              </>
+            )}
           </div>
 
           {session && (
@@ -319,24 +414,28 @@ export function Header({ session }: HeaderProps) {
               </div>
             </>
           )}
-        </div>
 
-        {!session && (
-          <div className="pt-2 pb-3 space-y-1">
-            <Link
-              href="/auth/signin"
-              className="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-300"
-              onClick={() => setShowingNavigationDropdown(false)}
-            >
-              ログイン
-            </Link>
+          {!session && (
+            <>
+              <div className="border-t border-gray-200 dark:border-gray-600 my-2" />
+
+              <div className="space-y-1">
+                <Link
+                  href="/auth/signin"
+                  className="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-300"
+                  onClick={() => setShowingNavigationDropdown(false)}
+                >
+                  ログイン
+                </Link>
+              </div>
+            </>
+          )}
+
+          {/* テーマ切り替え（モバイル） */}
+          <div className="border-t border-gray-200 dark:border-gray-600 my-2" />
+          <div className="px-4 py-2 flex justify-center">
+            <ThemeToggle />
           </div>
-        )}
-
-        {/* テーマ切り替え（モバイル） */}
-        <div className="border-t border-gray-200 dark:border-gray-600 my-2" />
-        <div className="px-4 py-3 flex justify-center">
-          <ThemeToggle />
         </div>
       </div>
     </header>
