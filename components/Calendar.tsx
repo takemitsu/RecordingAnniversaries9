@@ -68,7 +68,7 @@ export function Calendar({ holidays, anniversaries = [] }: CalendarProps) {
   return (
     <div className="w-full">
       {/* PC版: 年次カレンダー（2×6グリッド） */}
-      <div className="hidden lg:block">
+      <div className="hidden md:block">
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
             {year}年のカレンダー
@@ -111,7 +111,7 @@ export function Calendar({ holidays, anniversaries = [] }: CalendarProps) {
       </div>
 
       {/* モバイル版: 月次カレンダー（縦スクロール） */}
-      <div className="lg:hidden">
+      <div className="md:hidden">
         <div className="flex items-center justify-between mb-4">
           <h1 className="text-xl font-bold text-gray-900 dark:text-white">
             {year}年{month}月

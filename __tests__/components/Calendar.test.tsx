@@ -15,7 +15,7 @@ describe("Calendar", () => {
       const { container } = render(<Calendar holidays={mockHolidays} />);
 
       // PC版コンテナを取得
-      const pcContainer = container.querySelector(".hidden.lg\\:block");
+      const pcContainer = container.querySelector(".hidden.md\\:block");
       expect(pcContainer).toBeInTheDocument();
 
       // 12ヶ月すべてのヘッダーが表示される（h3要素として）
@@ -89,7 +89,7 @@ describe("Calendar", () => {
       const { container } = render(<Calendar holidays={mockHolidays} />);
 
       // PC版コンテナを取得
-      const pcContainer = container.querySelector(".hidden.lg\\:block");
+      const pcContainer = container.querySelector(".hidden.md\\:block");
       expect(pcContainer).toBeInTheDocument();
 
       // 祝日アイコン🎌が表示される
@@ -106,7 +106,7 @@ describe("Calendar", () => {
       const { container } = render(<Calendar holidays={mockHolidays} />);
 
       // モバイル版コンテナを取得
-      const mobileContainer = container.querySelector(".lg\\:hidden");
+      const mobileContainer = container.querySelector(".md\\:hidden");
       expect(mobileContainer).toBeInTheDocument();
 
       const currentYear = new Date().getFullYear();
