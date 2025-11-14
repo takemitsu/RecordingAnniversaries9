@@ -105,7 +105,7 @@ test.describe("スクリーンショット確認", { tag: "@screenshot" }, () =>
         });
 
         test("カレンダーページ（祝日+記念日）", async ({ page }) => {
-          await page.goto("/calendar");
+          await page.goto("/my-calendar");
           await page.waitForLoadState("networkidle");
 
           await page.screenshot({
@@ -218,7 +218,7 @@ test.describe("スクリーンショット確認", { tag: "@screenshot" }, () =>
         });
 
         test("カレンダーページ（祝日+記念日）", async ({ page }) => {
-          await page.goto("/calendar");
+          await page.goto("/my-calendar");
           await page.waitForLoadState("networkidle");
 
           await page.screenshot({
@@ -336,7 +336,7 @@ test.describe("スクリーンショット確認", { tag: "@screenshot" }, () =>
         });
 
         test("カレンダーページ（祝日+記念日）", async ({ page }) => {
-          await page.goto("/calendar");
+          await page.goto("/my-calendar");
           await page.waitForLoadState("networkidle");
 
           await page.screenshot({
@@ -449,7 +449,7 @@ test.describe("スクリーンショット確認", { tag: "@screenshot" }, () =>
         });
 
         test("カレンダーページ（祝日+記念日）", async ({ page }) => {
-          await page.goto("/calendar");
+          await page.goto("/my-calendar");
           await page.waitForLoadState("networkidle");
 
           await page.screenshot({

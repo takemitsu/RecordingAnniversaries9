@@ -70,6 +70,16 @@ export function Header({ session }: HeaderProps) {
                     一覧
                   </Link>
                   <Link
+                    href="/my-calendar"
+                    className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${
+                      isActive("/my-calendar")
+                        ? "border-sky-500 text-gray-900 dark:text-white"
+                        : "border-transparent text-gray-500 dark:text-gray-400 hover:border-gray-300 hover:text-gray-700 dark:hover:text-gray-300"
+                    }`}
+                  >
+                    表
+                  </Link>
+                  <Link
                     href="/edit"
                     className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${
                       isActive("/edit")
@@ -111,13 +121,6 @@ export function Header({ session }: HeaderProps) {
                           onClick={() => setShowUserDropdown(false)}
                         >
                           カレンダー
-                        </Link>
-                        <Link
-                          href="/holidays"
-                          className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                          onClick={() => setShowUserDropdown(false)}
-                        >
-                          祝日
                         </Link>
                         <Link
                           href="/years"
@@ -171,11 +174,11 @@ export function Header({ session }: HeaderProps) {
                     <div className="absolute right-0 z-20 mt-2 w-48 rounded-md shadow-lg bg-white dark:bg-zinc-800 ring-1 ring-black ring-opacity-5">
                       <div className="py-1">
                         <Link
-                          href="/holidays"
+                          href="/calendar"
                           className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
                           onClick={() => setShowMenuDropdown(false)}
                         >
-                          祝日
+                          カレンダー
                         </Link>
                         <Link
                           href="/years"
@@ -265,6 +268,17 @@ export function Header({ session }: HeaderProps) {
                   一覧
                 </Link>
                 <Link
+                  href="/my-calendar"
+                  className={`block pl-3 pr-4 py-2 border-l-4 text-base font-medium ${
+                    isActive("/my-calendar")
+                      ? "border-sky-500 text-sky-700 dark:text-sky-300 bg-sky-50 dark:bg-sky-900/50"
+                      : "border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-300"
+                  }`}
+                  onClick={() => setShowingNavigationDropdown(false)}
+                >
+                  表
+                </Link>
+                <Link
                   href="/edit"
                   className={`block pl-3 pr-4 py-2 border-l-4 text-base font-medium ${
                     isActive("/edit")
@@ -275,6 +289,10 @@ export function Header({ session }: HeaderProps) {
                 >
                   編集
                 </Link>
+              </>
+            )}
+            {!session && (
+              <>
                 <Link
                   href="/calendar"
                   className={`block pl-3 pr-4 py-2 border-l-4 text-base font-medium ${
@@ -285,21 +303,6 @@ export function Header({ session }: HeaderProps) {
                   onClick={() => setShowingNavigationDropdown(false)}
                 >
                   カレンダー
-                </Link>
-              </>
-            )}
-            {!session && (
-              <>
-                <Link
-                  href="/holidays"
-                  className={`block pl-3 pr-4 py-2 border-l-4 text-base font-medium ${
-                    isActive("/holidays")
-                      ? "border-sky-500 text-sky-700 dark:text-sky-300 bg-sky-50 dark:bg-sky-900/50"
-                      : "border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-300"
-                  }`}
-                  onClick={() => setShowingNavigationDropdown(false)}
-                >
-                  祝日
                 </Link>
                 <Link
                   href="/years"
@@ -322,15 +325,15 @@ export function Header({ session }: HeaderProps) {
 
               <div className="space-y-1">
                 <Link
-                  href="/holidays"
+                  href="/calendar"
                   className={`block pl-3 pr-4 py-2 border-l-4 text-base font-medium ${
-                    isActive("/holidays")
+                    isActive("/calendar")
                       ? "border-sky-500 text-sky-700 dark:text-sky-300 bg-sky-50 dark:bg-sky-900/50"
                       : "border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-300"
                   }`}
                   onClick={() => setShowingNavigationDropdown(false)}
                 >
-                  祝日
+                  カレンダー
                 </Link>
                 <Link
                   href="/years"

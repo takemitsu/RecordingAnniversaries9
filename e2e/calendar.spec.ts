@@ -5,7 +5,7 @@ test.describe("カレンダー機能", () => {
     test.use({ storageState: { cookies: [], origins: [] } });
 
     test("祝日カレンダーページが表示される", async ({ page }) => {
-      await page.goto("/holidays");
+      await page.goto("/calendar");
       await page.waitForLoadState("networkidle");
 
       await expect(
@@ -18,7 +18,7 @@ test.describe("カレンダー機能", () => {
 
     test("PC版: 2×6グリッドで12ヶ月が表示される", async ({ page }) => {
       await page.setViewportSize({ width: 1280, height: 720 });
-      await page.goto("/holidays");
+      await page.goto("/calendar");
       await page.waitForLoadState("networkidle");
 
       // 12ヶ月すべてのヘッダーが表示される
@@ -29,7 +29,7 @@ test.describe("カレンダー機能", () => {
 
     test("PC版: 年のナビゲーションが動作する", async ({ page }) => {
       await page.setViewportSize({ width: 1280, height: 720 });
-      await page.goto("/holidays");
+      await page.goto("/calendar");
       await page.waitForLoadState("networkidle");
 
       const currentYear = new Date().getFullYear();
@@ -67,7 +67,7 @@ test.describe("カレンダー機能", () => {
 
     test("モバイル版: 月次カレンダーが表示される", async ({ page }) => {
       await page.setViewportSize({ width: 360, height: 640 });
-      await page.goto("/holidays");
+      await page.goto("/calendar");
       await page.waitForLoadState("networkidle");
 
       const currentYear = new Date().getFullYear();
@@ -87,7 +87,7 @@ test.describe("カレンダー機能", () => {
 
     test("モバイル版: 月のナビゲーションが動作する", async ({ page }) => {
       await page.setViewportSize({ width: 360, height: 640 });
-      await page.goto("/holidays");
+      await page.goto("/calendar");
       await page.waitForLoadState("networkidle");
 
       const currentYear = new Date().getFullYear();
@@ -117,7 +117,7 @@ test.describe("カレンダー機能", () => {
     });
 
     test("祝日のアイコンが表示される", async ({ page }) => {
-      await page.goto("/holidays");
+      await page.goto("/calendar");
       await page.waitForLoadState("networkidle");
 
       // 1月に元日の🎌アイコンが表示される
@@ -126,7 +126,7 @@ test.describe("カレンダー機能", () => {
     });
 
     test("祝日のツールチップが表示される", async ({ page }) => {
-      await page.goto("/holidays");
+      await page.goto("/calendar");
       await page.waitForLoadState("networkidle");
 
       // 祝日アイコン🎌をクリック
@@ -142,7 +142,7 @@ test.describe("カレンダー機能", () => {
     test.use({ storageState: "e2e/.auth/user.json" });
 
     test("カレンダーページが表示される", async ({ page }) => {
-      await page.goto("/calendar");
+      await page.goto("/my-calendar");
       await page.waitForLoadState("networkidle");
 
       await expect(
@@ -154,7 +154,7 @@ test.describe("カレンダー機能", () => {
     });
 
     test("祝日と記念日の両方が表示される", async ({ page }) => {
-      await page.goto("/calendar");
+      await page.goto("/my-calendar");
       await page.waitForLoadState("networkidle");
 
       // 祝日のアイコン
@@ -170,7 +170,7 @@ test.describe("カレンダー機能", () => {
 
     test("PC版: 年次カレンダーが表示される", async ({ page }) => {
       await page.setViewportSize({ width: 1280, height: 720 });
-      await page.goto("/calendar");
+      await page.goto("/my-calendar");
       await page.waitForLoadState("networkidle");
 
       const currentYear = new Date().getFullYear();
@@ -181,7 +181,7 @@ test.describe("カレンダー機能", () => {
 
     test("モバイル版: 月次カレンダーが表示される", async ({ page }) => {
       await page.setViewportSize({ width: 360, height: 640 });
-      await page.goto("/calendar");
+      await page.goto("/my-calendar");
       await page.waitForLoadState("networkidle");
 
       const currentYear = new Date().getFullYear();
@@ -192,7 +192,7 @@ test.describe("カレンダー機能", () => {
     });
 
     test("記念日のツールチップが表示される", async ({ page }) => {
-      await page.goto("/calendar");
+      await page.goto("/my-calendar");
       await page.waitForLoadState("networkidle");
 
       // 記念日がある日をクリック（テストデータに依存）
@@ -212,7 +212,7 @@ test.describe("カレンダー機能", () => {
     test.use({ storageState: { cookies: [], origins: [] } });
 
     test("祝日カレンダーページにはheadingがある", async ({ page }) => {
-      await page.goto("/holidays");
+      await page.goto("/calendar");
       await page.waitForLoadState("networkidle");
 
       await expect(
@@ -221,7 +221,7 @@ test.describe("カレンダー機能", () => {
     });
 
     test("カレンダーの日付セルはbuttonである", async ({ page }) => {
-      await page.goto("/holidays");
+      await page.goto("/calendar");
       await page.waitForLoadState("networkidle");
 
       // 日付セルがbuttonとしてアクセス可能
