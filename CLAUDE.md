@@ -29,6 +29,8 @@ recording-anniversaries9/
 ├── app/
 │   ├── (main)/
 │   │   ├── page.tsx                                    # 一覧ページ（閲覧専用）
+│   │   ├── my-calendar/
+│   │   │   └── page.tsx                               # カレンダーページ（祝日+記念日、ログイン必要）
 │   │   ├── edit/
 │   │   │   ├── page.tsx                               # 編集ページ
 │   │   │   ├── EditPageClient.tsx
@@ -40,8 +42,21 @@ recording-anniversaries9/
 │   │   │           └── [anniversaryId]/page.tsx      # Anniversary編集
 │   │   ├── profile/
 │   │   │   ├── page.tsx                               # プロフィール設定
-│   │   │   └── ProfileForm.tsx
+│   │   │   ├── ProfileForm.tsx
+│   │   │   └── PasskeyManager.tsx                     # Passkey管理コンポーネント
+│   │   ├── error.tsx                                  # エラーページ
+│   │   ├── loading.tsx                                # ローディング表示
 │   │   └── layout.tsx                                 # メインレイアウト
+│   ├── (shared)/
+│   │   ├── calendar/
+│   │   │   └── page.tsx                               # 祝日カレンダーページ（未ログインOK）
+│   │   ├── years/
+│   │   │   └── page.tsx                               # 年度一覧ページ
+│   │   ├── privacy/
+│   │   │   └── page.tsx                               # プライバシーポリシー
+│   │   ├── terms/
+│   │   │   └── page.tsx                               # 利用規約
+│   │   └── layout.tsx                                 # 共有レイアウト
 │   ├── actions/              # Server Actions
 │   │   ├── collections.ts    # Collections CRUD（作成/更新/削除/取得）
 │   │   ├── anniversaries.ts  # Anniversaries CRUD（作成/更新/削除/取得）
@@ -49,23 +64,30 @@ recording-anniversaries9/
 │   │   └── profile.ts        # プロフィール更新
 │   ├── api/auth/[...nextauth]/route.ts  # Auth.js API
 │   ├── auth/                 # 認証関連ページ
-│   │   └── signin/page.tsx
+│   │   └── signin/
+│   │       ├── page.tsx
+│   │       └── SignInForm.tsx             # サインインフォーム
 │   ├── layout.tsx            # ルートレイアウト
 │   └── page.tsx              # トップページ（リダイレクト）
 ├── components/
 │   ├── CollectionCard.tsx    # Collectionカード
 │   ├── AnniversaryCard.tsx   # Anniversaryカード
-│   ├── auth/
-│   │   ├── PasskeyManager.tsx  # Passkey管理コンポーネント
-│   │   └── SignInForm.tsx      # サインインフォーム
+│   ├── Calendar.tsx          # カレンダーメインコンポーネント
+│   ├── CalendarMonth.tsx     # 月カレンダー
+│   ├── CalendarDay.tsx       # 日付セル
+│   ├── ThemeToggle.tsx       # テーマ切り替え
+│   ├── ThemeProvider.tsx     # テーマプロバイダー
 │   ├── forms/
 │   │   ├── CollectionForm.tsx
 │   │   ├── AnniversaryForm.tsx
 │   │   ├── DatePickerField.tsx
 │   │   └── FormField.tsx
+│   ├── icons/
+│   │   └── ChevronDownIcon.tsx  # ドロップダウンアイコン
 │   ├── layout/
 │   │   ├── Header.tsx        # ヘッダー（ハンバーガーメニュー）
-│   │   └── Footer.tsx        # フッター
+│   │   ├── Footer.tsx        # フッター
+│   │   └── DropdownBackdrop.tsx  # ドロップダウン背景
 │   └── ui/
 │       └── Button.tsx        # 統一Buttonコンポーネント
 ├── lib/
@@ -84,6 +106,12 @@ recording-anniversaries9/
 │   └── auth-helpers.ts       # 認証ヘルパー（getUserId）
 ├── hooks/
 │   └── useConfirmDelete.ts   # 削除確認フック
+├── public/
+│   └── holidays.json         # 祝日データ（内閣府CSV変換後）
+├── scripts/
+│   ├── update-holidays.ts    # 祝日データ更新スクリプト
+│   ├── import-data.ts        # データインポートスクリプト
+│   └── migrate.ts            # マイグレーション実行スクリプト
 ├── docs/                     # プロジェクトドキュメント
 │   ├── README.md             # ドキュメント目次
 │   ├── TESTING.md            # テスト関連ドキュメント
@@ -203,6 +231,9 @@ Users (ユーザー)
 - ✅ **2ページ構成**
   - `/` - 一覧ページ（閲覧専用）
   - `/edit` - 編集ページ（全機能アクセス可能）
+- ✅ **カレンダー機能**
+  - `/calendar` - 祝日カレンダー（未ログインOK）
+  - `/my-calendar` - カレンダー（祝日+記念日、ログイン必要）
 - ✅ **フルスクリーンフォーム**
   - `/edit/collection/new` - Collection作成
   - `/edit/collection/[collectionId]` - Collection編集
@@ -219,12 +250,19 @@ Users (ユーザー)
 ### コンポーネント
 - ✅ `components/CollectionCard.tsx`
 - ✅ `components/AnniversaryCard.tsx`
+- ✅ `components/Calendar.tsx` - カレンダーメインコンポーネント
+- ✅ `components/CalendarMonth.tsx` - 月カレンダー
+- ✅ `components/CalendarDay.tsx` - 日付セル
+- ✅ `components/ThemeToggle.tsx` - テーマ切り替え
+- ✅ `components/ThemeProvider.tsx` - テーマプロバイダー
 - ✅ `components/forms/CollectionForm.tsx`
 - ✅ `components/forms/AnniversaryForm.tsx`
 - ✅ `components/forms/DatePickerField.tsx`
 - ✅ `components/forms/FormField.tsx`
+- ✅ `components/icons/ChevronDownIcon.tsx` - ドロップダウンアイコン
 - ✅ `components/layout/Header.tsx` - ハンバーガーメニュー実装済み
 - ✅ `components/layout/Footer.tsx` - フッター実装
+- ✅ `components/layout/DropdownBackdrop.tsx` - ドロップダウン背景
 - ✅ `components/ui/Button.tsx` - 統一Buttonコンポーネント
 
 ### 日付計算
@@ -515,6 +553,16 @@ users (ユーザー)
 - 記念日があるCollectionのみ表示
 - 操作ボタンなし（閲覧専用）
 
+#### `/my-calendar` - 表（カレンダー）
+- 祝日＋記念日を表示（ログイン必要）
+- PC版: 2×6グリッド（年次カレンダー）
+- モバイル版: 月次カレンダー（縦スクロール）
+
+#### `/calendar` - 祝日カレンダー
+- 祝日のみ表示（未ログインOK）
+- PC版: 2×6グリッド（年次カレンダー）
+- モバイル版: 月次カレンダー（縦スクロール）
+
 #### `/edit` - 編集ページ
 - 全Collectionを表示（記念日がなくてもOK）
 - Collection単位の操作: 削除、編集、Anniversary追加
@@ -535,7 +583,8 @@ users (ユーザー)
 
 **ハンバーガーメニュー**:
 - `sm:hidden` でモバイル時に表示
-- ナビゲーションは「一覧」「編集」「プロフィール」の3つ
+- ログイン時ナビゲーション: 「一覧」「表」「カレンダー」「年度一覧」「編集」「プロフィール」
+- 未ログイン時ナビゲーション: 「カレンダー」「年度一覧」「ログイン」
 
 **日付表示**:
 - モバイル: 適切に表示
@@ -601,6 +650,10 @@ users (ユーザー)
 - **Lintエラーはコメントで回避しない** - `biome-ignore` や `eslint-disable` などのコメントで逃げない
 - エラーが出た場合は、コードを修正して根本的に解決する
 - 正当な理由がある場合でも、まずコードの設計を見直す
+
+### コミットルール
+- **勝手にコミットしない** - Claudeからコミットを実行しない
+- **コミット前には必ずユーザーに確認** - git commitする前にユーザーの許可を得る
 
 ## 開発フロー
 

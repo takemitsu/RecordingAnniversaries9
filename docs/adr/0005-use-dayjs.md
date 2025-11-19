@@ -62,6 +62,28 @@ dayjs.extend(relativeTime)
 dayjs.locale('ja')
 ```
 
+## 再検討（2025-11-14）
+
+カレンダー機能実装に伴い、date-fns移行を検討したが、**dayjs継続を決定**。
+
+### 比較結果
+
+| 項目 | dayjs | date-fns |
+|------|-------|----------|
+| npm downloads/週 | 31M | 36M（ほぼ同等） |
+| GitHub stars | 48k | 36k（ほぼ同等） |
+| バンドルサイズ | 6KB | 10-15KB |
+| メンテナンス | アクティブ | アクティブ |
+
+### dayjs継続の理由
+
+1. **バンドルサイズ**: 6KB（date-fnsは10-15KB）
+2. **移行コスト**: 3-5時間（テスト含む）に見合うメリットなし
+3. **既存実装**: 問題なく動作中
+4. **カレンダー自作**: react-day-picker不使用のため、date-fns依存が発生しない
+
+date-fnsはTree-shakingに優れるが、このプロジェクトの使用状況では実バンドルサイズでdayjsが有利。
+
 ## References（参考資料）
 
 - [Day.js Documentation](https://day.js.org/)
