@@ -12,8 +12,18 @@ describe("generateCalendarGrid", () => {
   ];
 
   const mockAnniversaries: Anniversary[] = [
-    { id: 1, name: "誕生日", anniversaryDate: "2025-01-15" },
-    { id: 2, name: "記念日", anniversaryDate: "2025-01-20" },
+    {
+      id: 1,
+      name: "誕生日",
+      anniversaryDate: "2025-01-15",
+      collectionName: "家族",
+    },
+    {
+      id: 2,
+      name: "記念日",
+      anniversaryDate: "2025-01-20",
+      collectionName: "家族",
+    },
   ];
 
   test("2025年1月のカレンダーグリッドを生成する", () => {
@@ -69,7 +79,12 @@ describe("generateCalendarGrid", () => {
 
   test("祝日と記念日が重なる日を正しく処理する", () => {
     const overlappingAnniversaries: Anniversary[] = [
-      { id: 1, name: "誕生日", anniversaryDate: "2025-01-01" },
+      {
+        id: 1,
+        name: "誕生日",
+        anniversaryDate: "2025-01-01",
+        collectionName: "家族",
+      },
     ];
 
     const grid = generateCalendarGrid(
@@ -137,8 +152,18 @@ describe("generateCalendarGrid", () => {
 
   test("同じ日に複数の記念日がある場合を処理する", () => {
     const multipleAnniversaries: Anniversary[] = [
-      { id: 1, name: "誕生日", anniversaryDate: "2025-01-15" },
-      { id: 2, name: "結婚記念日", anniversaryDate: "2025-01-15" },
+      {
+        id: 1,
+        name: "誕生日",
+        anniversaryDate: "2025-01-15",
+        collectionName: "家族",
+      },
+      {
+        id: 2,
+        name: "結婚記念日",
+        anniversaryDate: "2025-01-15",
+        collectionName: "家族",
+      },
     ];
 
     const grid = generateCalendarGrid(2025, 1, [], multipleAnniversaries);
@@ -273,7 +298,12 @@ describe("generateCalendarGrid", () => {
   test("過去の年の記念日が今年のカレンダーに年次繰り返しで表示される", () => {
     // 2020年1月15日の記念日
     const pastAnniversaries: Anniversary[] = [
-      { id: 1, name: "結婚記念日", anniversaryDate: "2020-01-15" },
+      {
+        id: 1,
+        name: "結婚記念日",
+        anniversaryDate: "2020-01-15",
+        collectionName: "家族",
+      },
     ];
 
     // 2025年1月のカレンダーを生成
@@ -288,7 +318,12 @@ describe("generateCalendarGrid", () => {
   test("未来の年の記念日は今年のカレンダーに表示されない", () => {
     // 2030年1月15日の記念日（未来）
     const futureAnniversaries: Anniversary[] = [
-      { id: 1, name: "未来の記念日", anniversaryDate: "2030-01-15" },
+      {
+        id: 1,
+        name: "未来の記念日",
+        anniversaryDate: "2030-01-15",
+        collectionName: "家族",
+      },
     ];
 
     // 2025年1月のカレンダーを生成
@@ -302,7 +337,12 @@ describe("generateCalendarGrid", () => {
   test("記念日の元の年では正しく表示される", () => {
     // 2020年1月15日の記念日
     const anniversaries: Anniversary[] = [
-      { id: 1, name: "結婚記念日", anniversaryDate: "2020-01-15" },
+      {
+        id: 1,
+        name: "結婚記念日",
+        anniversaryDate: "2020-01-15",
+        collectionName: "家族",
+      },
     ];
 
     // 2020年1月のカレンダーを生成
@@ -317,7 +357,12 @@ describe("generateCalendarGrid", () => {
   test("記念日の年より前の年には表示されない", () => {
     // 2020年1月15日の記念日
     const anniversaries: Anniversary[] = [
-      { id: 1, name: "結婚記念日", anniversaryDate: "2020-01-15" },
+      {
+        id: 1,
+        name: "結婚記念日",
+        anniversaryDate: "2020-01-15",
+        collectionName: "家族",
+      },
     ];
 
     // 2019年1月のカレンダーを生成
@@ -331,8 +376,18 @@ describe("generateCalendarGrid", () => {
   test("複数の過去の記念日が同じ月日に表示される", () => {
     // 同じ月日で異なる年の複数の記念日
     const anniversaries: Anniversary[] = [
-      { id: 1, name: "結婚記念日", anniversaryDate: "2020-01-15" },
-      { id: 2, name: "入社記念日", anniversaryDate: "2022-01-15" },
+      {
+        id: 1,
+        name: "結婚記念日",
+        anniversaryDate: "2020-01-15",
+        collectionName: "家族",
+      },
+      {
+        id: 2,
+        name: "入社記念日",
+        anniversaryDate: "2022-01-15",
+        collectionName: "仕事",
+      },
     ];
 
     // 2025年1月のカレンダーを生成
@@ -354,7 +409,12 @@ describe("generateYearCalendar", () => {
   ];
 
   const mockAnniversaries: Anniversary[] = [
-    { id: 1, name: "誕生日", anniversaryDate: "2025-06-15" },
+    {
+      id: 1,
+      name: "誕生日",
+      anniversaryDate: "2025-06-15",
+      collectionName: "家族",
+    },
   ];
 
   test("12ヶ月分のカレンダーグリッドを生成する", () => {

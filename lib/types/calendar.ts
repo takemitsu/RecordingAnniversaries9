@@ -13,6 +13,7 @@ export type Anniversary = {
   id: number;
   name: string;
   anniversaryDate: string; // YYYY-MM-DD
+  collectionName: string; // グループ名
 };
 
 /**
@@ -23,6 +24,7 @@ export type CalendarDay = {
   day: number; // 日（1-31）
   isCurrentMonth: boolean; // 当月の日付か
   isToday: boolean; // 今日か
+  isFriday: boolean; // 金曜日か
   isSaturday: boolean; // 土曜日か
   isSunday: boolean; // 日曜日か
   holidays: Holiday[]; // その日の祝日

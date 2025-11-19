@@ -66,8 +66,8 @@ export function CalendarDay({ day }: CalendarDayProps) {
       {/* ツールチップ */}
       {showTooltip && hasEvents && (
         <div
-          className={`absolute z-10 top-full mt-1 p-2 bg-white dark:bg-zinc-700 border border-gray-300 dark:border-gray-600 rounded shadow-lg text-xs whitespace-nowrap ${
-            day.isSaturday ? "right-0" : "left-0"
+          className={`absolute z-10 top-full mt-1 p-2 bg-white dark:bg-zinc-700 border border-gray-300 dark:border-gray-600 rounded shadow-lg text-sm whitespace-nowrap ${
+            day.isFriday || day.isSaturday ? "right-0" : "left-0"
           }`}
         >
           {day.holidays.map((holiday) => (
@@ -79,11 +79,16 @@ export function CalendarDay({ day }: CalendarDayProps) {
             </div>
           ))}
           {day.anniversaries.map((anniversary) => (
-            <div key={anniversary.id} className="flex items-center gap-1">
-              <span>🎂</span>
-              <span className="text-gray-900 dark:text-gray-100">
-                {anniversary.name}
-              </span>
+            <div key={anniversary.id} className="mb-1 last:mb-0">
+              <div className="text-gray-500 dark:text-gray-400 text-xs">
+                {anniversary.collectionName}
+              </div>
+              <div className="flex items-center gap-1">
+                <span>🎂</span>
+                <span className="text-gray-900 dark:text-gray-100">
+                  {anniversary.name}
+                </span>
+              </div>
             </div>
           ))}
         </div>

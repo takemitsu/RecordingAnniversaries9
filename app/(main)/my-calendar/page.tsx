@@ -23,6 +23,7 @@ export default async function CalendarPage() {
       id: anniversary.id,
       name: anniversary.name,
       anniversaryDate: anniversary.anniversaryDate,
+      collectionName: collection.name,
     })),
   );
 

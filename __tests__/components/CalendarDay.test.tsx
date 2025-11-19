@@ -12,6 +12,7 @@ describe("CalendarDay", () => {
     day: 15,
     isCurrentMonth: true,
     isToday: false,
+    isFriday: false,
     isSaturday: false,
     isSunday: false,
     holidays: [],
@@ -44,7 +45,12 @@ describe("CalendarDay", () => {
     test("記念日がある日は青いドットインジケーターが表示される", () => {
       const day = createMockDay({
         anniversaries: [
-          { id: 1, name: "誕生日", anniversaryDate: "2025-01-15" },
+          {
+            id: 1,
+            name: "誕生日",
+            anniversaryDate: "2025-01-15",
+            collectionName: "家族",
+          },
         ],
       });
       const { container } = render(<CalendarDay day={day} />);
@@ -57,7 +63,12 @@ describe("CalendarDay", () => {
       const day = createMockDay({
         holidays: [{ date: "2025-01-01", name: "元日" }],
         anniversaries: [
-          { id: 1, name: "誕生日", anniversaryDate: "2025-01-01" },
+          {
+            id: 1,
+            name: "誕生日",
+            anniversaryDate: "2025-01-01",
+            collectionName: "家族",
+          },
         ],
       });
       const { container } = render(<CalendarDay day={day} />);
@@ -99,7 +110,12 @@ describe("CalendarDay", () => {
       const user = userEvent.setup();
       const day = createMockDay({
         anniversaries: [
-          { id: 1, name: "誕生日", anniversaryDate: "2025-01-15" },
+          {
+            id: 1,
+            name: "誕生日",
+            anniversaryDate: "2025-01-15",
+            collectionName: "家族",
+          },
         ],
       });
       render(<CalendarDay day={day} />);
@@ -135,8 +151,18 @@ describe("CalendarDay", () => {
         date: "2025-01-15",
         day: 15,
         anniversaries: [
-          { id: 1, name: "誕生日", anniversaryDate: "2025-01-15" },
-          { id: 2, name: "結婚記念日", anniversaryDate: "2025-01-15" },
+          {
+            id: 1,
+            name: "誕生日",
+            anniversaryDate: "2025-01-15",
+            collectionName: "家族",
+          },
+          {
+            id: 2,
+            name: "結婚記念日",
+            anniversaryDate: "2025-01-15",
+            collectionName: "家族",
+          },
         ],
       });
       render(<CalendarDay day={day} />);
@@ -171,7 +197,12 @@ describe("CalendarDay", () => {
       const day = createMockDay({
         holidays: [{ date: "2025-01-01", name: "元日" }],
         anniversaries: [
-          { id: 1, name: "誕生日", anniversaryDate: "2025-01-01" },
+          {
+            id: 1,
+            name: "誕生日",
+            anniversaryDate: "2025-01-01",
+            collectionName: "家族",
+          },
         ],
       });
       render(<CalendarDay day={day} />);
