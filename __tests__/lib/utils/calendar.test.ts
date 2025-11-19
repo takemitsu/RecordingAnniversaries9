@@ -269,6 +269,81 @@ describe("generateCalendarGrid", () => {
     expect(grid[41].isSaturday).toBe(true);
     expect(grid[41].isCurrentMonth).toBe(false);
   });
+
+  test("過去の年の記念日が今年のカレンダーに年次繰り返しで表示される", () => {
+    // 2020年1月15日の記念日
+    const pastAnniversaries: Anniversary[] = [
+      { id: 1, name: "結婚記念日", anniversaryDate: "2020-01-15" },
+    ];
+
+    // 2025年1月のカレンダーを生成
+    const grid = generateCalendarGrid(2025, 1, [], pastAnniversaries);
+
+    // 2025年1月15日に記念日が表示される
+    const jan15 = grid.find((d) => d.date === "2025-01-15");
+    expect(jan15?.anniversaries).toHaveLength(1);
+    expect(jan15?.anniversaries[0].name).toBe("結婚記念日");
+  });
+
+  test("未来の年の記念日は今年のカレンダーに表示されない", () => {
+    // 2030年1月15日の記念日（未来）
+    const futureAnniversaries: Anniversary[] = [
+      { id: 1, name: "未来の記念日", anniversaryDate: "2030-01-15" },
+    ];
+
+    // 2025年1月のカレンダーを生成
+    const grid = generateCalendarGrid(2025, 1, [], futureAnniversaries);
+
+    // 2025年1月15日に記念日は表示されない
+    const jan15 = grid.find((d) => d.date === "2025-01-15");
+    expect(jan15?.anniversaries).toHaveLength(0);
+  });
+
+  test("記念日の元の年では正しく表示される", () => {
+    // 2020年1月15日の記念日
+    const anniversaries: Anniversary[] = [
+      { id: 1, name: "結婚記念日", anniversaryDate: "2020-01-15" },
+    ];
+
+    // 2020年1月のカレンダーを生成
+    const grid = generateCalendarGrid(2020, 1, [], anniversaries);
+
+    // 2020年1月15日に記念日が表示される
+    const jan15 = grid.find((d) => d.date === "2020-01-15");
+    expect(jan15?.anniversaries).toHaveLength(1);
+    expect(jan15?.anniversaries[0].name).toBe("結婚記念日");
+  });
+
+  test("記念日の年より前の年には表示されない", () => {
+    // 2020年1月15日の記念日
+    const anniversaries: Anniversary[] = [
+      { id: 1, name: "結婚記念日", anniversaryDate: "2020-01-15" },
+    ];
+
+    // 2019年1月のカレンダーを生成
+    const grid = generateCalendarGrid(2019, 1, [], anniversaries);
+
+    // 2019年1月15日に記念日は表示されない
+    const jan15 = grid.find((d) => d.date === "2019-01-15");
+    expect(jan15?.anniversaries).toHaveLength(0);
+  });
+
+  test("複数の過去の記念日が同じ月日に表示される", () => {
+    // 同じ月日で異なる年の複数の記念日
+    const anniversaries: Anniversary[] = [
+      { id: 1, name: "結婚記念日", anniversaryDate: "2020-01-15" },
+      { id: 2, name: "入社記念日", anniversaryDate: "2022-01-15" },
+    ];
+
+    // 2025年1月のカレンダーを生成
+    const grid = generateCalendarGrid(2025, 1, [], anniversaries);
+
+    // 2025年1月15日に両方の記念日が表示される
+    const jan15 = grid.find((d) => d.date === "2025-01-15");
+    expect(jan15?.anniversaries).toHaveLength(2);
+    expect(jan15?.anniversaries[0].name).toBe("結婚記念日");
+    expect(jan15?.anniversaries[1].name).toBe("入社記念日");
+  });
 });
 
 describe("generateYearCalendar", () => {

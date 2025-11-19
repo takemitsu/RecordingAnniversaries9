@@ -34,10 +34,12 @@ export function generateCalendarGrid(
     holidayMap.set(holiday.date, [...existing, holiday]);
   }
 
-  const anniversaryMap = new Map<string, Anniversary[]>();
+  // 記念日を月日（MM-DD）でグループ化（年次繰り返し用）
+  const anniversaryByMonthDay = new Map<string, Anniversary[]>();
   for (const anniversary of anniversaries) {
-    const existing = anniversaryMap.get(anniversary.anniversaryDate) || [];
-    anniversaryMap.set(anniversary.anniversaryDate, [...existing, anniversary]);
+    const monthDay = anniversary.anniversaryDate.slice(5); // "MM-DD"
+    const existing = anniversaryByMonthDay.get(monthDay) || [];
+    anniversaryByMonthDay.set(monthDay, [...existing, anniversary]);
   }
 
   // カレンダーグリッド生成
@@ -47,6 +49,18 @@ export function generateCalendarGrid(
   while (current.isBefore(endDate) || current.isSame(endDate)) {
     const dateStr = current.format("YYYY-MM-DD");
     const dayOfWeek = current.day();
+    const currentMonthDay = dateStr.slice(5); // "MM-DD"
+
+    // その日付に該当する記念日を取得（記念日の年以降のみ）
+    const matchingAnniversaries =
+      anniversaryByMonthDay.get(currentMonthDay)?.filter((anniversary) => {
+        const anniversaryYear = Number.parseInt(
+          anniversary.anniversaryDate.slice(0, 4),
+          10,
+        );
+        const currentYear = Number.parseInt(dateStr.slice(0, 4), 10);
+        return currentYear >= anniversaryYear;
+      }) || [];
 
     grid.push({
       date: dateStr,
@@ -56,7 +70,7 @@ export function generateCalendarGrid(
       isSaturday: dayOfWeek === 6,
       isSunday: dayOfWeek === 0,
       holidays: holidayMap.get(dateStr) || [],
-      anniversaries: anniversaryMap.get(dateStr) || [],
+      anniversaries: matchingAnniversaries,
     });
 
     current = current.add(1, "day");
