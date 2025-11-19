@@ -39,6 +39,16 @@ test.describe("スクリーンショット確認", { tag: "@screenshot" }, () =>
             fullPage: true,
           });
         });
+
+        test("祝日カレンダーページ", async ({ page }) => {
+          await page.goto("/holidays");
+          await page.waitForLoadState("networkidle");
+
+          await page.screenshot({
+            path: "e2e/screenshots/light/holidays-page.png",
+            fullPage: true,
+          });
+        });
       });
 
       test.describe("認証後", () => {
@@ -93,6 +103,16 @@ test.describe("スクリーンショット確認", { tag: "@screenshot" }, () =>
             fullPage: true,
           });
         });
+
+        test("カレンダーページ（祝日+記念日）", async ({ page }) => {
+          await page.goto("/my-calendar");
+          await page.waitForLoadState("networkidle");
+
+          await page.screenshot({
+            path: "e2e/screenshots/light/calendar-page.png",
+            fullPage: true,
+          });
+        });
       });
     });
 
@@ -129,6 +149,16 @@ test.describe("スクリーンショット確認", { tag: "@screenshot" }, () =>
 
           await page.screenshot({
             path: "e2e/screenshots/dark/terms-page.png",
+            fullPage: true,
+          });
+        });
+
+        test("祝日カレンダーページ", async ({ page }) => {
+          await page.goto("/holidays");
+          await page.waitForLoadState("networkidle");
+
+          await page.screenshot({
+            path: "e2e/screenshots/dark/holidays-page.png",
             fullPage: true,
           });
         });
@@ -186,6 +216,16 @@ test.describe("スクリーンショット確認", { tag: "@screenshot" }, () =>
             fullPage: true,
           });
         });
+
+        test("カレンダーページ（祝日+記念日）", async ({ page }) => {
+          await page.goto("/my-calendar");
+          await page.waitForLoadState("networkidle");
+
+          await page.screenshot({
+            path: "e2e/screenshots/dark/calendar-page.png",
+            fullPage: true,
+          });
+        });
       });
     });
   });
@@ -227,6 +267,16 @@ test.describe("スクリーンショット確認", { tag: "@screenshot" }, () =>
 
           await page.screenshot({
             path: "e2e/screenshots/light/mobile/terms-page.png",
+            fullPage: true,
+          });
+        });
+
+        test("祝日カレンダーページ", async ({ page }) => {
+          await page.goto("/holidays");
+          await page.waitForLoadState("networkidle");
+
+          await page.screenshot({
+            path: "e2e/screenshots/light/mobile/holidays-page.png",
             fullPage: true,
           });
         });
@@ -284,6 +334,16 @@ test.describe("スクリーンショット確認", { tag: "@screenshot" }, () =>
             fullPage: true,
           });
         });
+
+        test("カレンダーページ（祝日+記念日）", async ({ page }) => {
+          await page.goto("/my-calendar");
+          await page.waitForLoadState("networkidle");
+
+          await page.screenshot({
+            path: "e2e/screenshots/light/mobile/calendar-page.png",
+            fullPage: true,
+          });
+        });
       });
     });
 
@@ -320,6 +380,16 @@ test.describe("スクリーンショット確認", { tag: "@screenshot" }, () =>
 
           await page.screenshot({
             path: "e2e/screenshots/dark/mobile/terms-page.png",
+            fullPage: true,
+          });
+        });
+
+        test("祝日カレンダーページ", async ({ page }) => {
+          await page.goto("/holidays");
+          await page.waitForLoadState("networkidle");
+
+          await page.screenshot({
+            path: "e2e/screenshots/dark/mobile/holidays-page.png",
             fullPage: true,
           });
         });
@@ -374,6 +444,16 @@ test.describe("スクリーンショット確認", { tag: "@screenshot" }, () =>
 
           await page.screenshot({
             path: "e2e/screenshots/dark/mobile/collection-new.png",
+            fullPage: true,
+          });
+        });
+
+        test("カレンダーページ（祝日+記念日）", async ({ page }) => {
+          await page.goto("/my-calendar");
+          await page.waitForLoadState("networkidle");
+
+          await page.screenshot({
+            path: "e2e/screenshots/dark/mobile/calendar-page.png",
             fullPage: true,
           });
         });
