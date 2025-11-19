@@ -11,6 +11,7 @@ describe("CalendarMonth", () => {
       day: 29,
       isCurrentMonth: false,
       isToday: false,
+      isFriday: false,
       isSaturday: false,
       isSunday: true,
       holidays: [],
@@ -21,6 +22,7 @@ describe("CalendarMonth", () => {
       day: 30,
       isCurrentMonth: false,
       isToday: false,
+      isFriday: false,
       isSaturday: false,
       isSunday: false,
       holidays: [],
@@ -31,6 +33,7 @@ describe("CalendarMonth", () => {
       day: 31,
       isCurrentMonth: false,
       isToday: false,
+      isFriday: false,
       isSaturday: false,
       isSunday: false,
       holidays: [],
@@ -41,6 +44,7 @@ describe("CalendarMonth", () => {
       day: 1,
       isCurrentMonth: true,
       isToday: false,
+      isFriday: false,
       isSaturday: false,
       isSunday: false,
       holidays: [{ date: "2025-01-01", name: "元日" }],
@@ -51,6 +55,7 @@ describe("CalendarMonth", () => {
       day: 2,
       isCurrentMonth: true,
       isToday: false,
+      isFriday: false,
       isSaturday: false,
       isSunday: false,
       holidays: [],
@@ -61,6 +66,7 @@ describe("CalendarMonth", () => {
       day: 3,
       isCurrentMonth: true,
       isToday: false,
+      isFriday: true,
       isSaturday: false,
       isSunday: false,
       holidays: [],
@@ -71,6 +77,7 @@ describe("CalendarMonth", () => {
       day: 4,
       isCurrentMonth: true,
       isToday: false,
+      isFriday: false,
       isSaturday: true,
       isSunday: false,
       holidays: [],
@@ -82,6 +89,7 @@ describe("CalendarMonth", () => {
       day: i + 5,
       isCurrentMonth: i + 5 <= 31,
       isToday: false,
+      isFriday: false,
       isSaturday: false,
       isSunday: false,
       holidays: [] as { date: string; name: string }[],
@@ -89,6 +97,7 @@ describe("CalendarMonth", () => {
         id: number;
         name: string;
         anniversaryDate: string;
+        collectionName: string;
       }[],
     })),
   ];

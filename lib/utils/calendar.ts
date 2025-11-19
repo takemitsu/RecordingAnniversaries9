@@ -67,6 +67,7 @@ export function generateCalendarGrid(
       day: current.date(),
       isCurrentMonth: current.month() + 1 === month,
       isToday: dateStr === today,
+      isFriday: dayOfWeek === 5,
       isSaturday: dayOfWeek === 6,
       isSunday: dayOfWeek === 0,
       holidays: holidayMap.get(dateStr) || [],
