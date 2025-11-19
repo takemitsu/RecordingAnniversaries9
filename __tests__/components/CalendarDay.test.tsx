@@ -29,39 +29,43 @@ describe("CalendarDay", () => {
   });
 
   describe("祝日表示", () => {
-    test("祝日がある日は🎌アイコンが表示される", () => {
+    test("祝日がある日は赤いドットインジケーターが表示される", () => {
       const day = createMockDay({
         holidays: [{ date: "2025-01-01", name: "元日" }],
       });
-      render(<CalendarDay day={day} />);
+      const { container } = render(<CalendarDay day={day} />);
 
-      expect(screen.getByText("🎌")).toBeInTheDocument();
+      const redDot = container.querySelector(".bg-red-500");
+      expect(redDot).toBeInTheDocument();
     });
   });
 
   describe("記念日表示", () => {
-    test("記念日がある日は🎂アイコンが表示される", () => {
+    test("記念日がある日は青いドットインジケーターが表示される", () => {
       const day = createMockDay({
         anniversaries: [
           { id: 1, name: "誕生日", anniversaryDate: "2025-01-15" },
         ],
       });
-      render(<CalendarDay day={day} />);
+      const { container } = render(<CalendarDay day={day} />);
 
-      expect(screen.getByText("🎂")).toBeInTheDocument();
+      const blueDot = container.querySelector(".bg-blue-500");
+      expect(blueDot).toBeInTheDocument();
     });
 
-    test("祝日と記念日が重なる日は両方のアイコンが表示される", () => {
+    test("祝日と記念日が重なる日は両方のドットインジケーターが表示される", () => {
       const day = createMockDay({
         holidays: [{ date: "2025-01-01", name: "元日" }],
         anniversaries: [
           { id: 1, name: "誕生日", anniversaryDate: "2025-01-01" },
         ],
       });
-      render(<CalendarDay day={day} />);
+      const { container } = render(<CalendarDay day={day} />);
 
-      expect(screen.getByText("🎌")).toBeInTheDocument();
-      expect(screen.getByText("🎂")).toBeInTheDocument();
+      const redDot = container.querySelector(".bg-red-500");
+      const blueDot = container.querySelector(".bg-blue-500");
+      expect(redDot).toBeInTheDocument();
+      expect(blueDot).toBeInTheDocument();
     });
   });
 

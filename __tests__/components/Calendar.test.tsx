@@ -92,12 +92,9 @@ describe("Calendar", () => {
       const pcContainer = container.querySelector(".hidden.md\\:block");
       expect(pcContainer).toBeInTheDocument();
 
-      // 祝日アイコン🎌が表示される
-      const holidayIcons = pcContainer?.querySelectorAll("span");
-      const hasHolidayIcon = Array.from(holidayIcons || []).some(
-        (icon) => icon.textContent === "🎌",
-      );
-      expect(hasHolidayIcon).toBe(true);
+      // 祝日の赤いドットインジケーターが表示される
+      const redDots = pcContainer?.querySelectorAll(".bg-red-500");
+      expect(redDots?.length).toBeGreaterThan(0);
     });
   });
 
