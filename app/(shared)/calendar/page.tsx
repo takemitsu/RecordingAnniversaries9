@@ -10,17 +10,16 @@ export default async function HolidaysPage() {
   const holidays: Holiday[] = JSON.parse(fileContent);
 
   return (
-    <div>
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-          日本の祝日カレンダー
-        </h1>
-        <p className="text-gray-600 dark:text-gray-400">
-          内閣府が公開している祝日データを使用しています
-        </p>
-      </div>
+    <div className="pt-2 px-2 md:p-0">
+      <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">
+        カレンダー
+      </h1>
 
       <Calendar holidays={holidays} />
+
+      <p className="text-gray-600 dark:text-gray-400 text-sm mt-6">
+        内閣府が公開している祝日データを使用しています
+      </p>
     </div>
   );
 }

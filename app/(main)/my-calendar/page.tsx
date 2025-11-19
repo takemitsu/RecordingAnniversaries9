@@ -27,16 +27,7 @@ export default async function CalendarPage() {
   );
 
   return (
-    <div>
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-          カレンダー
-        </h1>
-        <p className="text-gray-600 dark:text-gray-400">
-          祝日とあなたの記念日を表示しています
-        </p>
-      </div>
-
+    <div className="pt-2 px-2 md:p-0">
       <Calendar holidays={holidays} anniversaries={anniversaries} />
     </div>
   );
