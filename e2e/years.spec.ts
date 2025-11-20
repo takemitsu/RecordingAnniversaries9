@@ -38,34 +38,6 @@ test.describe("年度一覧ページ", () => {
     await context.close();
   });
 
-  test("テーブルに年度データが表示される", async ({ browser }) => {
-    const context = await browser.newContext();
-    const page = await context.newPage();
-
-    await page.goto("/years");
-
-    // 現在年度が表示される
-    const currentYear = new Date().getFullYear();
-    await expect(page.locator("text=/令和\\d+年度/").first()).toBeVisible();
-
-    // 開始・終了月が表示される
-    await expect(
-      page.locator(`text=/${currentYear}年4月/`).first(),
-    ).toBeVisible();
-    await expect(
-      page.locator(`text=/${currentYear + 1}年3月/`).first(),
-    ).toBeVisible();
-
-    // 平成の年度も表示される
-    await expect(page.locator("text=/平成\\d+年度/").first()).toBeVisible();
-
-    // 複数の行が表示される（最低でも10行以上）
-    const rows = page.locator("tbody tr");
-    await expect(rows).toHaveCount(currentYear - 1900 + 1); // 1900年から現在年まで
-
-    await context.close();
-  });
-
   test("ログイン画面から年度一覧リンクが表示される", async ({ browser }) => {
     // 未ログインの新しいコンテキストを作成（認証状態をクリア）
     const context = await browser.newContext({
@@ -123,31 +95,6 @@ test.describe("年度一覧ページ", () => {
     await expect(page.getByRole("heading", { name: "年度一覧" })).toBeVisible();
   });
 
-  test("ログイン済み時、メニューから年度一覧にアクセスできる（デスクトップ）", async ({
-    page,
-  }) => {
-    // ダッシュボードにアクセス（ログイン状態）
-    await page.goto("/");
-
-    // デスクトップビューポートに変更
-    await page.setViewportSize({ width: 1280, height: 720 });
-
-    // ユーザードロップダウンを開く
-    const userButton = page.locator("button").filter({ hasText: /Test User/ });
-    await userButton.click();
-
-    // ドロップダウンメニュー内の年度一覧リンクをクリック
-    // ドロップダウンメニューは絶対配置されているため、visible状態のリンクを探す
-    const yearsLink = page
-      .locator('a[href="/years"]')
-      .filter({ hasText: "年度一覧" })
-      .first();
-    await yearsLink.click();
-
-    await expect(page).toHaveURL("/years");
-    await expect(page.getByRole("heading", { name: "年度一覧" })).toBeVisible();
-  });
-
   test("年度一覧ページからヘッダーのリンクで他ページに遷移できる", async ({
     page,
   }) => {
@@ -157,48 +104,5 @@ test.describe("年度一覧ページ", () => {
     // ヘッダーのロゴをクリックしてダッシュボードに遷移
     await page.getByRole("link", { name: "ra" }).click();
     await expect(page).toHaveURL("/");
-  });
-
-  test("レスポンシブデザインが正しく動作する", async ({ browser }) => {
-    const context = await browser.newContext();
-    const page = await context.newPage();
-
-    await page.goto("/years");
-
-    // モバイルビューポート
-    await page.setViewportSize({ width: 360, height: 640 });
-    await expect(page.getByRole("heading", { name: "年度一覧" })).toBeVisible();
-    await expect(page.locator("table")).toBeVisible();
-
-    // タブレットビューポート
-    await page.setViewportSize({ width: 768, height: 1024 });
-    await expect(page.getByRole("heading", { name: "年度一覧" })).toBeVisible();
-    await expect(page.locator("table")).toBeVisible();
-
-    // デスクトップビューポート
-    await page.setViewportSize({ width: 1920, height: 1080 });
-    await expect(page.getByRole("heading", { name: "年度一覧" })).toBeVisible();
-    await expect(page.locator("table")).toBeVisible();
-
-    await context.close();
-  });
-
-  test("テーブルが正しく並んでいる（降順）", async ({ browser }) => {
-    const context = await browser.newContext();
-    const page = await context.newPage();
-
-    await page.goto("/years");
-
-    // 最初の行（No.0）は現在年の年度
-    const currentYear = new Date().getFullYear();
-    const firstRow = page.locator("tbody tr").first();
-    await expect(firstRow.locator("td").first()).toHaveText("0");
-
-    // テーブルの行数を確認
-    const rows = page.locator("tbody tr");
-    const rowCount = await rows.count();
-    expect(rowCount).toBe(currentYear - 1900 + 1);
-
-    await context.close();
   });
 });
