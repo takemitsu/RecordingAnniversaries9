@@ -9,7 +9,7 @@ test.describe("カレンダー機能", () => {
       await page.waitForLoadState("networkidle");
 
       await expect(
-        page.getByRole("heading", { name: "日本の祝日カレンダー" }),
+        page.getByRole("heading", { name: "カレンダー", exact: true }),
       ).toBeVisible();
       await expect(
         page.getByText("内閣府が公開している祝日データを使用しています"),
@@ -116,24 +116,26 @@ test.describe("カレンダー機能", () => {
       ).toBeVisible();
     });
 
-    test("祝日のアイコンが表示される", async ({ page }) => {
+    test("祝日のドットインジケーターが表示される", async ({ page }) => {
       await page.goto("/calendar");
       await page.waitForLoadState("networkidle");
 
-      // 1月に元日の🎌アイコンが表示される
-      const januarySection = page.getByText("1月").locator("..");
-      await expect(januarySection.getByText("🎌").first()).toBeVisible();
+      // 祝日の赤いドット（bg-red-500）が表示される
+      await expect(page.locator(".bg-red-500").first()).toBeVisible();
     });
 
     test("祝日のツールチップが表示される", async ({ page }) => {
       await page.goto("/calendar");
       await page.waitForLoadState("networkidle");
 
-      // 祝日アイコン🎌をクリック
-      const holidayIcon = page.getByText("🎌").first();
-      await holidayIcon.click();
+      // 祝日がある日付セルをクリック（赤いドットがある）
+      const holidayButton = page
+        .locator("button", { has: page.locator(".bg-red-500") })
+        .first();
+      await holidayButton.click();
 
-      // ツールチップに「元日」が表示される
+      // ツールチップに🎌と「元日」が表示される
+      await expect(page.getByText("🎌")).toBeVisible();
       await expect(page.getByText("元日")).toBeVisible();
     });
   });
@@ -145,11 +147,10 @@ test.describe("カレンダー機能", () => {
       await page.goto("/my-calendar");
       await page.waitForLoadState("networkidle");
 
+      // PC版: 年次カレンダーのheadingが表示される
+      const currentYear = new Date().getFullYear();
       await expect(
-        page.getByRole("heading", { name: "カレンダー" }).first(),
-      ).toBeVisible();
-      await expect(
-        page.getByText("祝日とあなたの記念日を表示しています"),
+        page.getByRole("heading", { name: `${currentYear}年のカレンダー` }),
       ).toBeVisible();
     });
 
@@ -157,14 +158,13 @@ test.describe("カレンダー機能", () => {
       await page.goto("/my-calendar");
       await page.waitForLoadState("networkidle");
 
-      // 祝日のアイコン
-      await expect(page.getByText("🎌").first()).toBeVisible();
+      // 祝日の赤いドット
+      await expect(page.locator(".bg-red-500").first()).toBeVisible();
 
-      // 記念日のアイコン（テストデータに依存）
-      // ここでは存在確認のみ
-      const cakeIcon = page.getByText("🎂").first();
-      if ((await cakeIcon.count()) > 0) {
-        await expect(cakeIcon).toBeVisible();
+      // 記念日の青いドット（テストデータに依存）
+      const blueDot = page.locator(".bg-blue-500").first();
+      if ((await blueDot.count()) > 0) {
+        await expect(blueDot).toBeVisible();
       }
     });
 
@@ -195,14 +195,15 @@ test.describe("カレンダー機能", () => {
       await page.goto("/my-calendar");
       await page.waitForLoadState("networkidle");
 
-      // 記念日がある日をクリック（テストデータに依存）
-      const cakeButton = page
-        .locator("button", { has: page.getByText("🎂") })
+      // 記念日がある日をクリック（青いドット）
+      const anniversaryButton = page
+        .locator("button", { has: page.locator(".bg-blue-500") })
         .first();
 
-      if ((await cakeButton.count()) > 0) {
-        await cakeButton.click();
-        // ツールチップが表示される（具体的な記念日名はテストデータに依存）
+      if ((await anniversaryButton.count()) > 0) {
+        await anniversaryButton.click();
+        // ツールチップに🎂と記念日が表示される
+        await expect(page.getByText("🎂")).toBeVisible();
         await expect(page.locator(".absolute.z-10")).toBeVisible();
       }
     });
@@ -216,7 +217,7 @@ test.describe("カレンダー機能", () => {
       await page.waitForLoadState("networkidle");
 
       await expect(
-        page.getByRole("heading", { name: "日本の祝日カレンダー" }),
+        page.getByRole("heading", { name: "カレンダー", exact: true }),
       ).toBeVisible();
     });
 
