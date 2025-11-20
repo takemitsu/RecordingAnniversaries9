@@ -80,7 +80,7 @@ function getTodayForHeader(): string {
   const dateTimeFormat = now.format("YYYY-MM-DD (dd) HH:mm");
   const waFormat = japanDate(now.format("YYYY-MM-DD"), true);
 
-  return `${dateTimeFormat}（${waFormat}）`;
+  return `${dateTimeFormat} (${waFormat})`;
 }
 
 export { japanDate, getAges, getTodayForHeader };
