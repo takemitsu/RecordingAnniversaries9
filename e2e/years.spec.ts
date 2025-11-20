@@ -66,18 +66,23 @@ test.describe("年度一覧ページ", () => {
     await context.close();
   });
 
-  test.skip("ログイン画面から年度一覧リンクが表示される", async ({
-    browser,
-  }) => {
-    // 未ログインの新しいコンテキストを作成
-    const context = await browser.newContext();
+  test("ログイン画面から年度一覧リンクが表示される", async ({ browser }) => {
+    // 未ログインの新しいコンテキストを作成（認証状態をクリア）
+    const context = await browser.newContext({
+      storageState: { cookies: [], origins: [] },
+    });
     const page = await context.newPage();
 
     // ログイン画面にアクセス
     await page.goto("/auth/signin");
 
     // ログイン画面が表示されるまで待つ
-    await expect(page.getByRole("heading", { name: "ログイン" })).toBeVisible();
+    await expect(
+      page.getByRole("heading", {
+        name: "Recording Anniversaries",
+        exact: true,
+      }),
+    ).toBeVisible();
 
     // 年度一覧リンクが表示される
     const yearsLink = page.getByRole("link", { name: "年度一覧を見る" });
