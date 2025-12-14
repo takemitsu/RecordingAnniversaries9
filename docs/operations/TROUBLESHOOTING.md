@@ -196,6 +196,49 @@ df -h
 
 ## PM2関連のトラブル
 
+### 問題: アプリがフリーズして503エラーが発生する
+
+PM2が `online` と表示しているのに、アプリが応答しない（503エラー）場合。
+
+#### 症状
+
+- `pm2 list` では `online` と表示
+- `curl http://localhost:3000` がタイムアウト
+- メモリ使用量が異常に低い（通常100MB以上使うところ30-40MB程度）
+- `pm2 logs` が空、または古いログのみ
+
+#### 原因
+
+プロセスがフリーズ（デッドロック、メモリ逼迫等）しているが、プロセス自体は生存している状態。PM2はこの状態を検知できない。
+
+#### 対処
+
+```bash
+# 1. 再起動
+pm2 restart ra9-app
+
+# 2. 確認
+curl http://localhost:3000
+```
+
+#### 予防策（推奨設定）
+
+```bash
+pm2 delete ra9-app
+pm2 start npm --name ra9-app \
+  --cron-restart="0 4 * * *" \
+  --max-memory-restart 512M \
+  -- start
+pm2 save
+```
+
+- `--cron-restart="0 4 * * *"`: 毎日午前4時に自動再起動
+- `--max-memory-restart 512M`: メモリ超過時に自動再起動
+
+詳細は [OPERATIONS.md](./OPERATIONS.md#推奨設定本番環境) を参照。
+
+---
+
 ### 問題: PM2でアプリケーションが自動起動しない
 
 サーバー再起動後、アプリケーションが自動的に起動しない場合。
