@@ -362,7 +362,7 @@ sequenceDiagram
 - **TypeScript 5**: Strict mode
 
 ### バックエンド
-- **Node.js 20.19.5**: ランタイム
+- **Node.js 24.x（Maintenance LTS、EOL 2028-04-30）**: ランタイム（NodeSource `node_24.x` で管理）
 - **Drizzle ORM**: 型安全なORМ、MySQL統合
 - **Auth.js v5**: Google OAuth、Passkey認証
 - **Zod**: スキーマバリデーション
@@ -371,8 +371,8 @@ sequenceDiagram
 - **さくらVPS**: 仮想プライベートサーバー
 - **Ubuntu 24.04.3 LTS**: OS
 - **MySQL 8.0.43**: リレーショナルデータベース
-- **Nginx 1.28.0**: リバースプロキシ、SSL終端
-- **PM2 6.0.13**: プロセス管理
+- **Nginx 1.30.x**: リバースプロキシ、SSL終端（`127.0.0.1:3000` へ proxy_pass）
+- **PM2 7.x**: プロセス管理
 - **Let's Encrypt**: SSL/TLS証明書
 
 ---

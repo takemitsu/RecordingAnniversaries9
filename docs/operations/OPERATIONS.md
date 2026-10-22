@@ -161,6 +161,71 @@ pm2 monit
 
 ---
 
+## 月次メンテナンス（OS / Node.js / PM2 / 依存パッケージ）
+
+自動更新は使わない（意図しないタイミングで落ちるのを避けるため）。月に 1 回、以下を手動で回す。
+2026-10-22 時点の実績: 3 月以降 apt upgrade が止まっていてカーネルが 57 パッチ遅れ、Node 20 が EOL のまま稼働していた。
+
+### 1. OS パッケージ更新
+
+```bash
+sudo apt update
+apt list --upgradable          # 何が上がるか先に見る
+sudo apt upgrade
+```
+
+- 末尾に `Pending kernel upgrade!` が出たら `sudo reboot`。再起動後に `uname -r`、`pm2 ls`、`curl -sI https://ra.takemitsu.net | head -1` で確認する
+- needrestart が `mysql.service` を再起動することがある。アプリは自動再接続するが、200 が返ることを確認する
+- `nodejs` が更新された場合（NodeSource のパッチ版）は `pm2 restart ra9-app` で新バイナリに載せ替える
+
+### 2. Node.js メジャーバージョン切り替え（EOL が近づいたら）
+
+Node.js は NodeSource の apt リポジトリ（`/etc/apt/sources.list.d/nodesource.list`）で管理している。
+各ラインの EOL は https://nodejs.org/en/about/previous-releases で確認する。
+
+```bash
+# 現状確認
+apt policy nodejs | head -3
+cat /etc/apt/sources.list.d/nodesource.list
+
+# リポジトリを差し替えて入れ直す（例: 24.x → 26.x）
+curl -fsSL https://deb.nodesource.com/setup_26.x -o /tmp/nodesource_setup.sh
+sudo -E bash /tmp/nodesource_setup.sh
+sudo apt install -y nodejs
+node -v
+```
+
+切り替え後は **必ず PM2 を入れ直し、systemd ユニットを再登録する**（グローバル npm パッケージと起動ユニットは Node のパスに依存する）。
+
+```bash
+pm2 save                              # 先に現在のプロセスリストを保存
+sudo npm install -g pm2@latest
+pm2 update                            # 新しい Node でデーモンを再起動
+pm2 ls                                # ← ここで空になっていたら pm2 resurrect
+pm2 unstartup systemd                 # 表示された sudo コマンドを実行
+pm2 startup systemd                   # 表示された sudo コマンドを実行
+pm2 save
+curl -sI https://ra.takemitsu.net | head -1
+```
+
+**注意**: 2026-10-22 の PM2 6 → 7 更新時、`pm2 update` 後に新デーモンがプロセスを引き継がず約 1 分半 502 になった。`pm2 resurrect` で `~/.pm2/dump.pm2` から復旧できる。`pm2 save` は管理プロセスが空のときは上書きしないので dump は残る。
+
+アプリ側は N-API ベースのため Node メジャー変更後もそのまま起動するが、念のため次のデプロイ（`npm ci` → build）を早めに走らせる。
+`.github/workflows/deploy.yml` の `node-version` も本番と揃える。
+
+### 3. 依存パッケージの脆弱性確認
+
+Dependabot は使っていない（通知メールを避けるため）。ローカルで実行する。
+
+```bash
+npm audit
+npm audit fix              # --force は使わない（breaking change が入る）
+```
+
+`--force` が必要と出たものは個別に判断する。2026-10-22 時点の据え置き: `@simplewebauthn/server`（next-auth の peer が ^9）、`csv-parse`（祝日更新スクリプトのみ）、`drizzle-kit` 内の `esbuild`（dev 専用）。
+
+---
+
 ## 関連ドキュメント
 
 - [DEPLOYMENT.md](../deployment/DEPLOYMENT.md) - デプロイ手順

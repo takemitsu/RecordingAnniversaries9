@@ -24,7 +24,7 @@
 - ✅ レスポンシブデザイン（モバイルファースト）
 - ✅ ダークモード対応
 - ✅ **テスト実装完了**
-  - **総計: 200テスト全通過**（Unit 55 + Integration 33 + Component 88 + E2E 24）
+  - **総計: 270テスト全通過**（Vitest 246 + E2E 24、2026-10-22 時点）
   - 詳細は [docs/TESTING.md](docs/TESTING.md) 参照
 - ✅ **本番環境デプロイ完了**（2025-11-11）
   - さくらVPS（Ubuntu 24.04.3 LTS）
@@ -73,7 +73,7 @@ DATABASE_URL="mysql://user:password@127.0.0.1:3306/database"
 TEST_DATABASE_URL="mysql://user:password@127.0.0.1:3306/ra9_test"
 
 # Auth.js
-AUTH_SECRET="LiLwuByyqzL8IX2EyVtFSlpzuaQMHg3YFSxgMP9kZmQ="
+AUTH_SECRET="<openssl rand -base64 32 で生成した値>"
 AUTH_URL="http://localhost:3000"
 
 # Google OAuth
@@ -167,7 +167,7 @@ open coverage/index.html
 
 ### テスト構成
 
-**総計: 200テスト全通過 ✅**
+**総計: 270テスト全通過 ✅**（Vitest 246 + E2E 24）
 
 詳細は [docs/TESTING.md](docs/TESTING.md) 参照。
 

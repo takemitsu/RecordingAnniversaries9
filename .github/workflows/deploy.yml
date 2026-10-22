@@ -108,7 +108,8 @@ jobs:
           echo "✅ All required secrets are set"
 
       - name: Deploy to VPS
-        uses: appleboy/ssh-action@master
+        # VPS の SSH 鍵を渡す action なのでコミット SHA で固定する（@master は上流改ざん時に本番へ波及する）
+        uses: appleboy/ssh-action@0ff4204d59e8e51228ff73bce53f80d53301dee2 # v1.2.5
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
