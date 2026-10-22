@@ -31,7 +31,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
           cache: 'npm'
 
       - name: Install dependencies
@@ -125,7 +125,9 @@ jobs:
             cd ~/RecordingAnniversaries9
 
             # Gitから最新版を取得
+            # 手動変更（package.json等）が残っていると pull が失敗するため、先に破棄する
             echo "📦 Pulling latest code..."
+            git checkout -- .
             git pull origin main
 
             # 依存関係を更新（VPSでビルドするためdevDependencies含む）
