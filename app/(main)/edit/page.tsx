@@ -6,7 +6,7 @@ import { EditPageClient } from "./EditPageClient";
 export default async function EditPage() {
   const session = await auth();
 
-  if (!session) {
+  if (!session?.user) {
     redirect("/auth/signin");
   }
 

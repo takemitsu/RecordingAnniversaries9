@@ -10,7 +10,7 @@ export default async function NewAnniversaryPage({
 }) {
   const session = await auth();
 
-  if (!session) {
+  if (!session?.user) {
     redirect("/auth/signin");
   }
 

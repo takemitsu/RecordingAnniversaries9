@@ -7,7 +7,7 @@ import { CollectionCard } from "@/components/CollectionCard";
 export default async function HomePage() {
   const session = await auth();
 
-  if (!session) {
+  if (!session?.user) {
     redirect("/auth/signin");
   }
 

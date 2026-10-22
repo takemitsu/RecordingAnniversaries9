@@ -11,7 +11,7 @@ export default async function EditAnniversaryPage({
 }) {
   const session = await auth();
 
-  if (!session) {
+  if (!session?.user) {
     redirect("/auth/signin");
   }
 

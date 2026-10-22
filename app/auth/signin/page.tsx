@@ -14,7 +14,7 @@ export default async function SignInPage() {
   const session = await auth();
 
   // 既にログイン済みの場合はメインページへ
-  if (session) {
+  if (session?.user) {
     redirect("/");
   }
 

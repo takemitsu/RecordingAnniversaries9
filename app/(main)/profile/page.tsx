@@ -7,7 +7,7 @@ import { ProfileForm } from "./ProfileForm";
 export default async function ProfilePage() {
   const session = await auth();
 
-  if (!session || !session.user) {
+  if (!session?.user) {
     redirect("/auth/signin");
   }
 
