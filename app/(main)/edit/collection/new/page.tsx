@@ -5,7 +5,7 @@ import { CollectionForm } from "@/components/forms/CollectionForm";
 export default async function NewCollectionPage() {
   const session = await auth();
 
-  if (!session) {
+  if (!session?.user) {
     redirect("/auth/signin");
   }
 

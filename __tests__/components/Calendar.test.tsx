@@ -5,9 +5,12 @@ import { Calendar } from "@/components/Calendar";
 import type { Holiday } from "@/lib/types/calendar";
 
 describe("Calendar", () => {
+  // Calendar は現在年を初期表示するため、祝日は現在年に合わせて生成する
+  // （固定年にすると年が変わった時点でテストが壊れる）
+  const currentYear = new Date().getFullYear();
   const mockHolidays: Holiday[] = [
-    { date: "2025-01-01", name: "元日" },
-    { date: "2025-01-13", name: "成人の日" },
+    { date: `${currentYear}-01-01`, name: "元日" },
+    { date: `${currentYear}-05-03`, name: "憲法記念日" },
   ];
 
   describe("PC版（年次カレンダー）", () => {

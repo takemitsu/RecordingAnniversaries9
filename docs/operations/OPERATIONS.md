@@ -107,6 +107,26 @@ tar -czf ~/backups/ra9_app_$(date +%Y%m%d).tar.gz ~/recording-anniversaries9 --e
 
 ## PM2プロセス管理
 
+### 推奨設定（本番環境）
+
+本番環境では以下のオプションを付けてPM2を起動する：
+
+```bash
+pm2 delete ra9-app  # 既存プロセスがあれば削除
+pm2 start npm --name ra9-app \
+  --cron-restart="0 4 * * *" \
+  --max-memory-restart 512M \
+  -- start
+pm2 save
+```
+
+| オプション | 説明 |
+|-----------|------|
+| `--cron-restart="0 4 * * *"` | 毎日午前4時に自動再起動（フリーズ対策） |
+| `--max-memory-restart 512M` | メモリ512MB超過で自動再起動 |
+
+**注意**: PM2はプロセスがフリーズした状態（応答しないがプロセスは生存）を検知できない。定期再起動で予防する。
+
 ### 基本操作
 
 ```bash
