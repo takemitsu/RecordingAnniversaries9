@@ -11,11 +11,11 @@
 - モダンな技術スタック（App Router, Server Actions, Auth.js v5, React 19）
 
 ### 技術スタック
-- **Next.js 16.0.1** - App Router, Turbopack
+- **Next.js 16.4.2** - App Router, Turbopack
 - **React 19.2.0** - useActionState統合
 - **TypeScript 5** - Strict mode
-- **Auth.js v5 (next-auth@beta.30)** - 認証
-- **Drizzle ORM 0.44** - データベース接続
+- **Auth.js v5 (next-auth@beta.32)** - 認証
+- **Drizzle ORM 0.45** - データベース接続
 - **MySQL 8** - データベース
 - **Zod 4.1** - スキーマバリデーション
 - **Tailwind CSS v4** - スタイリング
@@ -308,7 +308,7 @@ Users (ユーザー)
   - Playwright使用、Auth.js Database strategy対応
   - Collections/Anniversaries CRUD、Dashboard、Profile、Passkey UI、Accessibility
   - Testing Trophy理論準拠（E2E: 12%、理想値5-10%を少し超過）
-- **総計**: 200テスト全通過 ✅
+- **総計**: 270テスト（Vitest 246 + E2E 24）✅ ※2026-10-22 時点。Vitest の件数は `npm test` の出力が正
 
 ### デプロイメント
 - ✅ **本番環境デプロイ完了**（2025-11-11）
@@ -319,15 +319,18 @@ Users (ユーザー)
   - **全機能動作確認済み**: Google OAuth、Passkey、CRUD操作、記念日まであと何日、和暦表示
 - ✅ **CI/CD構築完了**（2025-11-12）
   - GitHub Actions自動デプロイ（`.github/workflows/deploy.yml`）
-  - Lint/Type Check/Tests（176テスト）自動実行
+  - Lint/Type Check/Tests（Vitest 全件）自動実行
   - ビルド成功確認
   - mainブランチへのpushで自動デプロイ
   - **初回デプロイ成功**：所要時間2m 42s（CI: 1m30s, Deploy: 1m7s）
   - デプロイ専用SSH鍵（ed25519）使用
   - GitHub Secrets管理（7つ）
-- ✅ **セキュリティ自動化**
-  - Dependabot alerts 有効化（脆弱性の自動検知）
-  - Dependabot security updates 有効化（セキュリティ修正PRの自動作成）
+- ⚠️ **脆弱性検知は手動**（Dependabot は通知メールを避けるため未使用）
+  - 月次メンテナンス時に `npm audit` を実行して確認する（[OPERATIONS.md](docs/operations/OPERATIONS.md) 参照）
+- ✅ **本番ランタイム更新**（2026-10-22）
+  - Node.js 20（EOL）→ 24.22.1（NodeSource `node_24.x`）、PM2 6 → 7、カーネル更新・再起動
+  - デプロイワークフローの `appleboy/ssh-action` をコミット SHA 固定、Node 24 に統一
+  - `next start -H 127.0.0.1` で 3000 番を loopback のみに束縛、Nginx は `127.0.0.1:3000` へ proxy
 - ✅ **本番環境強化完了**（2025-11-12）
   - ログローテーション設定（7日分保持、自動圧縮）
   - Nginxセキュリティヘッダー追加（HSTS, X-Frame-Options, X-Content-Type-Options）
@@ -366,7 +369,7 @@ DATABASE_URL="mysql://user:password@127.0.0.1:3306/database"
 TEST_DATABASE_URL="mysql://user:password@127.0.0.1:3306/ra9_test"
 
 # Auth.js
-AUTH_SECRET="LiLwuByyqzL8IX2EyVtFSlpzuaQMHg3YFSxgMP9kZmQ=" # 生成済み
+AUTH_SECRET="<openssl rand -base64 32 で生成した値>"
 AUTH_URL="http://localhost:3000"
 
 # Google OAuth
@@ -407,7 +410,7 @@ npm run lint
 npm run format
 
 # テスト
-npm test              # Unit/Integration/Component テスト（176テスト）
+npm test              # Unit/Integration/Component テスト（246テスト）
 npm run test:ui       # Vitest UI（ブラウザで結果確認）
 npm run test:coverage # カバレッジレポート生成
 npm run test:e2e      # E2Eテスト（24テスト、Playwright）
@@ -434,7 +437,7 @@ npm run lint
 npx tsc --noEmit
 
 # 3. 全テスト実行
-npm test              # Unit/Integration/Component (176テスト)
+npm test              # Unit/Integration/Component (246テスト)
 npm run test:e2e      # E2E (20テスト、スクリーンショット除外)
 
 # 4. ビルド確認

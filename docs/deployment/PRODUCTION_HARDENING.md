@@ -74,7 +74,7 @@ server {
     server_name ra.takemitsu.net;
 
     location / {
-        proxy_pass http://localhost:3000;
+        proxy_pass http://127.0.0.1:3000;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection 'upgrade';
@@ -152,7 +152,7 @@ limit_req_zone $binary_remote_addr zone=ra9_api_limit:10m rate=50r/s;
 # ra.conf の location /api/ に追加
 location /api/ {
     limit_req zone=ra9_api_limit burst=20 nodelay;
-    proxy_pass http://localhost:3000;
+    proxy_pass http://127.0.0.1:3000;
     # ... 他のproxy設定 ...
 }
 ```
@@ -167,7 +167,7 @@ location /api/ {
 
 ```nginx
 location /_next/static/ {
-    proxy_pass http://localhost:3000;
+    proxy_pass http://127.0.0.1:3000;
     expires 1y;
     add_header Cache-Control "public, immutable";
 }

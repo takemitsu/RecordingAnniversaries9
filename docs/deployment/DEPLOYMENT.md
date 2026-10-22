@@ -27,11 +27,11 @@ Recording Anniversaries 9 を既存のさくらVPS環境にデプロイする手
 以下の環境が既にセットアップ済みであることを前提とします：
 
 ```
-- OS: Ubuntu 24.04.3 LTS
-- Node.js: v20.19.5
-- npm: 10.8.2
-- MySQL: 8.0.43
-- nginx: 1.28.0 (stable)
+- OS: Ubuntu 24.04 LTS
+- Node.js: v24.x（NodeSource node_24.x。2026-10-22 に v20 から切り替え。CI の node-version と揃える）
+- npm: Node.js 同梱
+- MySQL: 8.0.x
+- nginx: 1.30.x
 - 既存サービス: ra8 (ra.takemitsu.net), maji-kichi-meshi など
 ```
 
@@ -245,7 +245,8 @@ server {
     server_name ra.takemitsu.net;
 
     location / {
-        proxy_pass http://localhost:3000;
+        # Next.js は -H 127.0.0.1 で loopback のみ待ち受けるため、localhost（::1 を先に解決する場合がある）ではなく IP で指定
+        proxy_pass http://127.0.0.1:3000;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection 'upgrade';
