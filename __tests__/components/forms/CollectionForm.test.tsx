@@ -154,6 +154,7 @@ describe("CollectionForm", () => {
         back: vi.fn(),
         forward: vi.fn(),
         prefetch: vi.fn(),
+        bfcacheId: "test",
       } as ReturnType<typeof useRouter>;
       vi.mocked(useRouter).mockReturnValue(mockRouter);
       mockUseActionState.mockReturnValue([null, vi.fn(), false]);
